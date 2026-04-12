@@ -1,4 +1,4 @@
-"""Dashboard backend app — summary, runs list, run detail, and chart endpoints.
+"""Dashboard backend app — API plus same-port static serving.
 
 Usage:
     uv run uvicorn scripts.dashboard.app:app --port 9999
@@ -20,7 +20,8 @@ from typing import Any
 
 import polars as pl
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .loader import load_runs
 
@@ -28,12 +29,18 @@ from .loader import load_runs
 # Repo root is two levels above this file: scripts/dashboard/app.py
 # ---------------------------------------------------------------------------
 _REPO_ROOT = Path(__file__).resolve().parents[2]
+_STATIC_DIR = _REPO_ROOT / "scripts" / "dashboard" / "static"
+_STATIC_ASSETS_DIR = _STATIC_DIR / "assets"
+_STATIC_INDEX = _STATIC_DIR / "index.html"
 
 app = FastAPI(title="AISkills Telemetry Dashboard", version="0.1.0")
 
 # Cache loaded at module import so repeated requests are cheap.
 # In the final boot flow (SOW_0026) this will be refreshed on demand.
 _df: pl.DataFrame = load_runs(_REPO_ROOT)
+
+if _STATIC_ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=_STATIC_ASSETS_DIR), name="assets")
 
 
 # ---------------------------------------------------------------------------
@@ -346,3 +353,21 @@ def get_duration_chart(
         "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
         "points": points,
     })
+
+
+def _serve_index() -> FileResponse:
+    if not _STATIC_INDEX.exists():
+        raise HTTPException(status_code=503, detail="dashboard static assets are not built yet")
+    return FileResponse(_STATIC_INDEX)
+
+
+@app.get("/")
+def get_dashboard_index() -> FileResponse:
+    return _serve_index()
+
+
+@app.get("/{full_path:path}")
+def get_dashboard_spa(full_path: str) -> FileResponse:
+    if full_path.startswith(("api/", "docs", "redoc", "openapi.json", "assets/")):
+        raise HTTPException(status_code=404, detail="not found")
+    return _serve_index()
