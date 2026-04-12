@@ -17,6 +17,9 @@ RUNS_SCHEMA: dict[str, pl.DataType] = {
     "skill": pl.Utf8,
     "plan": pl.Utf8,
     "sow": pl.Utf8,
+    "sow_file": pl.Utf8,
+    "project_name": pl.Utf8,
+    "project_path": pl.Utf8,
     "task_type": pl.Utf8,
     "intent": pl.Utf8,
     # --- timing ---
@@ -77,6 +80,9 @@ class RunRecord(dict):  # type: ignore[type-arg]
     skill: Optional[str]
     plan: Optional[str]
     sow: Optional[str]
+    sow_file: Optional[str]
+    project_name: Optional[str]
+    project_path: Optional[str]
     task_type: Optional[str]
     intent: Optional[str]
     # timing

@@ -14,6 +14,8 @@
         <thead>
           <tr>
             <th>Started</th>
+            <th>Project</th>
+            <th>SOW file</th>
             <th>Skill</th>
             <th>Type</th>
             <th>State</th>
@@ -31,6 +33,8 @@
             @click="selectRun(row.run_id)"
           >
             <td class="cell-mono">{{ fmtTime(row.started_at) }}</td>
+            <td :title="row.project_path || ''">{{ shortName(row.project_name) }}</td>
+            <td :title="row.sow_file || ''">{{ fileName(row.sow_file) }}</td>
             <td>{{ row.skill || '—' }}</td>
             <td>{{ row.task_type || '—' }}</td>
             <td>
@@ -108,6 +112,16 @@ function fmtNum(v) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
   if (v >= 1_000) return `${(v / 1_000).toFixed(1)}k`
   return String(v)
+}
+
+function shortName(v) {
+  return v || '—'
+}
+
+function fileName(v) {
+  if (!v) return '—'
+  const parts = String(v).split('/')
+  return parts[parts.length - 1] || v
 }
 </script>
 

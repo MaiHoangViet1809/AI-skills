@@ -38,6 +38,18 @@ def staging_path(repo_root: Path, run_id: str) -> Path:
     return ensure_logs_dir(repo_root) / f"telemetry-run-{run_id}.json"
 
 
+def resolve_sow_file(repo_root: Path, sow: Optional[str]) -> Optional[str]:
+    if not sow:
+        return None
+    candidates = [
+        *sorted((repo_root / "plan_todo").glob(f"{sow}*.md")),
+        *sorted((repo_root / "plan_todo" / "finished").glob(f"{sow}*.md")),
+    ]
+    if not candidates:
+        return None
+    return str(candidates[0].resolve())
+
+
 def run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["git", "-C", str(repo_root), *args],
@@ -115,9 +127,12 @@ def start_hook(args: argparse.Namespace) -> int:
     record = {
         "run_id": run_id,
         "repo_root": str(repo_root),
+        "project_name": repo_root.name,
+        "project_path": str(repo_root),
         "skill": skill,
         "plan": args.plan,
         "sow": args.sow,
+        "sow_file": resolve_sow_file(repo_root, args.sow),
         "task_type": args.task_type,
         "intent": args.intent,
         "started_at": started_at,
@@ -330,6 +345,9 @@ def finish_hook(args: argparse.Namespace) -> int:
         "skill": record.get("skill"),
         "plan": record.get("plan"),
         "sow": record.get("sow"),
+        "sow_file": record.get("sow_file"),
+        "project_name": record.get("project_name"),
+        "project_path": record.get("project_path"),
         "task_type": record.get("task_type"),
         "intent": record.get("intent"),
         "started_at": record["started_at"],

@@ -21,16 +21,39 @@ def _pick(result: dict[str, Any] | None, payload: dict[str, Any], key: str) -> A
     return payload.get(key)
 
 
+def _resolve_sow_file(repo_root: Path, sow: str | None) -> str | None:
+    if not sow:
+        return None
+    candidates = [
+        *sorted((repo_root / "plan_todo").glob(f"{sow}*.md")),
+        *sorted((repo_root / "plan_todo" / "finished").glob(f"{sow}*.md")),
+    ]
+    if not candidates:
+        return None
+    return str(candidates[0].resolve())
+
+
 def _normalize_run(path: Path) -> RunRecord:
     payload = _read_json(path)
     result = payload.get("result") if isinstance(payload.get("result"), dict) else None
     anomalies = result.get("anomaly_flags") if result else None
+    repo_root_value = payload.get("repo_root")
+    repo_root = Path(str(repo_root_value)).resolve() if repo_root_value else None
+    sow = _pick(result, payload, "sow")
+    sow_file = _pick(result, payload, "sow_file")
+    if not sow_file and repo_root:
+        sow_file = _resolve_sow_file(repo_root, sow)
+    project_name = _pick(result, payload, "project_name") or (repo_root.name if repo_root else None)
+    project_path = _pick(result, payload, "project_path") or (str(repo_root) if repo_root else None)
 
     record: RunRecord = {
         "run_id": _pick(result, payload, "run_id"),
         "skill": _pick(result, payload, "skill"),
         "plan": _pick(result, payload, "plan"),
-        "sow": _pick(result, payload, "sow"),
+        "sow": sow,
+        "sow_file": sow_file,
+        "project_name": project_name,
+        "project_path": project_path,
         "task_type": _pick(result, payload, "task_type"),
         "intent": _pick(result, payload, "intent"),
         "started_at": _pick(result, payload, "started_at"),
