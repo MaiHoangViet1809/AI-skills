@@ -2,15 +2,27 @@
   <div class="chart-wrap">
     <div class="chart-head">
       <h3 class="chart-title">Token Activity</h3>
-      <div class="mode-toggle">
-        <button
-          v-for="option in metricModes"
-          :key="option"
-          :class="['mode-btn', { active: mode === option }]"
-          @click="mode = option"
-        >
-          {{ option }}
-        </button>
+      <div class="chart-controls">
+        <div class="window-toggle">
+          <button
+            v-for="option in heatmapWindows"
+            :key="option"
+            :class="['mode-btn', { active: heatmapWindow === option }]"
+            @click="heatmapWindow = option"
+          >
+            {{ option }}
+          </button>
+        </div>
+        <div class="mode-toggle">
+          <button
+            v-for="option in metricModes"
+            :key="option"
+            :class="['mode-btn', { active: mode === option }]"
+            @click="mode = option"
+          >
+            {{ option }}
+          </button>
+        </div>
       </div>
     </div>
     <div v-if="error" class="chart-error">{{ error }}</div>
@@ -79,7 +91,9 @@ const loading = ref(true)
 const error = ref(null)
 const empty = ref(false)
 const mode = ref('total')
+const heatmapWindow = ref('365d')
 const metricModes = ['total', 'codex', 'claude']
+const heatmapWindows = ['30d', '90d', '365d']
 const response = ref({ days: [], max_total_tokens: 0, max_codex_tokens: 0, max_claude_tokens: 0 })
 const weekdayLabels = [
   { text: 'Mon', row: 2 },
@@ -215,7 +229,10 @@ async function load() {
   error.value = null
   empty.value = false
   try {
-    const res = await fetchActivityChart(filters)
+    const res = await fetchActivityChart({
+      ...filters,
+      window: heatmapWindow.value,
+    })
     response.value = res
     empty.value = res.days.length === 0
   } catch (e) {
@@ -227,6 +244,7 @@ async function load() {
 
 onMounted(load)
 watch(filters, load, { deep: true })
+watch(heatmapWindow, load)
 </script>
 
 <style scoped>
@@ -247,6 +265,14 @@ watch(filters, load, { deep: true })
   gap: 0.75rem;
 }
 
+.chart-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .chart-title {
   font-size: 0.7rem;
   font-weight: 600;
@@ -256,6 +282,11 @@ watch(filters, load, { deep: true })
 }
 
 .mode-toggle {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.window-toggle {
   display: flex;
   gap: 0.35rem;
 }
@@ -374,5 +405,12 @@ watch(filters, load, { deep: true })
   color: var(--danger);
   font-size: 0.8rem;
   padding: 0.5rem 0;
+}
+
+@media (max-width: 900px) {
+  .chart-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 </style>
