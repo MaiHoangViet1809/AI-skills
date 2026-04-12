@@ -185,7 +185,7 @@ function heatColor(ratio) {
 
 function cellColor(cell) {
   if (cell.outside) return 'transparent'
-  if (isEmptyCell(cell)) return 'transparent'
+  if (isEmptyCell(cell)) return '#ebedf0'
   const max = maxMetricValue()
   const value = metricValue(cell)
   return heatColor(max > 0 ? value / max : 0)
@@ -338,8 +338,8 @@ watch(filters, load, { deep: true })
   width: 12px;
   height: 12px;
   border-radius: 2px;
-  background: #21262d;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #ebedf0;
+  border: 1px solid rgba(27, 31, 35, 0.06);
 }
 
 .day-cell.outside {
@@ -347,7 +347,7 @@ watch(filters, load, { deep: true })
 }
 
 .day-cell.empty {
-  border-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(27, 31, 35, 0.06);
 }
 
 .legend-row {
