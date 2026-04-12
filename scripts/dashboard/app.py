@@ -1,7 +1,15 @@
-"""Dashboard backend app — summary and runs list endpoints.
+"""Dashboard backend app — summary, runs list, run detail, and chart endpoints.
 
 Usage:
     uv run uvicorn scripts.dashboard.app:app --port 9999
+
+Endpoints
+---------
+GET /api/summary          – aggregate stats for a time window
+GET /api/runs             – paginated run list
+GET /api/runs/{run_id}    – single run detail
+GET /api/charts/activity  – runs-over-time bucketed series
+GET /api/charts/duration  – per-run duration time series
 """
 
 from __future__ import annotations
@@ -11,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import polars as pl
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from .loader import load_runs
@@ -183,4 +191,158 @@ def get_runs(
         "offset": offset,
         "limit": limit,
         "runs": rows,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Bucket helpers for activity chart
+# ---------------------------------------------------------------------------
+_BUCKET_MAP: dict[str, str] = {
+    "1h":  "15m",
+    "6h":  "15m",
+    "12h": "1h",
+    "24h": "1h",
+    "2d":  "4h",
+    "7d":  "4h",
+    "30d": "1d",
+    "all": "1d",
+}
+
+_BUCKET_SECONDS: dict[str, int] = {
+    "15m": 15 * 60,
+    "1h":  60 * 60,
+    "4h":  4 * 60 * 60,
+    "1d":  24 * 60 * 60,
+}
+
+
+def _bucket_label(started_at: str, bucket_secs: int) -> str:
+    """Truncate an ISO-8601 datetime string to the nearest bucket boundary."""
+    try:
+        dt = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return started_at[:16]
+    epoch = int(dt.timestamp())
+    floored = (epoch // bucket_secs) * bucket_secs
+    return datetime.fromtimestamp(floored, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+# ---------------------------------------------------------------------------
+# Run detail
+# ---------------------------------------------------------------------------
+
+@app.get("/api/runs/{run_id}")
+def get_run_detail(run_id: str) -> JSONResponse:
+    """Return all fields for a single run by its run_id."""
+    matches = _df.filter(pl.col("run_id") == run_id)
+    if matches.height == 0:
+        raise HTTPException(status_code=404, detail=f"run_id '{run_id}' not found")
+
+    row = matches.row(0, named=True)
+    return JSONResponse(row)
+
+
+# ---------------------------------------------------------------------------
+# Activity chart
+# ---------------------------------------------------------------------------
+
+@app.get("/api/charts/activity")
+def get_activity_chart(
+    window: str = Query(default="12h", description="Time window: 1h 6h 12h 24h 2d 7d 30d all"),
+    skill: str | None = Query(default=None),
+    success_state: str | None = Query(default=None),
+    task_type: str | None = Query(default=None),
+) -> JSONResponse:
+    """Return runs-over-time bucketed series.
+
+    Each bucket contains:
+    - ``bucket``   – ISO-8601 bucket start (UTC)
+    - ``total``    – number of runs that started in this bucket
+    - ``accepted`` – runs where success_state == 'accepted'
+    - ``failed``   – runs where success_state == 'failed'
+    """
+    df = _apply_filters(_df, window, skill, success_state, task_type)
+
+    bucket_label = _BUCKET_MAP.get(window.lower(), "1h")
+    bucket_secs = _BUCKET_SECONDS[bucket_label]
+
+    if df.height == 0:
+        return JSONResponse({
+            "window": window,
+            "bucket_size": bucket_label,
+            "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
+            "buckets": [],
+        })
+
+    rows = df.select(["started_at", "success_state"]).to_dicts()
+
+    # Accumulate counts per bucket without mutating dicts
+    counts: dict[str, dict[str, int]] = {}
+    for row in rows:
+        label = _bucket_label(row.get("started_at") or "", bucket_secs)
+        bucket = counts.get(label)
+        if bucket is None:
+            bucket = {"total": 0, "accepted": 0, "failed": 0}
+            counts[label] = bucket
+        state = row.get("success_state") or ""
+        counts[label] = {
+            "total": bucket["total"] + 1,
+            "accepted": bucket["accepted"] + (1 if state == "accepted" else 0),
+            "failed": bucket["failed"] + (1 if state == "failed" else 0),
+        }
+
+    buckets = [
+        {"bucket": k, "total": v["total"], "accepted": v["accepted"], "failed": v["failed"]}
+        for k, v in sorted(counts.items())
+    ]
+
+    return JSONResponse({
+        "window": window,
+        "bucket_size": bucket_label,
+        "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
+        "buckets": buckets,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Duration chart
+# ---------------------------------------------------------------------------
+
+@app.get("/api/charts/duration")
+def get_duration_chart(
+    window: str = Query(default="12h", description="Time window: 1h 6h 12h 24h 2d 7d 30d all"),
+    skill: str | None = Query(default=None),
+    success_state: str | None = Query(default=None),
+    task_type: str | None = Query(default=None),
+) -> JSONResponse:
+    """Return per-run duration time series, ordered by started_at ascending.
+
+    Each point contains:
+    - ``run_id``          – unique run identifier
+    - ``started_at``      – ISO-8601 start timestamp
+    - ``run_duration_ms`` – wall-clock duration in milliseconds (null if unknown)
+    - ``success_state``   – outcome label for colour-coding
+    - ``skill``           – skill name for tooltip
+    """
+    df = _apply_filters(_df, window, skill, success_state, task_type)
+
+    cols = ["run_id", "started_at", "run_duration_ms", "success_state", "skill"]
+    if df.height == 0:
+        return JSONResponse({
+            "window": window,
+            "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
+            "points": [],
+        })
+
+    points = (
+        df
+        .select(cols)
+        .sort("started_at", descending=False, nulls_last=True)
+        .to_dicts()
+    )
+
+    return JSONResponse({
+        "window": window,
+        "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
+        "points": points,
     })
