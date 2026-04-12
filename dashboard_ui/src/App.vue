@@ -9,13 +9,26 @@
     <SummaryCards />
 
     <main class="app-body">
-      <p class="placeholder">Charts and run table will appear here (SOW_0025).</p>
+      <section class="chart-grid">
+        <ActivityChart />
+        <DurationChart />
+      </section>
+
+      <section class="table-section">
+        <RunsTable />
+      </section>
     </main>
+
+    <RunDetail />
   </div>
 </template>
 
 <script setup>
+import ActivityChart from './components/ActivityChart.vue'
+import DurationChart from './components/DurationChart.vue'
 import FilterBar from './components/FilterBar.vue'
+import RunDetail from './components/RunDetail.vue'
+import RunsTable from './components/RunsTable.vue'
 import SummaryCards from './components/SummaryCards.vue'
 </script>
 
@@ -82,14 +95,24 @@ input, select, button {
 .app-body {
   flex: 1;
   padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.placeholder {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  padding: 2rem;
-  text-align: center;
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.table-section {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
