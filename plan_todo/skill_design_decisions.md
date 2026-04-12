@@ -280,6 +280,16 @@ Decision:
 Reason:
 - Later dashboards need stable, reproducible numbers.
 - Calculable metrics are easier to compare across runs, repos, and skills.
+
+## 25. Codex Task Metric Must Be Task-Local
+
+Decision:
+- The main Codex task metric should be task-local turn usage inside the run window.
+- Do not present cumulative session-token deltas as the primary per-task Codex metric.
+
+Reason:
+- Session-accumulated deltas are easy to misread as "token cost of one task."
+- Task-local turn usage is much easier to interpret in dashboards and reviews.
 - Prompt narrowing and precise file/symbol targeting gave better ROI.
 
 ## 21. Codex Metrics Source Changed From OTel To Rollout History

@@ -234,8 +234,14 @@ def finish_hook(args: argparse.Namespace) -> int:
     if window_metrics.get("matched_by") != "marker":
         anomaly_flags.append("degraded_codex_match")
 
-    codex_total_tokens = window_metrics.get("codex_total_tokens")
-    codex_last_tokens = window_metrics.get("codex_last_tokens")
+    codex_task_tokens = window_metrics.get("codex_task_tokens")
+    codex_cached_input_tokens = window_metrics.get("codex_cached_input_tokens")
+    codex_fresh_input_tokens = window_metrics.get("codex_fresh_input_tokens")
+    codex_output_tokens = window_metrics.get("codex_output_tokens")
+    codex_reasoning_output_tokens = window_metrics.get("codex_reasoning_output_tokens")
+    codex_turn_count = window_metrics.get("codex_turn_count")
+    codex_avg_tokens_per_turn = window_metrics.get("codex_avg_tokens_per_turn")
+    codex_last_turn_tokens = window_metrics.get("codex_last_turn_tokens")
     codex_session_id = (codex_summary.get("metrics") or {}).get("session_id")
     if not codex_session_id:
         anomaly_flags.append("missing_codex_session_id")
@@ -297,12 +303,12 @@ def finish_hook(args: argparse.Namespace) -> int:
     total_tokens = None
     delegate_ratio = None
     codex_to_claude_ratio = None
-    if isinstance(codex_total_tokens, int):
-        total_tokens = codex_total_tokens + claude_total_tokens
+    if isinstance(codex_task_tokens, int):
+        total_tokens = codex_task_tokens + claude_total_tokens
         if total_tokens > 0:
             delegate_ratio = claude_total_tokens / total_tokens
-    if claude_total_tokens > 0 and isinstance(codex_total_tokens, int):
-        codex_to_claude_ratio = codex_total_tokens / claude_total_tokens
+    if claude_total_tokens > 0 and isinstance(codex_task_tokens, int):
+        codex_to_claude_ratio = codex_task_tokens / claude_total_tokens
 
     result = {
         "run_id": record["run_id"],
@@ -316,8 +322,14 @@ def finish_hook(args: argparse.Namespace) -> int:
         "run_duration_ms": run_duration_ms,
         "time_to_first_usable_result_ms": time_to_first_usable_result_ms,
         "codex_session_id": codex_session_id,
-        "codex_total_tokens": codex_total_tokens,
-        "codex_last_tokens": codex_last_tokens,
+        "codex_task_tokens": codex_task_tokens,
+        "codex_cached_input_tokens": codex_cached_input_tokens,
+        "codex_fresh_input_tokens": codex_fresh_input_tokens,
+        "codex_output_tokens": codex_output_tokens,
+        "codex_reasoning_output_tokens": codex_reasoning_output_tokens,
+        "codex_turn_count": codex_turn_count,
+        "codex_avg_tokens_per_turn": codex_avg_tokens_per_turn,
+        "codex_last_turn_tokens": codex_last_turn_tokens,
         "claude_session_id": claude_session_ids[-1] if claude_session_ids else None,
         "claude_session_ids": claude_session_ids,
         "claude_input_tokens": claude_usage_totals["input_tokens"],

@@ -26,6 +26,7 @@ Codex session metrics should be read from native rollout history under `~/.codex
 - `event_msg.task_complete.payload.turn_id`
 - `event_msg.agent_message.payload.message`
 - marker windows based on assistant/user message text
+- task-local turn usage derived from `last_token_usage` inside a marker or time window
 
 ## Example
 
@@ -76,3 +77,4 @@ uv run python scripts/telemetry/parse_codex_rollout.py \
 - Token/cost measurement for Codex should be session-first, then mapped to task/SOW analytically later.
 - If marker text is too noisy for user-facing runs, keep rollout parsing focused on token and completion data and use a cleaner marker strategy later.
 - For run-level telemetry, use a staging record as the primary match source and marker text only as a cross-check or debug aid.
+- For per-task Codex measurement, prefer task-local turn usage from `last_token_usage` and avoid presenting cumulative session deltas as the main task token metric.

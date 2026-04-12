@@ -85,8 +85,14 @@ The finish hook should return one JSON object with at least these fields:
 - `run_duration_ms`
 - `time_to_first_usable_result_ms`
 - `codex_session_id`
-- `codex_total_tokens`
-- `codex_last_tokens`
+- `codex_task_tokens`
+- `codex_cached_input_tokens`
+- `codex_fresh_input_tokens`
+- `codex_output_tokens`
+- `codex_reasoning_output_tokens`
+- `codex_turn_count`
+- `codex_avg_tokens_per_turn`
+- `codex_last_turn_tokens`
 - `claude_session_id`
 - `claude_total_tokens`
 - `claude_input_tokens`
@@ -109,8 +115,10 @@ The finish hook should return one JSON object with at least these fields:
 
 - Metrics must be parsed or calculated directly from logs, timestamps, git state, or workflow metadata.
 - No LLM-generated score or quality estimate is allowed.
-- `delegate_ratio` is `claude_total_tokens / (claude_total_tokens + codex_total_tokens)` when both sides exist.
-- `codex_to_claude_ratio` is `codex_total_tokens / claude_total_tokens` when Claude tokens are non-zero.
+- `codex_task_tokens` is the sum of task-local Codex turn usage inside the run window, excluding cached input tokens.
+- Do not use cumulative session-token deltas as the main Codex task metric.
+- `delegate_ratio` is `claude_total_tokens / (claude_total_tokens + codex_task_tokens)` when both sides exist.
+- `codex_to_claude_ratio` is `codex_task_tokens / claude_total_tokens` when Claude tokens are non-zero.
 - `time_to_first_usable_result_ms` is either explicitly passed in or derived from the earliest parsed Claude result timestamp.
 
 ## Integration With `sow-delegate-flow`

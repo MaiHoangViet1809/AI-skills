@@ -28,10 +28,10 @@ Use this skill to capture calculable run-level telemetry without mixing reportin
 
 The finish hook should return:
 
-- Codex totals from rollout history
+- Codex task-local token usage from rollout history
 - Claude totals from raw delegate logs
 - run-level duration and first usable result timing
 - workflow outcome metadata such as validation, repairs, fallback, and scope
-- derived ratios that are purely arithmetic on captured metrics
+- per-task ratios and turn metrics that are purely arithmetic on captured metrics
 
 See [hook-contract.md](references/hook-contract.md) for the command shape, staging record fields, marker format, metric definitions, and normalized output.

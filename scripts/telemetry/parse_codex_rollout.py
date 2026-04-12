@@ -122,6 +122,11 @@ def total_tokens(usage: Dict[str, Any]) -> Optional[int]:
     return int(value) if isinstance(value, int) else None
 
 
+def usage_int(usage: Dict[str, Any], key: str) -> int:
+    value = usage.get(key)
+    return int(value) if isinstance(value, int) else 0
+
+
 def last_event_before_or_at(items: Iterable[Dict[str, Any]], point: Optional[datetime]) -> Optional[Dict[str, Any]]:
     chosen: Optional[Dict[str, Any]] = None
     for item in items:
@@ -230,24 +235,50 @@ def compute_window_metrics(
             effective_finished_at = parse_timestamp(marker_windows["finishes"][-1]["timestamp"]) or effective_finished_at
             matched_by = "marker"
 
-    start_snapshot = last_event_before_or_at(token_events, effective_started_at)
     end_snapshot = last_event_before_or_at(token_events, effective_finished_at)
     last_window_snapshot = last_event_in_window(token_events, effective_started_at, effective_finished_at) or end_snapshot
-
-    start_total = total_tokens((start_snapshot or {}).get("total_token_usage", {}))
-    end_total = total_tokens((end_snapshot or {}).get("total_token_usage", {}))
-    codex_total_tokens = None
     anomaly_flags: List[str] = []
+    window_token_events: List[Dict[str, Any]] = []
+    for event in token_events:
+        ts = parse_timestamp(event.get("timestamp"))
+        if not ts:
+            continue
+        if effective_started_at and ts < effective_started_at:
+            continue
+        if effective_finished_at and ts > effective_finished_at:
+            continue
+        window_token_events.append(event)
 
-    if start_total is not None and end_total is not None:
-        codex_total_tokens = end_total - start_total
-        if codex_total_tokens < 0:
-            anomaly_flags.append("negative_codex_total_tokens")
-            codex_total_tokens = None
+    codex_task_tokens = 0
+    codex_cached_input_tokens = 0
+    codex_fresh_input_tokens = 0
+    codex_output_tokens = 0
+    codex_reasoning_output_tokens = 0
+    codex_turn_count = 0
+    codex_avg_tokens_per_turn = None
+    codex_last_turn_tokens = None
+
+    for event in window_token_events:
+        usage = event.get("last_token_usage", {})
+        total = total_tokens(usage)
+        cached = usage_int(usage, "cached_input_tokens")
+        fresh_input = max(usage_int(usage, "input_tokens") - cached, 0)
+        output = usage_int(usage, "output_tokens")
+        reasoning = usage_int(usage, "reasoning_output_tokens")
+        turn_tokens = (total - cached) if total is not None else (fresh_input + output)
+
+        codex_task_tokens += turn_tokens
+        codex_cached_input_tokens += cached
+        codex_fresh_input_tokens += fresh_input
+        codex_output_tokens += output
+        codex_reasoning_output_tokens += reasoning
+        codex_turn_count += 1
+        codex_last_turn_tokens = turn_tokens
+
+    if codex_turn_count == 0:
+        anomaly_flags.append("missing_codex_turn_usage")
     else:
-        anomaly_flags.append("missing_codex_token_window")
-
-    codex_last_tokens = total_tokens((last_window_snapshot or {}).get("last_token_usage", {}))
+        codex_avg_tokens_per_turn = codex_task_tokens / codex_turn_count
 
     if not effective_started_at:
         anomaly_flags.append("missing_effective_started_at")
@@ -258,10 +289,14 @@ def compute_window_metrics(
         "matched_by": matched_by,
         "effective_started_at": timestamp_to_iso(effective_started_at),
         "effective_finished_at": timestamp_to_iso(effective_finished_at),
-        "codex_total_tokens": codex_total_tokens,
-        "codex_last_tokens": codex_last_tokens,
-        "start_total_tokens": start_total,
-        "end_total_tokens": end_total,
+        "codex_task_tokens": codex_task_tokens if codex_turn_count > 0 else None,
+        "codex_cached_input_tokens": codex_cached_input_tokens if codex_turn_count > 0 else None,
+        "codex_fresh_input_tokens": codex_fresh_input_tokens if codex_turn_count > 0 else None,
+        "codex_output_tokens": codex_output_tokens if codex_turn_count > 0 else None,
+        "codex_reasoning_output_tokens": codex_reasoning_output_tokens if codex_turn_count > 0 else None,
+        "codex_turn_count": codex_turn_count,
+        "codex_avg_tokens_per_turn": codex_avg_tokens_per_turn,
+        "codex_last_turn_tokens": codex_last_turn_tokens,
         "marker_windows": marker_windows,
         "anomaly_flags": anomaly_flags,
     }
