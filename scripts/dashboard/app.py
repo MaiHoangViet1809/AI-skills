@@ -8,13 +8,13 @@ Endpoints
 GET /api/summary          – aggregate stats for a time window
 GET /api/runs             – paginated run list
 GET /api/runs/{run_id}    – single run detail
-GET /api/charts/activity  – runs-over-time bucketed series
+GET /api/charts/activity  – daily token heatmap data
 GET /api/charts/duration  – per-run duration time series
 """
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +53,8 @@ _WINDOW_MAP: dict[str, timedelta] = {
     "24h": timedelta(hours=24),
     "2d": timedelta(days=2),
     "7d": timedelta(days=7),
+    "90d": timedelta(days=90),
+    "365d": timedelta(days=365),
     "30d": timedelta(days=30),
     "all": timedelta(days=36500),  # ~100 years — effectively no window cut
 }
@@ -201,37 +203,27 @@ def get_runs(
     })
 
 
-# ---------------------------------------------------------------------------
-# Bucket helpers for activity chart
-# ---------------------------------------------------------------------------
-_BUCKET_MAP: dict[str, str] = {
-    "1h":  "15m",
-    "6h":  "15m",
-    "12h": "1h",
-    "24h": "1h",
-    "2d":  "4h",
-    "7d":  "4h",
-    "30d": "1d",
-    "all": "1d",
-}
-
-_BUCKET_SECONDS: dict[str, int] = {
-    "15m": 15 * 60,
-    "1h":  60 * 60,
-    "4h":  4 * 60 * 60,
-    "1d":  24 * 60 * 60,
-}
-
-
-def _bucket_label(started_at: str, bucket_secs: int) -> str:
-    """Truncate an ISO-8601 datetime string to the nearest bucket boundary."""
+def _parse_iso_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
     try:
-        dt = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
-    except (ValueError, AttributeError):
-        return started_at[:16]
-    epoch = int(dt.timestamp())
-    floored = (epoch // bucket_secs) * bucket_secs
-    return datetime.fromtimestamp(floored, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _window_date_range(window: str, rows: list[dict[str, Any]]) -> tuple[date, date]:
+    today = datetime.now(timezone.utc).date()
+    delta = _parse_window(window)
+    if delta is not None and delta < timedelta(days=36500):
+        return (today - delta), today
+
+    first_seen = today
+    for row in rows:
+        dt = _parse_iso_datetime(row.get("started_at"))
+        if dt is not None:
+            first_seen = min(first_seen, dt.date())
+    return first_seen, today
 
 
 # ---------------------------------------------------------------------------
@@ -260,54 +252,83 @@ def get_activity_chart(
     success_state: str | None = Query(default=None),
     task_type: str | None = Query(default=None),
 ) -> JSONResponse:
-    """Return runs-over-time bucketed series.
-
-    Each bucket contains:
-    - ``bucket``   – ISO-8601 bucket start (UTC)
-    - ``total``    – number of runs that started in this bucket
-    - ``accepted`` – runs where success_state == 'accepted'
-    - ``failed``   – runs where success_state == 'failed'
-    """
+    """Return daily token-burn data for a GitHub-style heatmap."""
     df = _apply_filters(_df, window, skill, success_state, task_type)
+    rows = df.select([
+        "started_at",
+        "success_state",
+        "codex_task_tokens",
+        "claude_total_tokens",
+    ]).to_dicts()
 
-    bucket_label = _BUCKET_MAP.get(window.lower(), "1h")
-    bucket_secs = _BUCKET_SECONDS[bucket_label]
-
-    if df.height == 0:
+    if not rows:
         return JSONResponse({
             "window": window,
-            "bucket_size": bucket_label,
             "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
-            "buckets": [],
+            "metric_modes": ["total", "codex", "claude"],
+            "range_start": None,
+            "range_end": None,
+            "days": [],
+            "max_total_tokens": 0,
+            "max_codex_tokens": 0,
+            "max_claude_tokens": 0,
         })
 
-    rows = df.select(["started_at", "success_state"]).to_dicts()
-
-    # Accumulate counts per bucket without mutating dicts
+    start_date, end_date = _window_date_range(window, rows)
     counts: dict[str, dict[str, int]] = {}
     for row in rows:
-        label = _bucket_label(row.get("started_at") or "", bucket_secs)
-        bucket = counts.get(label)
-        if bucket is None:
-            bucket = {"total": 0, "accepted": 0, "failed": 0}
-            counts[label] = bucket
-        state = row.get("success_state") or ""
-        counts[label] = {
-            "total": bucket["total"] + 1,
-            "accepted": bucket["accepted"] + (1 if state == "accepted" else 0),
-            "failed": bucket["failed"] + (1 if state == "failed" else 0),
-        }
+        started_at = _parse_iso_datetime(row.get("started_at"))
+        if started_at is None:
+            continue
+        day_key = started_at.date().isoformat()
+        bucket = counts.setdefault(day_key, {
+            "date": day_key,
+            "run_count": 0,
+            "accepted_runs": 0,
+            "codex_tokens": 0,
+            "claude_tokens": 0,
+            "total_tokens": 0,
+        })
+        codex_tokens = int(row.get("codex_task_tokens") or 0)
+        claude_tokens = int(row.get("claude_total_tokens") or 0)
+        total_tokens = codex_tokens + claude_tokens
+        bucket["run_count"] += 1
+        bucket["accepted_runs"] += 1 if row.get("success_state") == "accepted" else 0
+        bucket["codex_tokens"] += codex_tokens
+        bucket["claude_tokens"] += claude_tokens
+        bucket["total_tokens"] += total_tokens
 
-    buckets = [
-        {"bucket": k, "total": v["total"], "accepted": v["accepted"], "failed": v["failed"]}
-        for k, v in sorted(counts.items())
-    ]
+    days: list[dict[str, Any]] = []
+    max_total = 0
+    max_codex = 0
+    max_claude = 0
+    cursor = start_date
+    while cursor <= end_date:
+        key = cursor.isoformat()
+        bucket = counts.get(key) or {
+            "date": key,
+            "run_count": 0,
+            "accepted_runs": 0,
+            "codex_tokens": 0,
+            "claude_tokens": 0,
+            "total_tokens": 0,
+        }
+        days.append(bucket)
+        max_total = max(max_total, int(bucket["total_tokens"]))
+        max_codex = max(max_codex, int(bucket["codex_tokens"]))
+        max_claude = max(max_claude, int(bucket["claude_tokens"]))
+        cursor += timedelta(days=1)
 
     return JSONResponse({
         "window": window,
-        "bucket_size": bucket_label,
         "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
-        "buckets": buckets,
+        "metric_modes": ["total", "codex", "claude"],
+        "range_start": start_date.isoformat(),
+        "range_end": end_date.isoformat(),
+        "days": days,
+        "max_total_tokens": max_total,
+        "max_codex_tokens": max_codex,
+        "max_claude_tokens": max_claude,
     })
 
 

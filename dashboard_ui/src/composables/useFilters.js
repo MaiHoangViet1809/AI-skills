@@ -1,6 +1,6 @@
 import { reactive, readonly } from 'vue'
 
-const WINDOWS = ['1h', '6h', '12h', '24h', '2d', '7d', '30d', 'all']
+const WINDOWS = ['1h', '6h', '12h', '24h', '2d', '7d', '30d', '90d', '365d', 'all']
 
 const state = reactive({
   window: '12h',

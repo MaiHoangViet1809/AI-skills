@@ -36,8 +36,9 @@
       >
         <option value="">any</option>
         <option value="accepted">accepted</option>
-        <option value="failed">failed</option>
-        <option value="partial">partial</option>
+        <option value="repaired">repaired</option>
+        <option value="fallback_local">fallback_local</option>
+        <option value="stopped">stopped</option>
       </select>
     </div>
 
