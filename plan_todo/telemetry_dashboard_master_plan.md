@@ -4,7 +4,7 @@
 
 Build a local telemetry dashboard that boots from one script on port `9999`, uses `Vue 3 + Vite` for the frontend, uses Python + Polars for the backend/data layer, and visualizes the Codex and Claude run metrics already captured in this repo.
 
-This document is the plan-level source of truth for the dashboard effort. Implementation should be split into at most 4 SOWs so the work can be delegated in smaller, safer chunks.
+This document is the plan-level source of truth for the dashboard effort. Implementation should be split into 6 SOWs so each delegate slice stays narrow and reviewable.
 
 ## Current Inputs
 
@@ -141,107 +141,133 @@ The table should support at least:
 
 ## SOW Breakdown
 
-Keep the work in 4 SOWs maximum.
-
-### SOW_0021_dashboard_data_backend.md
+### SOW_0021_dashboard_loader_and_schema.md
 
 Focus:
 
-- create dashboard backend package or scripts
-- implement Polars loader for telemetry run records
-- enrich runs from Claude raw logs and Codex rollout only where needed
-- define API response shapes for summary, runs list, run detail, and charts
+- create `scripts/dashboard/` package skeleton
+- load telemetry run JSON files with Polars
+- normalize one-row-per-run dataset
+- define shared backend schema/helpers
 
 Why grouped:
 
-- this is one coherent data and API slice
-- it can be delegated independently with low UI coupling
+- smallest stable data slice
+- lowest-risk delegate start point
 
 Good Claude delegate candidate:
 
 - yes
 
-### SOW_0022_dashboard_frontend_shell.md
+### SOW_0022_dashboard_backend_summary_api.md
+
+Focus:
+
+- add backend app entry
+- implement summary endpoint
+- implement runs list endpoint
+- add window and basic filter support
+
+Why grouped:
+
+- depends on loader
+- still narrow and API-only
+
+Good Claude delegate candidate:
+
+- yes
+
+### SOW_0023_dashboard_backend_detail_and_charts_api.md
+
+Focus:
+
+- implement run detail endpoint
+- implement activity chart endpoint
+- implement duration chart endpoint
+- add any lightweight enrich/derived metrics needed by those endpoints
+
+Why grouped:
+
+- keeps chart/detail contracts together
+- depends on prior API/data slices
+
+Good Claude delegate candidate:
+
+- yes
+
+### SOW_0024_dashboard_frontend_shell.md
 
 Focus:
 
 - scaffold Vue 3 + Vite frontend
-- establish dashboard layout shell
-- implement top summary cards row
-- implement global time window and filter state
-- connect frontend to backend summary and runs endpoints
+- establish dashboard shell layout
+- add top summary cards row
+- add shared filter and time-window state
 
 Why grouped:
 
-- this is the stable UI shell and state-management slice
-- can move in parallel once API contract is known
+- clean UI shell slice
+- minimal chart complexity
 
 Good Claude delegate candidate:
 
 - yes
 
-### SOW_0023_dashboard_charts_and_detail.md
+### SOW_0025_dashboard_frontend_visuals.md
 
 Focus:
 
 - implement activity chart
-- implement task duration chart
+- implement duration chart
 - implement runs table
 - implement run detail panel or drawer
-- wire tokens, duration, tool counts, and status fields into visual components
 
 Why grouped:
 
-- charts and detail views depend on the frontend shell
-- still one cohesive visualization slice
+- visual layer depends on stable API and shell
+- still one coherent frontend slice
 
 Good Claude delegate candidate:
 
 - yes
 
-### SOW_0024_dashboard_boot_and_finish.md
+### SOW_0026_dashboard_boot_and_smoke.md
 
 Focus:
 
 - implement one-command boot flow on port `9999`
 - serve built frontend and API from one port
 - add local docs for running the dashboard
-- perform end-to-end smoke test against real telemetry data in this repo
+- run end-to-end smoke test against repo telemetry data
 
 Why grouped:
 
-- boot, packaging, and final integration belong together
-- this is the risky last-mile slice and should stay narrow
+- last-mile integration and acceptance belong together
 
 Good Claude delegate candidate:
 
 - maybe
-- use Claude for implementation if the prior 3 SOWs are stable
-- keep final verification and acceptance in Codex
+- prefer Codex-led verification even if Claude helps with implementation
 
-## Delegation Strategy
+## Execution Order
 
-- Prefer delegating `SOW_0021`, `SOW_0022`, and `SOW_0023` separately
-- Keep `SOW_0024` smaller and review-heavy
-- Do not delegate all 4 at once unless API and UI contracts are already frozen
-- Recommended sequence:
-  1. `SOW_0021`
-  2. `SOW_0022`
-  3. `SOW_0023`
-  4. `SOW_0024`
+1. `SOW_0021`
+2. `SOW_0022`
+3. `SOW_0023`
+4. `SOW_0024`
+5. `SOW_0025`
+6. `SOW_0026`
 
-## Acceptance Criteria For The Whole Plan
+## Delegate Notes
+
+- Prefer delegating one SOW at a time
+- Keep each delegate prompt short and let Claude read the SOW file itself
+- If Claude appears to compact or stall after one narrow prompt, treat that as delegate/runtime instability rather than a signal to widen scope
+- Favor fresh delegate sessions over resuming noisy ones
+
+## Done Criteria For Whole Plan
 
 - one script boots the dashboard at `http://localhost:9999`
 - dashboard renders summary cards, 2 charts, runs table, and run detail
-- metrics shown come from the current telemetry system, not hardcoded fixtures
-- Codex metrics use task-local tokens, not accumulated session-gross values
-- Claude and Codex tool/MCP metrics are visible somewhere in the detail view
+- dashboard reads current local telemetry logs directly with Polars
 - dashboard works against current local telemetry files without requiring a DB
-
-## Risks
-
-- direct log reads may become slow if local history grows a lot
-- rollout enrichment may be expensive if run matching is too broad
-- serving Vue build from one Python process needs a clean dev/prod story
-- chart design can sprawl if the bottom section is not kept tight in v1
