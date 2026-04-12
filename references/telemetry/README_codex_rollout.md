@@ -59,8 +59,20 @@ python3 "$REPO/scripts/telemetry/parse_codex_rollout.py" \
   --marker-sow SOW_0001
 ```
 
+Parse a run window by repo, time range, and exact markers:
+
+```bash
+uv run python scripts/telemetry/parse_codex_rollout.py \
+  --cwd "$REPO" \
+  --started-at 2026-04-12T12:20:13Z \
+  --finished-at 2026-04-12T12:20:20Z \
+  --start-marker "TELEMETRY_START run_id=<run_id> skill=sow-delegate-flow plan=<plan> sow=<sow>" \
+  --finish-marker "TELEMETRY_FINISH run_id=<run_id> skill=sow-delegate-flow plan=<plan> sow=<sow>"
+```
+
 ## Notes
 
 - OTel is not required for the current Codex measurement path.
 - Token/cost measurement for Codex should be session-first, then mapped to task/SOW analytically later.
 - If marker text is too noisy for user-facing runs, keep rollout parsing focused on token and completion data and use a cleaner marker strategy later.
+- For run-level telemetry, use a staging record as the primary match source and marker text only as a cross-check or debug aid.

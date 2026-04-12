@@ -1,0 +1,4 @@
+interface:
+  display_name: "TelemetryFlow"
+  short_description: "Capture run-level Codex and Claude telemetry with start and finish hooks"
+  default_prompt: "Use TelemetryFlow to start a run record before execution and finish it after execution to parse Codex and Claude metrics."

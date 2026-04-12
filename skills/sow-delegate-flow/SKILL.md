@@ -31,20 +31,23 @@ Use this skill for multi-SOW plans that run as Codex -> SOW -> approval -> Claud
 - Switch to `stream-json` only when you need deeper delegate debugging because the delegate output is poor, abnormal, or blocked in a way that needs event-level inspection.
 - Capture Claude output to a raw log file first, then parse it on demand and read the parser output by default.
 - Open the raw log only when the parser reports an anomaly or the flow explicitly needs deep debugging.
+- If `telemetry-flow` is available, start a telemetry run before the first delegate call and finish it once the workflow reaches a terminal outcome.
 
 ## Flow
 
 1. Read workspace rules.
 2. Create or update the SOW.
 3. Wait for approval.
-4. Start a delegate session or decide whether to resume the current one.
-5. Delegate by SOW path, not by pasting the full SOW.
-6. Write raw delegate output to `logs_session_ai_agent/`, parse it with the helper script, and read the parser output.
-7. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
-8. If Claude returns done, review files and validate.
-9. If validation fails, send feedback and continue in the current or a refreshed session.
-10. If validation passes, close the SOW.
-11. Drop the session from active state when the plan has no active SOW left.
+4. If run telemetry is needed, start a `telemetry-flow` run and keep the `run_id`.
+5. Start a delegate session or decide whether to resume the current one.
+6. Delegate by SOW path, not by pasting the full SOW.
+7. Write raw delegate output to `logs_session_ai_agent/`, parse it with the helper script, and read the parser output.
+8. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
+9. If Claude returns done, review files and validate.
+10. If validation fails, send feedback and continue in the current or a refreshed session.
+11. Once the workflow reaches a terminal outcome, finish the telemetry run before closeout or commit.
+12. If validation passes, close the SOW.
+13. Drop the session from active state when the plan has no active SOW left.
 
 ## Validation Matrix
 
@@ -67,6 +70,8 @@ See [claude-delegate-contract.md](references/claude-delegate-contract.md) for th
 See [output-filtering.md](references/output-filtering.md) for the mandatory default filtering policy for captured delegate output.
 
 See [log-parsing.md](references/log-parsing.md) for the raw-log-first capture flow, parser contract, and parser output shape.
+
+See [../telemetry-flow/references/hook-contract.md](../telemetry-flow/references/hook-contract.md) for the start/finish telemetry hook contract used around delegate runs.
 
 ## Defaults
 

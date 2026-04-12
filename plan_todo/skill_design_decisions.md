@@ -1,9 +1,10 @@
 # Skill Design Decisions
 
-This file records the main design decisions and reasons behind the two custom workflow skills currently centralized in this repository:
+This file records the main design decisions and reasons behind the custom workflow skills currently centralized in this repository:
 
 - `task-router-flow`
 - `sow-delegate-flow`
+- `telemetry-flow`
 
 The goal is to preserve enough context that future refinements can continue from the current design without reconstructing the original conversations.
 
@@ -238,6 +239,47 @@ Decision:
 
 Reason:
 - A fair comparison against `cocoindex-code` and `cased/kit` did not justify making them part of the standard flow for this repo.
+
+## 21. Telemetry Became A Separate Skill
+
+Decision:
+- Run-level telemetry should live in its own skill, not inside `task-router-flow` or `sow-delegate-flow`.
+
+Reason:
+- Execution and measurement are separate concerns.
+- A separate skill is easier to reuse across different workflows later.
+
+## 22. Telemetry Uses Two Hooks Only
+
+Decision:
+- `telemetry-flow` v1 should use exactly two hooks:
+  - `start`
+  - `finish`
+- Reporting or aggregation is deferred to a later phase.
+
+Reason:
+- This keeps the first integration small.
+- It captures the run facts needed for later dashboards without forcing reporting design too early.
+
+## 23. Hybrid Run Matching
+
+Decision:
+- Use a staging record with `run_id` as the primary source of run identity.
+- Use marker text in Codex rollout as a secondary cross-check and debug aid.
+
+Reason:
+- Marker-only matching is too fragile.
+- Timestamp-only matching is not stable enough for repeated runs in the same repo.
+
+## 24. Metrics Must Be Calculable
+
+Decision:
+- Telemetry metrics must be parsed or calculated from logs, timestamps, git state, or explicit workflow metadata.
+- Do not add LLM-judged metrics such as quality scores or understanding scores.
+
+Reason:
+- Later dashboards need stable, reproducible numbers.
+- Calculable metrics are easier to compare across runs, repos, and skills.
 - Prompt narrowing and precise file/symbol targeting gave better ROI.
 
 ## 21. Codex Metrics Source Changed From OTel To Rollout History
@@ -307,5 +349,6 @@ The following finished SOWs capture the main implementation trail behind the cur
 - `SOW_0016_codex_rollout_metrics_refactor.md`: switch from OTel to rollout-history metrics for Codex
 - `SOW_0017_sow_delegate_flow_claude_raw_only.md`: Claude parser refactor to raw-only persistence
 - `SOW_0018_sow_delegate_flow_refinements.md`: validation matrix, termination policy, and closeout template refinements
+- `SOW_0019_telemetry_hook_skill_v1.md`: separate telemetry skill with start/finish hooks and run-level metrics
 
 Use these SOWs as the primary historical trail when a later change needs original rationale beyond the summary decisions in this file.
