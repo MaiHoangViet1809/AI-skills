@@ -83,5 +83,8 @@ See [../telemetry-flow/references/hook-contract.md](../telemetry-flow/references
 - Use parser output as the normal read path. Open raw logs only on anomaly or explicit deep-debug flows.
 - Use CLI output or events to detect limit hits after submit. Do not assume percentage prechecks are available.
 - Poll or re-check long-running delegate calls at roughly 30 second intervals by default.
+- For heavier implementation SOWs, prefer 45 second intervals.
+- Do not treat an empty or unchanged log in the first 1-2 polling intervals as a stall by itself.
+- Treat a delegate run as likely stalled only after roughly 90 seconds with no parseable progress signal.
 - Prefer a fresh session over resuming a long, noisy one.
 - If repo rules are missing, keep scope narrow and verify locally before closing.
