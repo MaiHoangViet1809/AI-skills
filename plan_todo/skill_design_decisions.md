@@ -286,3 +286,26 @@ Decision:
 Reason:
 - Only the custom design surface should be versioned and shared from this repo.
 - Pulling in built-in or curated skills would blur ownership and add noise.
+
+## Related SOW Trail
+
+The following finished SOWs capture the main implementation trail behind the current design:
+
+- `SOW_0003_claude_delegate_probe.md`: initial Claude CLI delegation probe
+- `SOW_0004_sow_delegate_flow_skill.md`: initial `sow-delegate-flow` build
+- `SOW_0005_sow_delegate_flow_wording_trim.md`: wording reduction for lower context cost
+- `SOW_0006_sow_delegate_flow_advisor_session.md`: advisor loop and session handling
+- `SOW_0007_sow_delegate_flow_session_compaction.md`: compact-and-refresh session policy
+- `SOW_0008_code_context_benchmark.md`: retrieval benchmark behind the native-tool default decision
+- `SOW_0009_sow_delegate_flow_guardrails.md`: precedence, scope, validation-hint, failure class guardrails
+- `SOW_0010_task_router_flow_skill.md`: initial `task-router-flow` build
+- `SOW_0011_task_router_flow_plan_and_indexing.md`: plan-first updates and 4-digit SOW indexing
+- `SOW_0012_sow_delegate_flow_json_first.md`: `json` default, `stream-json` only for deeper debugging
+- `SOW_0013_sow_delegate_flow_output_filtering.md`: mandatory filtering of noisy delegate output
+- `SOW_0014_sow_delegate_flow_log_parser.md`: first raw-log-first parsing design for Claude
+- `SOW_0015_codex_otel_session_metrics.md`: first Codex session telemetry experiment
+- `SOW_0016_codex_rollout_metrics_refactor.md`: switch from OTel to rollout-history metrics for Codex
+- `SOW_0017_sow_delegate_flow_claude_raw_only.md`: Claude parser refactor to raw-only persistence
+- `SOW_0018_sow_delegate_flow_refinements.md`: validation matrix, termination policy, and closeout template refinements
+
+Use these SOWs as the primary historical trail when a later change needs original rationale beyond the summary decisions in this file.
