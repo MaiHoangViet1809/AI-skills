@@ -15,22 +15,12 @@ This file contains instructions and conventions for AI agents working on this pr
 - Keep responses concise but complete enough to satisfy the request.
 - Do not add long explanations unless the user explicitly asks for more detail.
 
-## Scope-of-Work (SoW) Template (MUST use before coding)
-Agent MUST present below SoW for approval before applying patches:
-- **Task**: <one-sentence change>
-- **Location**: <exact folder/file paths>
-- **Why**: <business/tech driver>
-- **As-Is Diagram (ASCII)**: <current behavior/architecture/state machine>
-- **To-Be Diagram (ASCII)**: <target behavior/architecture/state machine>
-- **Deliverables**: <files added/modified, funcs/classes exported>
-- **Done Criteria**: <compiles, style checks pass, demo runnable, etc.>
-- **Out-of-Scope**: <what is explicitly excluded>
-- **Proposed-By**: <AI Agent Name, e.g., "Claude Opus 4.5", "Codex GPT5.2", "Gemini", etc.>
-- **plan**: <plan name if task related to plan under plan_todo>
-- **Cautions / Risks**: list down cautions might happen
+## Scope-of-Work (SoW)
+- Use `task-router-flow` as the front-door workflow for SOW decisions.
+- Use `skills/task-router-flow/references/scope-of-work.md` as the source of truth for SOW definition, template, indexing, and lifecycle.
+- For code-changing work, do not start implementation until the active SOW is approved unless the repo explicitly exempts the task.
 
-
-### SoW Compliance Guardrail
+### SoW Guardrail
 - Before writing code or editing files, STOP and confirm an approved SoW exists for the task at hand. If not, draft one and obtain approval.
 - At each major task switch, re-check that the active SoW still covers the work. If the scope changes, pause and update/seek approval.
 - Document the SoW reference (file name or timestamp) when summarizing work so reviewers can trace it quickly.
