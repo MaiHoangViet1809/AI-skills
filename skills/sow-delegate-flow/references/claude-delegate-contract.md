@@ -213,8 +213,15 @@ See [log-parsing.md](log-parsing.md) for the canonical raw-log path, parser outp
 
 ## Polling
 
-- For long-running delegate calls, re-check at roughly 30 second intervals by default.
-- For heavier implementation SOWs, prefer roughly 45 second intervals.
-- Do not treat an empty or unchanged log during the first 1-2 polling intervals as a stall by itself.
-- Only treat a delegate run as likely stalled after roughly 90 seconds with no parseable progress signal.
+- Use polling backoff instead of eager fixed-interval checks.
+- Start around 30 second intervals, then back off while the run still looks active.
+- Classify the task before waiting:
+  - `easy`: simple docs or very small isolated edit
+  - `medium`: normal implementation slice
+  - `hard`: larger refactor, broad implementation, or infra-heavy task
+- Do not treat an empty or unchanged log during early polling as a stall by itself.
+- Only treat a delegate run as likely stalled near these no-progress thresholds:
+  - `easy`: 5 minutes
+  - `medium`: 10 minutes
+  - `hard`: 15 minutes
 - Check faster only when the result is on the critical path and you expect a short run.

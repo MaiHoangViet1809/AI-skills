@@ -82,9 +82,16 @@ See [../telemetry-flow/references/hook-contract.md](../telemetry-flow/references
 - Filter captured output by default, dropping `system`-typed noise unless the flow or user explicitly requires it.
 - Use parser output as the normal read path. Open raw logs only on anomaly or explicit deep-debug flows.
 - Use CLI output or events to detect limit hits after submit. Do not assume percentage prechecks are available.
-- Poll or re-check long-running delegate calls at roughly 30 second intervals by default.
-- For heavier implementation SOWs, prefer 45 second intervals.
-- Do not treat an empty or unchanged log in the first 1-2 polling intervals as a stall by itself.
-- Treat a delegate run as likely stalled only after roughly 90 seconds with no parseable progress signal.
+- Use polling backoff instead of eager fixed-interval checks.
+- Classify task difficulty before waiting:
+  - `easy`: simple docs or small isolated edit
+  - `medium`: normal feature slice or backend/frontend implementation
+  - `hard`: larger refactor, multi-file logic, or infra-heavy task
+- Poll at roughly 30 second intervals early, then back off as the run stays active.
+- Do not treat missing early output as a stall by itself.
+- Only make a likely-stall decision near these no-progress thresholds:
+  - `easy`: 5 minutes
+  - `medium`: 10 minutes
+  - `hard`: 15 minutes
 - Prefer a fresh session over resuming a long, noisy one.
 - If repo rules are missing, keep scope narrow and verify locally before closing.
