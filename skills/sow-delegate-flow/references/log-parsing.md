@@ -3,6 +3,7 @@
 Use raw-log-first capture by default.
 
 The coordinator should not read full Claude CLI output directly unless the parsed summary reports an anomaly or the current flow explicitly needs deep debugging.
+For active delegate runs, the coordinator should poll the parser output and use parsed progress fields instead of guessing from raw log size.
 
 ## Canonical Paths
 
@@ -26,6 +27,8 @@ Run parser script on demand
    v
 Print compact summary to stdout
    |
+   +--> active run: compact progress summary
+   |
    v
 Coordinator reads parser output by default
    |
@@ -48,12 +51,21 @@ The parser should extract only the smallest useful set:
 - `duration_ms`
 - `stop_reason`
 
+For `stream-json`, the parser should also expose lightweight progress fields:
+
+- `progress_state`
+- `event_count`
+- `assistant_event_count`
+- `tool_event_count`
+- `last_event_type`
+- `has_result`
+
 ## Normalized Parser Output
 
 ```json
 {
   "session_id": "uuid",
-  "mode": "json",
+  "mode": "stream-json",
   "is_error": false,
   "error": null,
   "status": "success",
@@ -76,6 +88,12 @@ The parser should extract only the smallest useful set:
   },
   "duration_ms": 13771,
   "stop_reason": "end_turn",
+  "progress_state": "completed",
+  "event_count": 24,
+  "assistant_event_count": 2,
+  "tool_event_count": 3,
+  "last_event_type": "result",
+  "has_result": true,
   "raw_log_path": "/abs/repo/logs_session_ai_agent/claude-uuid.log",
   "anomaly_flags": []
 }
@@ -107,6 +125,12 @@ The parser should tolerate version drift, but the following keys were confirmed 
 
 Treat all other keys as optional.
 
+Progress states:
+
+- `no_output`: raw log is empty or has no parseable events yet
+- `running`: stream has parseable events but no terminal `result`
+- `completed`: terminal `result` event exists
+
 ## Anomaly Rule
 
 Open the raw log only when one of these is true:
@@ -119,18 +143,7 @@ Open the raw log only when one of these is true:
 
 ## Capture Examples
 
-Write raw JSON output to a temp log, then parse it on demand:
-
-```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
-claude -p --output-format json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
-  --raw-log "$tmp_log" \
-  --mode json \
-  --repo-root "$REPO"
-```
-
-Use `stream-json` only for deep delegate debugging, then parse the raw JSONL file the same way:
+Default capture path uses `stream-json`:
 
 ```bash
 tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
@@ -138,5 +151,16 @@ claude -p --output-format stream-json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode stream-json \
+  --repo-root "$REPO"
+```
+
+Use `json` only when you explicitly do not need progress inspection:
+
+```bash
+tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+claude -p --output-format json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
+python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+  --raw-log "$tmp_log" \
+  --mode json \
   --repo-root "$REPO"
 ```

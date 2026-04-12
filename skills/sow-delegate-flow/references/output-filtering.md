@@ -24,13 +24,16 @@ If the returned payload contains `message` entries with `type: "system"`, drop t
 
 ## Stream-Json Mode
 
-In `stream-json` mode, keep only the events needed for the current debugging task.
+In `stream-json` mode, keep only the events needed for progress monitoring or delegate debugging.
 
 Default keep-set:
 
 - `assistant`
+- `user`
 - `result`
 - `rate_limit_event`
+- `tool_use`
+- `tool_result`
 
 Default drop-set:
 
@@ -52,7 +55,10 @@ json mode:
 - structured_output
 
 stream-json mode:
+- user
 - rate_limit_event
+- tool_use
+- tool_result
 - assistant
 - result
 ```
@@ -78,7 +84,7 @@ Filter `stream-json` output down to the default keep-set:
 
 ```bash
 claude -p --output-format stream-json --json-schema '<schema-json>' "<prompt>" \
-  | jq -c 'select(.type == "assistant" or .type == "result" or .type == "rate_limit_event")'
+  | jq -c 'select(.type == "assistant" or .type == "user" or .type == "result" or .type == "rate_limit_event" or .type == "tool_use" or .type == "tool_result")'
 ```
 
 If you only need the terminal result from `stream-json`:

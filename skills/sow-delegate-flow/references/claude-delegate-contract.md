@@ -52,14 +52,14 @@ Then start a fresh session with:
 
 ## CLI Shape
 
-Use `json` by default. Switch to `stream-json` only when you need deeper delegate debugging.
+Use `stream-json` by default so the coordinator can parse progress from the raw log while Claude is still running.
 
 Capture raw CLI output to a file first, then parse it on demand before the coordinator reads it.
 
 ```bash
 tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
 claude -p \
-  --output-format json \
+  --output-format stream-json \
   --json-schema '<schema-json>' \
   --model sonnet \
   --effort medium \
@@ -68,9 +68,15 @@ claude -p \
 
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
-  --mode json \
+  --mode stream-json \
   --repo-root "$REPO"
 ```
+
+Normal polling:
+
+- let Claude run
+- re-check the parsed log summary at the configured poll interval
+- use parsed progress, not raw file size, as the signal
 
 Follow-up turns:
 
@@ -78,13 +84,13 @@ Follow-up turns:
 tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
 claude -p \
   --resume <session-id> \
-  --output-format json \
+  --output-format stream-json \
   --json-schema '<schema-json>' \
   "<prompt>" > "$tmp_log"
 
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
-  --mode json \
+  --mode stream-json \
   --repo-root "$REPO"
 ```
 
@@ -93,26 +99,20 @@ Fresh-session follow-up after compaction:
 ```bash
 tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
 claude -p \
-  --output-format json \
+  --output-format stream-json \
   --json-schema '<schema-json>' \
   "<prompt with compact history>" > "$tmp_log"
 
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
-  --mode json \
+  --mode stream-json \
   --repo-root "$REPO"
 ```
-
-Use `stream-json` only when the delegate behavior itself needs debugging, for example:
-- the delegate output is poor or abnormal
-- the delegate appears blocked and you need event-level detail
-- a repair or debug loop needs deeper inspection than final JSON gives
-
-When using `stream-json`, follow the output filtering policy in [output-filtering.md](output-filtering.md). Keep runtime behavior unchanged; filter only the captured output.
 
 Normal read path:
 
 - run the parser against the raw log first
+- during execution, use the parser output as a compact progress view
 - read the parser output first
 - read the raw log only if the parser reports an anomaly or the flow explicitly needs deep debugging
 
@@ -204,8 +204,7 @@ Final disposition: <accept | repair | local finish | stop>
 
 ## Limit Handling
 
-- Prefer detecting limit hits from the parser output built from final JSON output first.
-- Use `stream-json` only when you need deeper event-level inspection of delegate failures.
+- Prefer detecting limit hits from the parser output built from streamed events first.
 - Treat usage or rate-limit blocking as fallback triggers.
 - Do not rely on exact error strings or percentage prechecks.
 - If overage is unavailable or rejected and Claude is blocked, continue locally.

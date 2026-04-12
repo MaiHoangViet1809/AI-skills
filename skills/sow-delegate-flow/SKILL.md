@@ -27,8 +27,8 @@ Use this skill for multi-SOW plans that run as Codex -> SOW -> approval -> Claud
 - Resume only when the current delegate session is still short and clean.
 - If the current delegate session is long or noisy, read its transcript, compact the useful history, and continue in a fresh session.
 - Take over locally if Claude fails, drifts, or the CLI output shows usage or rate-limit blocking.
-- Use `json` output by default.
-- Switch to `stream-json` only when you need deeper delegate debugging because the delegate output is poor, abnormal, or blocked in a way that needs event-level inspection.
+- Use `stream-json` output by default.
+- Capture the raw stream to a log, then parse progress from that log before deciding whether the delegate is blocked.
 - Capture Claude output to a raw log file first, then parse it on demand and read the parser output by default.
 - Open the raw log only when the parser reports an anomaly or the flow explicitly needs deep debugging.
 - If `telemetry-flow` is available, start a telemetry run before the first delegate call and finish it once the workflow reaches a terminal outcome.
@@ -77,8 +77,8 @@ See [../telemetry-flow/references/hook-contract.md](../telemetry-flow/references
 
 - Prefer the user's normal Claude profile when known.
 - Default to `--model sonnet --effort medium` when no override exists.
-- Use `json` as the default output mode.
-- Use `stream-json` only for delegate debugging.
+- Use `stream-json` as the default output mode.
+- Use `json` only when you explicitly want terminal-only output and do not need progress tracking.
 - Filter captured output by default, dropping `system`-typed noise unless the flow or user explicitly requires it.
 - Use parser output as the normal read path. Open raw logs only on anomaly or explicit deep-debug flows.
 - Use CLI output or events to detect limit hits after submit. Do not assume percentage prechecks are available.

@@ -51,17 +51,26 @@ def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path)
     rate_limit_event: Dict[str, Any] = {}
     session_id = None
     structured_output = None
+    assistant_event_count = 0
+    tool_event_count = 0
+    last_event_type = None
 
     for event in events:
         session_id = session_id or event.get("session_id")
-        if event.get("type") == "assistant":
+        event_type = event.get("type")
+        if event_type:
+            last_event_type = event_type
+        if event_type == "assistant":
             assistant_event = event
-        elif event.get("type") == "rate_limit_event":
+            assistant_event_count += 1
+        elif event_type == "rate_limit_event":
             rate_limit_event = event
-        elif event.get("type") == "result":
+        elif event_type == "result":
             result_event = event
             if event.get("structured_output") is not None:
                 structured_output = event.get("structured_output")
+        elif event_type in {"tool_use", "tool_result"}:
+            tool_event_count += 1
 
     if structured_output is None:
         structured_output = result_event.get("structured_output")
@@ -78,6 +87,13 @@ def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path)
     status = None
     if isinstance(structured_output, dict):
         status = structured_output.get("status")
+
+    if not events:
+        progress_state = "no_output"
+    elif result_event:
+        progress_state = "completed"
+    else:
+        progress_state = "running"
 
     summary = {
         "session_id": result_event.get("session_id") or session_id,
@@ -104,6 +120,12 @@ def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path)
         },
         "duration_ms": result_event.get("duration_ms"),
         "stop_reason": result_event.get("stop_reason"),
+        "progress_state": progress_state,
+        "event_count": len(events),
+        "assistant_event_count": assistant_event_count,
+        "tool_event_count": tool_event_count,
+        "last_event_type": last_event_type,
+        "has_result": bool(result_event),
         "raw_log_path": str(raw_log_path),
         "anomaly_flags": [],
     }
@@ -114,6 +136,8 @@ def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path)
         summary["anomaly_flags"].append("unclassified_error")
     if mode == "json" and not result_event:
         summary["anomaly_flags"].append("missing_result_event")
+    if mode == "stream-json" and not events:
+        summary["anomaly_flags"].append("no_parseable_events_yet")
 
     return summary
 
@@ -128,13 +152,14 @@ def main() -> int:
     raw_log = Path(args.raw_log).resolve()
     repo_root = Path(args.repo_root).resolve()
     logs_dir = ensure_logs_dir(repo_root)
-    events = load_events(raw_log.read_text(encoding="utf-8"))
+    raw_text = raw_log.read_text(encoding="utf-8")
+    events = load_events(raw_text)
     summary = extract_summary(events, args.mode, raw_log)
 
     session_id = summary.get("session_id") or f"unknown-{int(datetime.now().timestamp())}"
     final_raw_log = logs_dir / f"claude-{session_id}.log"
     if raw_log != final_raw_log:
-        final_raw_log.write_text(raw_log.read_text(encoding="utf-8"), encoding="utf-8")
+        final_raw_log.write_text(raw_text, encoding="utf-8")
         raw_log.unlink(missing_ok=True)
         summary["raw_log_path"] = str(final_raw_log)
 
