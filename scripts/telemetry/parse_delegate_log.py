@@ -45,17 +45,56 @@ def ensure_logs_dir(repo_root: Path) -> Path:
     return path
 
 
+def normalize_claude_tool_name(name: Optional[str]) -> Optional[str]:
+    if not name:
+        return None
+    return str(name)
+
+
+def classify_claude_tool(name: Optional[str]) -> str:
+    normalized = normalize_claude_tool_name(name)
+    if not normalized:
+        return "unknown"
+    if normalized.startswith("mcp__"):
+        return "mcp"
+    return "tool"
+
+
 def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path) -> Dict[str, Any]:
     result_event: Dict[str, Any] = {}
     assistant_event: Dict[str, Any] = {}
     rate_limit_event: Dict[str, Any] = {}
     session_id = None
     structured_output = None
+    tool_call_count = 0
+    tool_error_count = 0
+    mcp_call_count = 0
+    unique_tool_names = set()
+    unique_mcp_tool_names = set()
 
     for event in events:
         session_id = session_id or event.get("session_id")
         if event.get("type") == "assistant":
             assistant_event = event
+            for piece in assistant_event.get("message", {}).get("content") or []:
+                if not isinstance(piece, dict) or piece.get("type") != "tool_use":
+                    continue
+                tool_name = normalize_claude_tool_name(piece.get("name"))
+                if not tool_name:
+                    continue
+                if classify_claude_tool(tool_name) == "mcp":
+                    mcp_call_count += 1
+                    unique_mcp_tool_names.add(tool_name)
+                else:
+                    tool_call_count += 1
+                    unique_tool_names.add(tool_name)
+        elif event.get("type") == "user":
+            for piece in event.get("message", {}).get("content") or []:
+                if not isinstance(piece, dict) or piece.get("type") != "tool_result":
+                    continue
+                content = piece.get("content")
+                if isinstance(content, str) and ("error" in content.lower() or "failed" in content.lower()):
+                    tool_error_count += 1
         elif event.get("type") == "rate_limit_event":
             rate_limit_event = event
         elif event.get("type") == "result":
@@ -104,6 +143,11 @@ def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path)
         },
         "duration_ms": result_event.get("duration_ms"),
         "stop_reason": result_event.get("stop_reason"),
+        "claude_tool_call_count": tool_call_count,
+        "claude_tool_error_count": tool_error_count,
+        "claude_mcp_call_count": mcp_call_count,
+        "claude_unique_tool_names": sorted(unique_tool_names),
+        "claude_unique_mcp_tool_names": sorted(unique_mcp_tool_names),
         "raw_log_path": str(raw_log_path),
         "anomaly_flags": [],
     }

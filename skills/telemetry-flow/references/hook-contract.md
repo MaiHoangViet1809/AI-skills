@@ -93,6 +93,11 @@ The finish hook should return one JSON object with at least these fields:
 - `codex_turn_count`
 - `codex_avg_tokens_per_turn`
 - `codex_last_turn_tokens`
+- `codex_tool_call_count`
+- `codex_tool_error_count`
+- `codex_mcp_call_count`
+- `codex_unique_tool_names`
+- `codex_unique_mcp_tool_names`
 - `claude_session_id`
 - `claude_total_tokens`
 - `claude_input_tokens`
@@ -100,6 +105,11 @@ The finish hook should return one JSON object with at least these fields:
 - `claude_cache_creation_tokens`
 - `claude_cache_read_tokens`
 - `claude_duration_ms`
+- `claude_tool_call_count`
+- `claude_tool_error_count`
+- `claude_mcp_call_count`
+- `claude_unique_tool_names`
+- `claude_unique_mcp_tool_names`
 - `files_changed_count`
 - `repair_rounds`
 - `fallback_flag`
@@ -120,6 +130,7 @@ The finish hook should return one JSON object with at least these fields:
 - `delegate_ratio` is `claude_total_tokens / (claude_total_tokens + codex_task_tokens)` when both sides exist.
 - `codex_to_claude_ratio` is `codex_task_tokens / claude_total_tokens` when Claude tokens are non-zero.
 - `time_to_first_usable_result_ms` is either explicitly passed in or derived from the earliest parsed Claude result timestamp.
+- Tool and MCP metrics must come from event-level log parsing, not from LLM judgment.
 
 ## Integration With `sow-delegate-flow`
 

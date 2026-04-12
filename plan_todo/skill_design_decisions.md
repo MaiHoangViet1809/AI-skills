@@ -290,6 +290,15 @@ Decision:
 Reason:
 - Session-accumulated deltas are easy to misread as "token cost of one task."
 - Task-local turn usage is much easier to interpret in dashboards and reviews.
+
+## 26. Tool And MCP Metrics Belong In Telemetry
+
+Decision:
+- Run telemetry should include calculable tool and MCP call metrics for both Codex and Claude when event-level logs contain them.
+
+Reason:
+- Tool usage is part of the real cost and execution shape of an agentic run.
+- These metrics are useful for later dashboards without requiring subjective scoring.
 - Prompt narrowing and precise file/symbol targeting gave better ROI.
 
 ## 21. Codex Metrics Source Changed From OTel To Rollout History

@@ -242,6 +242,11 @@ def finish_hook(args: argparse.Namespace) -> int:
     codex_turn_count = window_metrics.get("codex_turn_count")
     codex_avg_tokens_per_turn = window_metrics.get("codex_avg_tokens_per_turn")
     codex_last_turn_tokens = window_metrics.get("codex_last_turn_tokens")
+    codex_tool_call_count = window_metrics.get("codex_tool_call_count")
+    codex_tool_error_count = window_metrics.get("codex_tool_error_count")
+    codex_mcp_call_count = window_metrics.get("codex_mcp_call_count")
+    codex_unique_tool_names = window_metrics.get("codex_unique_tool_names")
+    codex_unique_mcp_tool_names = window_metrics.get("codex_unique_mcp_tool_names")
     codex_session_id = (codex_summary.get("metrics") or {}).get("session_id")
     if not codex_session_id:
         anomaly_flags.append("missing_codex_session_id")
@@ -255,6 +260,11 @@ def finish_hook(args: argparse.Namespace) -> int:
     claude_total_tokens = 0
     claude_duration_ms = 0
     claude_session_ids: List[str] = []
+    claude_tool_call_count = 0
+    claude_tool_error_count = 0
+    claude_mcp_call_count = 0
+    claude_unique_tool_names = set()
+    claude_unique_mcp_tool_names = set()
     for summary in claude_summaries:
         usage = summary.get("usage") or {}
         claude_usage_totals["input_tokens"] += int(usage.get("input_tokens") or 0)
@@ -263,6 +273,11 @@ def finish_hook(args: argparse.Namespace) -> int:
         claude_usage_totals["cache_read_tokens"] += int(usage.get("cache_read_input_tokens") or 0)
         claude_total_tokens += usage_total(usage)
         claude_duration_ms += int(summary.get("duration_ms") or 0)
+        claude_tool_call_count += int(summary.get("claude_tool_call_count") or 0)
+        claude_tool_error_count += int(summary.get("claude_tool_error_count") or 0)
+        claude_mcp_call_count += int(summary.get("claude_mcp_call_count") or 0)
+        claude_unique_tool_names.update(summary.get("claude_unique_tool_names") or [])
+        claude_unique_mcp_tool_names.update(summary.get("claude_unique_mcp_tool_names") or [])
         if summary.get("session_id"):
             claude_session_ids.append(summary["session_id"])
         anomaly_flags.extend(summary.get("anomaly_flags") or [])
@@ -330,6 +345,11 @@ def finish_hook(args: argparse.Namespace) -> int:
         "codex_turn_count": codex_turn_count,
         "codex_avg_tokens_per_turn": codex_avg_tokens_per_turn,
         "codex_last_turn_tokens": codex_last_turn_tokens,
+        "codex_tool_call_count": codex_tool_call_count,
+        "codex_tool_error_count": codex_tool_error_count,
+        "codex_mcp_call_count": codex_mcp_call_count,
+        "codex_unique_tool_names": codex_unique_tool_names,
+        "codex_unique_mcp_tool_names": codex_unique_mcp_tool_names,
         "claude_session_id": claude_session_ids[-1] if claude_session_ids else None,
         "claude_session_ids": claude_session_ids,
         "claude_input_tokens": claude_usage_totals["input_tokens"],
@@ -338,6 +358,11 @@ def finish_hook(args: argparse.Namespace) -> int:
         "claude_cache_read_tokens": claude_usage_totals["cache_read_tokens"],
         "claude_total_tokens": claude_total_tokens,
         "claude_duration_ms": claude_duration_ms or None,
+        "claude_tool_call_count": claude_tool_call_count,
+        "claude_tool_error_count": claude_tool_error_count,
+        "claude_mcp_call_count": claude_mcp_call_count,
+        "claude_unique_tool_names": sorted(claude_unique_tool_names),
+        "claude_unique_mcp_tool_names": sorted(claude_unique_mcp_tool_names),
         "files_changed_count": files_changed_count,
         "repair_rounds": repair_rounds,
         "fallback_flag": fallback_flag,

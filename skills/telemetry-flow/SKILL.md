@@ -30,6 +30,7 @@ The finish hook should return:
 
 - Codex task-local token usage from rollout history
 - Claude totals from raw delegate logs
+- Codex and Claude tool or MCP call counts from event-level logs
 - run-level duration and first usable result timing
 - workflow outcome metadata such as validation, repairs, fallback, and scope
 - per-task ratios and turn metrics that are purely arithmetic on captured metrics

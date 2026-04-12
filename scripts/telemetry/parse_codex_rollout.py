@@ -117,6 +117,45 @@ def extract_messages(events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return messages
 
 
+def extract_tool_events(events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    tool_events: List[Dict[str, Any]] = []
+    for event in events:
+        ts = event.get("timestamp")
+        if event.get("type") == "response_item":
+            payload_obj = payload(event)
+            payload_type = payload_obj.get("type")
+            if payload_type in {"function_call", "function_call_output"}:
+                tool_events.append(
+                    {
+                        "timestamp": ts,
+                        "event_type": payload_type,
+                        "name": payload_obj.get("name"),
+                        "call_id": payload_obj.get("call_id"),
+                    }
+                )
+        elif event.get("type") == "event_msg":
+            payload_obj = payload(event)
+            msg_type = payload_obj.get("type")
+            if msg_type in {"exec_command_end", "exec_command_start"}:
+                tool_events.append(
+                    {
+                        "timestamp": ts,
+                        "event_type": msg_type,
+                        "name": "exec_command",
+                        "call_id": payload_obj.get("call_id"),
+                    }
+                )
+    return tool_events
+
+
+def classify_codex_tool(name: Optional[str]) -> str:
+    if not name:
+        return "unknown"
+    if str(name).startswith("mcp__"):
+        return "mcp"
+    return "tool"
+
+
 def total_tokens(usage: Dict[str, Any]) -> Optional[int]:
     value = usage.get("total_tokens")
     return int(value) if isinstance(value, int) else None
@@ -220,6 +259,7 @@ def compute_window_metrics(
 ) -> Dict[str, Any]:
     token_events = extract_token_events(events)
     messages = extract_messages(events)
+    tool_events = extract_tool_events(events)
 
     marker_windows = None
     effective_started_at = started_at
@@ -257,6 +297,11 @@ def compute_window_metrics(
     codex_turn_count = 0
     codex_avg_tokens_per_turn = None
     codex_last_turn_tokens = None
+    codex_tool_call_count = 0
+    codex_tool_error_count = 0
+    codex_mcp_call_count = 0
+    unique_tool_names = set()
+    unique_mcp_tool_names = set()
 
     for event in window_token_events:
         usage = event.get("last_token_usage", {})
@@ -280,6 +325,39 @@ def compute_window_metrics(
     else:
         codex_avg_tokens_per_turn = codex_task_tokens / codex_turn_count
 
+    tool_results_by_call_id: Dict[str, Dict[str, Any]] = {}
+    for event in tool_events:
+        ts = parse_timestamp(event.get("timestamp"))
+        if not ts:
+            continue
+        if effective_started_at and ts < effective_started_at:
+            continue
+        if effective_finished_at and ts > effective_finished_at:
+            continue
+
+        event_type = event.get("event_type")
+        name = event.get("name")
+        call_id = event.get("call_id")
+
+        if event_type == "function_call":
+            if classify_codex_tool(name) == "mcp":
+                codex_mcp_call_count += 1
+                unique_mcp_tool_names.add(name)
+            else:
+                codex_tool_call_count += 1
+                if name:
+                    unique_tool_names.add(name)
+        elif event_type == "function_call_output" and call_id:
+            tool_results_by_call_id[call_id] = event
+
+    for event in tool_events:
+        if event.get("event_type") != "function_call":
+            continue
+        call_id = event.get("call_id")
+        result_event = tool_results_by_call_id.get(call_id)
+        if result_event and result_event.get("name") is None:
+            continue
+
     if not effective_started_at:
         anomaly_flags.append("missing_effective_started_at")
     if not effective_finished_at:
@@ -297,6 +375,11 @@ def compute_window_metrics(
         "codex_turn_count": codex_turn_count,
         "codex_avg_tokens_per_turn": codex_avg_tokens_per_turn,
         "codex_last_turn_tokens": codex_last_turn_tokens,
+        "codex_tool_call_count": codex_tool_call_count,
+        "codex_tool_error_count": codex_tool_error_count,
+        "codex_mcp_call_count": codex_mcp_call_count,
+        "codex_unique_tool_names": sorted(name for name in unique_tool_names if name),
+        "codex_unique_mcp_tool_names": sorted(name for name in unique_mcp_tool_names if name),
         "marker_windows": marker_windows,
         "anomaly_flags": anomaly_flags,
     }
