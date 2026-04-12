@@ -1,7 +1,7 @@
 # SOW: Sow Delegate Flow Log Parser
 
 - **Task**: Cập nhật `sow-delegate-flow` để không đọc trực tiếp full Claude CLI output vào context, mà chuyển sang cơ chế `raw log file -> Python parser -> compact parsed summary`, đồng thời ghi usage/cost của Claude vào artifact có thể tổng hợp sau này.
-- **Location**: `plan_todo/skills_sow/SOW_sow_delegate_flow_log_parser.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, reference mới cho output parsing, script Python mới nếu cần, `.gitignore`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_log_parser.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, reference mới cho output parsing, script Python mới nếu cần, `.gitignore`
 - **Why**: Cả `json` và `stream-json` của Claude CLI đều có thể trả quá nhiều output vào context. Đọc trực tiếp output đó làm tăng token cost của coordinator. Cần giảm chi phí bằng cách chỉ đọc summary đã parse, và chỉ mở raw log khi có bất thường hoặc debug sâu.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -48,7 +48,7 @@ Coordinator reads parsed artifact by default
   - Productionizing a general-purpose observability system
   - Migrating all old logs or backfilling historical Claude sessions
 - **Proposed-By**: Codex GPT-5
-- **plan**: `plan_todo/skills_sow/SOW_sow_delegate_flow_log_parser.md`
+- **plan**: `plan_todo/SOW_sow_delegate_flow_log_parser.md`
 - **Cautions / Risks**:
   - Claude JSON and stream output shapes may vary slightly by mode/version, so parser rules should target stable fields.
   - If the parser extracts too much, it defeats the token-saving goal.

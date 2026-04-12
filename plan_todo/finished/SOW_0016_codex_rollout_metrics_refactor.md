@@ -1,7 +1,7 @@
 # SOW: Codex Rollout Metrics Refactor
 
 - **Task**: Gỡ flow đo Codex bằng OTel, bỏ local OTel config khỏi Codex, và chuyển sang flow đo session metrics bằng Python parser đọc rollout history trong `~/.codex/sessions/`.
-- **Location**: `plan_todo/skills_sow/SOW_codex_rollout_metrics_refactor.md`, `~/.codex/config.toml`, `scripts/telemetry/README_codex_otel.md`, `scripts/telemetry/parse_codex_otel_log.py`, `scripts/telemetry/codex_otel_collector.yaml`, skill docs liên quan nếu cần
+- **Location**: `plan_todo/SOW_codex_rollout_metrics_refactor.md`, `~/.codex/config.toml`, `scripts/telemetry/README_codex_otel.md`, `scripts/telemetry/parse_codex_otel_log.py`, `scripts/telemetry/codex_otel_collector.yaml`, skill docs liên quan nếu cần
 - **Why**: Với mục tiêu hiện tại, rollout history của Codex đã chứa message body, token counts, task completion, và session metadata. Nó phù hợp hơn OTel cho việc đo session/task/SOW efficiency và bắt marker text. Giữ OTel lúc này chỉ làm hệ thống phức tạp hơn mà không tăng giá trị tương xứng.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -48,7 +48,7 @@ Use rollout history as primary Codex measurement source
   - Reworking Claude telemetry
   - Historical migration of all prior Codex telemetry artifacts
 - **Proposed-By**: Codex GPT-5
-- **plan**: `plan_todo/skills_sow/SOW_codex_rollout_metrics_refactor.md`
+- **plan**: `plan_todo/SOW_codex_rollout_metrics_refactor.md`
 - **Cautions / Risks**:
   - Rollout file schemas may vary slightly across Codex versions, so parser logic should target stable event types.
   - Historical rollout logs may contain large instruction blocks, so parser should avoid loading or printing irrelevant fields.

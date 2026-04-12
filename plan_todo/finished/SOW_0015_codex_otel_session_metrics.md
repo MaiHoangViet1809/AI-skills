@@ -1,7 +1,7 @@
 # SOW: Codex OTel Session Metrics
 
 - **Task**: Thiết lập đo usage của Codex qua OpenTelemetry theo cấp session, có timestamp, để về sau tổng hợp hiệu quả theo task/SOW và đánh giá impact của skill usage theo thời gian.
-- **Location**: `plan_todo/skills_sow/SOW_codex_otel_session_metrics.md`, `~/.codex/config.toml`, file config OpenTelemetry Collector local, thư mục log/ledger local nếu cần dưới repo
+- **Location**: `plan_todo/SOW_codex_otel_session_metrics.md`, `~/.codex/config.toml`, file config OpenTelemetry Collector local, thư mục log/ledger local nếu cần dưới repo
 - **Why**: Hiện chỉ có Claude usage được đo tương đối chính xác. Cần thêm session-level metrics cho Codex để so sánh cost và đánh giá hiệu quả của workflow/skills theo thời gian, nhưng không cần đo quá chi tiết từng event trong normal path.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -46,7 +46,7 @@ Later aggregate by task/SOW to evaluate skill efficiency over time
   - Full cross-agent analytics dashboard
   - Perfect automatic task/SOW attribution for all past/future work
 - **Proposed-By**: Codex GPT-5
-- **plan**: `plan_todo/skills_sow/SOW_codex_otel_session_metrics.md`
+- **plan**: `plan_todo/SOW_codex_otel_session_metrics.md`
 - **Cautions / Risks**:
   - Codex OTel config may require a new session or app restart before logs appear reliably.
   - Session-level metrics are the source metric; mapping to task/SOW will be a later aggregation layer.
