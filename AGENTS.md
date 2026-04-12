@@ -10,6 +10,11 @@ This file contains instructions and conventions for AI agents working on this pr
     - Run scripts: `uv run <script>`
     - Python version: Respect `.python-version` or `pyproject.toml` settings.
 
+## Response Style
+- By default, answer briefly and directly.
+- Keep responses concise but complete enough to satisfy the request.
+- Do not add long explanations unless the user explicitly asks for more detail.
+
 ## Scope-of-Work (SoW) Template (MUST use before coding)
 Agent MUST present below SoW for approval before applying patches:
 - **Task**: <one-sentence change>
@@ -46,4 +51,3 @@ Agent MUST present below SoW for approval before applying patches:
 
 ## SOW Lifecycle
 - When a SOW is completed, move its file into `plan_todo/finished/` and keep AGENTS.md notes in sync so future work references stay accurate.
-
