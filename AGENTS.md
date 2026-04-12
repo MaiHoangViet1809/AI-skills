@@ -7,7 +7,7 @@ This file contains instructions and conventions for AI agents working on this pr
 - **Commands**:
     - Install dependencies: `uv pip install -r requirements.txt` or `uv sync` if using `uv.lock`.
     - Add package: `uv add <package>`
-    - Run scripts: `uv run <script>`
+    - Run scripts: `PYTHONPATH=. & uv run <script>`
     - Python version: Respect `.python-version` or `pyproject.toml` settings.
 
 ## Response Style
