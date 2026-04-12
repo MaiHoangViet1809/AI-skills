@@ -43,7 +43,7 @@
                 v-for="cell in week"
                 :key="cell.date"
                 class="day-cell"
-                :class="{ outside: cell.outside }"
+                :class="{ outside: cell.outside, empty: isEmptyCell(cell) }"
                 :style="{ gridColumn: weekIndex + 1, gridRow: cell.weekday + 1, backgroundColor: cellColor(cell) }"
                 :title="cellTooltip(cell)"
               ></div>
@@ -185,6 +185,7 @@ function heatColor(ratio) {
 
 function cellColor(cell) {
   if (cell.outside) return 'transparent'
+  if (isEmptyCell(cell)) return 'transparent'
   const max = maxMetricValue()
   const value = metricValue(cell)
   return heatColor(max > 0 ? value / max : 0)
@@ -192,6 +193,9 @@ function cellColor(cell) {
 
 function cellTooltip(cell) {
   if (cell.outside) return ''
+  if (isEmptyCell(cell)) {
+    return `${formatShortDate(cell.date)}\nno runs`
+  }
   return [
     formatShortDate(cell.date),
     `total: ${cell.total_tokens.toLocaleString()} tokens`,
@@ -200,6 +204,10 @@ function cellTooltip(cell) {
     `runs: ${cell.run_count}`,
     `accepted: ${cell.accepted_runs}`,
   ].join('\n')
+}
+
+function isEmptyCell(cell) {
+  return !cell.outside && cell.run_count === 0
 }
 
 async function load() {
@@ -336,6 +344,10 @@ watch(filters, load, { deep: true })
 
 .day-cell.outside {
   border-color: transparent;
+}
+
+.day-cell.empty {
+  border-color: rgba(255, 255, 255, 0.02);
 }
 
 .legend-row {
