@@ -1,0 +1,18 @@
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9999',
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    outDir: '../scripts/dashboard/static',
+    emptyOutDir: true,
+  },
+})
