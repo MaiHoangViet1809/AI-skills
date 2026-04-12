@@ -42,12 +42,30 @@ Use this skill for multi-SOW plans that run as Codex -> SOW -> approval -> Claud
 5. Start a delegate session or decide whether to resume the current one.
 6. Delegate by SOW path, not by pasting the full SOW.
 7. Write raw delegate output to `logs_session_ai_agent/`, parse it with the helper script, and read the parser output.
-8. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
-9. If Claude returns done, review files and validate.
-10. If validation fails, send feedback and continue in the current or a refreshed session.
-11. Once the workflow reaches a terminal outcome, finish the telemetry run before closeout or commit.
-12. If validation passes, close the SOW.
-13. Drop the session from active state when the plan has no active SOW left.
+8. Enter the coordinator loop:
+   - classify task difficulty
+   - poll with backoff
+   - re-read parser output
+   - continue until terminal result, advice request, repair need, or likely-stall threshold
+9. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
+10. If Claude returns done, review files and validate.
+11. If validation fails, send feedback and continue in the current or a refreshed session.
+12. Once the workflow reaches a terminal outcome, finish the telemetry run before closeout or commit.
+13. If validation passes, close the SOW.
+14. Drop the session from active state when the plan has no active SOW left.
+
+## Coordinator Loop
+
+- After starting a delegate run, keep polling inside the same execution path until there is a real decision point.
+- A real decision point is one of:
+  - terminal `result`
+  - `needs_advice`
+  - validation failure that needs repair
+  - likely stall by the active difficulty threshold
+  - explicit rate-limit or infra block
+- Do not stop the coordinator loop just because one poll found no new output.
+- Use parser progress fields as the source of truth during the loop.
+- Use the user only when the delegate actually needs advice or the task has become ambiguous.
 
 ## Validation Matrix
 

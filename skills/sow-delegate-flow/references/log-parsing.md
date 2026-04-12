@@ -4,6 +4,7 @@ Use raw-log-first capture by default.
 
 The coordinator should not read full Claude CLI output directly unless the parsed summary reports an anomaly or the current flow explicitly needs deep debugging.
 For active delegate runs, the coordinator should poll the parser output and use parsed progress fields instead of guessing from raw log size.
+The parser output is meant to support a long-running coordinator loop, not a single one-off spot check.
 
 ## Canonical Paths
 
@@ -33,6 +34,8 @@ Print compact summary to stdout
 Coordinator reads parser output by default
    |
    +--> open raw log only on anomaly or deep delegate debugging
+   |
+   +--> stay in polling loop until there is a real decision point
 ```
 
 ## Minimum Extracted Fields

@@ -77,6 +77,7 @@ Normal polling:
 - let Claude run
 - re-check the parsed log summary at the configured poll interval
 - use parsed progress, not raw file size, as the signal
+- stay in the coordinator loop until a real decision point appears
 
 Follow-up turns:
 
@@ -115,6 +116,16 @@ Normal read path:
 - during execution, use the parser output as a compact progress view
 - read the parser output first
 - read the raw log only if the parser reports an anomaly or the flow explicitly needs deep debugging
+
+Coordinator loop:
+
+- keep polling and re-reading parser output in the same execution path
+- do not stop after one or two polls unless there is a terminal or actionable state
+- actionable states are:
+  - terminal success/failure result
+  - `needs_advice`
+  - likely stall by difficulty threshold
+  - explicit infra or rate-limit block
 
 ## Result Schema
 
@@ -225,3 +236,4 @@ See [log-parsing.md](log-parsing.md) for the canonical raw-log path, parser outp
   - `medium`: 10 minutes
   - `hard`: 15 minutes
 - Check faster only when the result is on the critical path and you expect a short run.
+- Keep the loop alive until one of those thresholds or another real decision point is reached.
