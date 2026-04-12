@@ -1,3 +1,6 @@
 .idea
 .venv
 logs_session_ai_agent/
+
+node_modules/
+scripts/dashboard/node_modules/
