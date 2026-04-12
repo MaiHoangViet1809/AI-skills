@@ -1,0 +1,4 @@
+interface:
+  display_name: "SowDelegateFlow"
+  short_description: "SOW-first Claude handoff flow"
+  default_prompt: "Use SowDelegateFlow to create an approved SOW, delegate by SOW path, then review or take over locally if needed."

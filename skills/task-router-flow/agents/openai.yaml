@@ -1,0 +1,4 @@
+interface:
+  display_name: "TaskRouterFlow"
+  short_description: "Route new work requests into the right workflow branch"
+  default_prompt: "Use TaskRouterFlow to choose the correct branch for a new work request before execution begins."
