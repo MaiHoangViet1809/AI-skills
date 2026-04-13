@@ -29,3 +29,15 @@ Notes:
 - source is `skills/` in this repo
 - target defaults to `~/.codex/skills`
 - overwrite is opt-in to avoid clobbering local edits
+
+Sync repo-owned shared rules and selected skills into local Codex:
+
+```bash
+uv run python scripts/skills/sync_environment.py --target codex
+```
+
+Preview sync actions:
+
+```bash
+uv run python scripts/skills/sync_environment.py --target codex --dry-run
+```

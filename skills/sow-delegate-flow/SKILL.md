@@ -7,6 +7,8 @@ description: Use when a task is being executed as a plan with multiple sequentia
 
 Use this skill for multi-SOW plans that run as Codex -> SOW -> approval -> Claude -> review -> feedback/advice -> fallback.
 
+For execution-time progress updates, follow [brief-execution.md](../../rules/brief-execution.md).
+
 ## Precedence
 
 - `AGENTS.md` and repo rules define process constraints and guardrails.

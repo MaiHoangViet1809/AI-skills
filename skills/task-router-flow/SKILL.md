@@ -7,6 +7,8 @@ description: Use this skill when the user makes a work request that may require 
 
 Use this skill as the front-door router before execution begins.
 
+For execution-time progress updates, follow [brief-execution.md](../../rules/brief-execution.md).
+
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
 ## Branches
