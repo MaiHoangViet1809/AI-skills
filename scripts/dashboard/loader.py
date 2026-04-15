@@ -11,6 +11,9 @@ import polars as pl
 from ._schema import RUNS_SCHEMA, RunRecord
 
 
+GLOBAL_RUNS_DIR = Path.home() / ".logs" / "codex" / "telemetry" / "runs"
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -98,8 +101,8 @@ def _normalize_run(path: Path) -> RunRecord:
 
 
 def load_run_records(repo_root: str | Path) -> list[RunRecord]:
-    logs_dir = Path(repo_root).resolve() / "logs_session_ai_agent"
-    run_files = sorted(logs_dir.glob("telemetry-run-*.json"))
+    del repo_root
+    run_files = sorted(GLOBAL_RUNS_DIR.glob("*.json"))
     return [_normalize_run(path) for path in run_files]
 
 

@@ -34,8 +34,19 @@ def ensure_logs_dir(repo_root: Path) -> Path:
     return path
 
 
+def ensure_global_runs_dir() -> Path:
+    path = Path.home() / ".logs" / "codex" / "telemetry" / "runs"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def staging_path(repo_root: Path, run_id: str) -> Path:
     return ensure_logs_dir(repo_root) / f"telemetry-run-{run_id}.json"
+
+
+def global_run_path(project_name: str, run_id: str) -> Path:
+    safe_project = project_name.replace("/", "_")
+    return ensure_global_runs_dir() / f"{safe_project}__{run_id}.json"
 
 
 def resolve_sow_file(repo_root: Path, sow: Optional[str]) -> Optional[str]:
@@ -401,6 +412,7 @@ def finish_hook(args: argparse.Namespace) -> int:
     record["codex"]["session_id"] = codex_session_id
     record["result"] = result
     write_json(path, record)
+    write_json(global_run_path(record["project_name"], record["run_id"]), record)
 
     print(json.dumps(result, ensure_ascii=True, indent=2))
     return 0
