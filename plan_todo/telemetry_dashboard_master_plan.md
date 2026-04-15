@@ -84,7 +84,7 @@ The dashboard dataset should normalize each run to one row with at least:
 - Use Python for the dashboard server and boot script
 - Use Polars for file scanning, transformation, window filtering, and summary aggregation
 - Use one boot script only, for example:
-  - `uv run python scripts/dashboard/run_dashboard.py`
+  - `uv run python scripts/run_dashboard.py`
 - In v1, serve frontend static assets and API from one backend process on `:9999`
 - Do not add SQLite in v1
 - Do not add a separate reporting pipeline before the dashboard
@@ -145,7 +145,7 @@ The table should support at least:
 
 Focus:
 
-- create `scripts/dashboard/` package skeleton
+- create a top-level `dashboard/` area for backend/frontend/static
 - load telemetry run JSON files with Polars
 - normalize one-row-per-run dataset
 - define shared backend schema/helpers

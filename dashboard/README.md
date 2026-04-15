@@ -3,13 +3,13 @@
 Boot the dashboard on `http://localhost:9999` with:
 
 ```bash
-PYTHONPATH=. uv run python scripts/dashboard/run_dashboard.py
+PYTHONPATH=. uv run python scripts/run_dashboard.py
 ```
 
 What the script does:
 
-- runs `npm install` in `dashboard_ui/`
-- builds the frontend into `scripts/dashboard/static/`
+- runs `npm install` in `dashboard/frontend/`
+- builds the frontend into `dashboard/static/`
 - serves API and frontend from the same FastAPI app on port `9999`
 - reads telemetry only from `~/.logs/codex/telemetry/runs/`
 

@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../scripts/dashboard/static',
+    outDir: '../static',
     emptyOutDir: true,
   },
 })

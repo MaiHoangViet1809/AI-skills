@@ -7,22 +7,22 @@ from pathlib import Path
 
 import uvicorn
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-DASHBOARD_UI = REPO_ROOT / "dashboard_ui"
-STATIC_INDEX = REPO_ROOT / "scripts" / "dashboard" / "static" / "index.html"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DASHBOARD_UI = REPO_ROOT / "dashboard" / "frontend"
+STATIC_INDEX = REPO_ROOT / "dashboard" / "static" / "index.html"
 
-from scripts.dashboard.app import app
+from dashboard.backend.app import app
 
 
 def ensure_frontend_built() -> None:
     if not DASHBOARD_UI.exists():
-        raise SystemExit("dashboard_ui/ is missing")
+        raise SystemExit("dashboard/frontend/ is missing")
 
     subprocess.run(["npm", "install"], cwd=DASHBOARD_UI, check=True)
     subprocess.run(["npm", "run", "build"], cwd=DASHBOARD_UI, check=True)
 
     if not STATIC_INDEX.exists():
-        raise SystemExit("frontend build did not produce scripts/dashboard/static/index.html")
+        raise SystemExit("frontend build did not produce dashboard/static/index.html")
 
 
 def main() -> int:

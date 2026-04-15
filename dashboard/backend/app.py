@@ -1,7 +1,7 @@
 """Dashboard backend app — API plus same-port static serving.
 
 Usage:
-    uv run uvicorn scripts.dashboard.app:app --port 9999
+    uv run uvicorn dashboard.backend.app:app --port 9999
 
 Endpoints
 ---------
@@ -26,10 +26,10 @@ from fastapi.staticfiles import StaticFiles
 from .loader import load_runs
 
 # ---------------------------------------------------------------------------
-# Repo root is two levels above this file: scripts/dashboard/app.py
+# Repo root is two levels above this file: dashboard/backend/app.py
 # ---------------------------------------------------------------------------
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_STATIC_DIR = _REPO_ROOT / "scripts" / "dashboard" / "static"
+_STATIC_DIR = _REPO_ROOT / "dashboard" / "static"
 _STATIC_ASSETS_DIR = _STATIC_DIR / "assets"
 _STATIC_INDEX = _STATIC_DIR / "index.html"
 
