@@ -35,9 +35,17 @@ _STATIC_INDEX = _STATIC_DIR / "index.html"
 
 app = FastAPI(title="AISkills Telemetry Dashboard", version="0.1.0")
 
-# Cache loaded at module import so repeated requests are cheap.
-# In the final boot flow (SOW_0026) this will be refreshed on demand.
-_df: pl.DataFrame = load_runs(_REPO_ROOT)
+_cached_df: pl.DataFrame | None = None
+
+
+def _reload_runs() -> pl.DataFrame:
+    return load_runs(_REPO_ROOT)
+
+
+def _refresh_cache() -> pl.DataFrame:
+    global _cached_df
+    _cached_df = _reload_runs()
+    return _cached_df
 
 if _STATIC_ASSETS_DIR.exists():
     app.mount("/assets", StaticFiles(directory=_STATIC_ASSETS_DIR), name="assets")
@@ -120,7 +128,7 @@ def get_summary(
     task_type: str | None = Query(default=None),
 ) -> JSONResponse:
     """Return aggregate summary stats for the requested window and filters."""
-    df = _apply_filters(_df, window, skill, success_state, task_type)
+    df = _apply_filters(_reload_runs(), window, skill, success_state, task_type)
 
     total_runs = df.height
 
@@ -185,7 +193,7 @@ def get_runs(
     offset: int = Query(default=0, ge=0),
 ) -> JSONResponse:
     """Return a paginated list of run records for the requested window and filters."""
-    df = _apply_filters(_df, window, skill, success_state, task_type)
+    df = _apply_filters(_reload_runs(), window, skill, success_state, task_type)
 
     total = df.height
     page = df.slice(offset, limit)
@@ -233,7 +241,7 @@ def _window_date_range(window: str, rows: list[dict[str, Any]]) -> tuple[date, d
 @app.get("/api/runs/{run_id}")
 def get_run_detail(run_id: str) -> JSONResponse:
     """Return all fields for a single run by its run_id."""
-    matches = _df.filter(pl.col("run_id") == run_id)
+    matches = _reload_runs().filter(pl.col("run_id") == run_id)
     if matches.height == 0:
         raise HTTPException(status_code=404, detail=f"run_id '{run_id}' not found")
 
@@ -253,7 +261,7 @@ def get_activity_chart(
     task_type: str | None = Query(default=None),
 ) -> JSONResponse:
     """Return daily token-burn data for a GitHub-style heatmap."""
-    df = _apply_filters(_df, window, skill, success_state, task_type)
+    df = _apply_filters(_reload_runs(), window, skill, success_state, task_type)
     rows = df.select([
         "started_at",
         "success_state",
@@ -352,7 +360,7 @@ def get_duration_chart(
     - ``success_state``   – outcome label for colour-coding
     - ``skill``           – skill name for tooltip
     """
-    df = _apply_filters(_df, window, skill, success_state, task_type)
+    df = _apply_filters(_reload_runs(), window, skill, success_state, task_type)
 
     cols = ["run_id", "started_at", "run_duration_ms", "success_state", "skill"]
     if df.height == 0:
@@ -373,6 +381,16 @@ def get_duration_chart(
         "window": window,
         "filters": {"skill": skill, "success_state": success_state, "task_type": task_type},
         "points": points,
+    })
+
+
+@app.post("/api/refresh")
+def refresh_runs() -> JSONResponse:
+    frame = _refresh_cache()
+    return JSONResponse({
+        "refreshed": True,
+        "total_runs": frame.height,
+        "refreshed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     })
 
 

@@ -12,6 +12,7 @@ What the script does:
 - builds the frontend into `dashboard/static/`
 - serves API and frontend from the same FastAPI app on port `9999`
 - reads telemetry only from `~/.logs/codex/telemetry/runs/`
+- reloads global ledger on every API request and exposes `POST /api/refresh` for manual refresh
 
 Quick smoke checks:
 
