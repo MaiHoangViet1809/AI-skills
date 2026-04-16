@@ -16,9 +16,9 @@ main session
    |
    +--> task-router-flow session/subagent
            |
-           +--> Codex hooks start telemetry
+           +--> Codex SessionStart anchors telemetry time
            +--> task-router work
-           +--> Codex hooks finish telemetry
+           +--> Codex Stop resolves prompt marker and finishes telemetry
            +--> return brief summary to main session
    |
    +--> sow-delegate-flow path cũ giữ nguyên
@@ -41,6 +41,7 @@ main session
 - **Proposed-By**: Codex GPT-5
 - **plan**: `subagent telemetry pilot`
 - **Cautions / Risks**:
-  - hooks còn experimental
-  - `UserPromptSubmit` và `Stop` không support matcher, script phải tự filter
-  - cần tránh double-count nếu sau này parent cũng emit telemetry
+- hooks còn experimental
+- `Stop` không support matcher, script phải tự filter
+- skill metadata phải được hydrate lại từ transcript tại `Stop`
+- cần tránh double-count nếu sau này parent cũng emit telemetry

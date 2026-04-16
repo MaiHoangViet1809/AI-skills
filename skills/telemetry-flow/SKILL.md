@@ -30,7 +30,7 @@ For the `SOW_0033` pilot, Codex hooks may trigger telemetry around a `task-route
 
 Rules for the pilot:
 - treat the skill-run session as the telemetry boundary
-- let Codex hooks call telemetry, not the normal flow wrapper
+- let Codex hooks own the pilot boundary, with `SessionStart` anchoring time and `Stop` reading the session transcript to hydrate skill metadata
 - keep `sow-delegate-flow` on the existing explicit `start/finish` path
 - the pilot session should return a brief summary back to the parent or main session
 

@@ -11,17 +11,6 @@
         ]
       }
     ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "PYTHONPATH=/Users/maihoangviet/Projects/AISkills uv run python /Users/maihoangviet/Projects/AISkills/scripts/telemetry/codex_hook_bridge.py user-prompt-submit",
-            "statusMessage": "Starting skill telemetry"
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "hooks": [

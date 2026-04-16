@@ -74,7 +74,7 @@ CODEX_SKILL_RUN skill=task-router-flow sow=SOW_0033 plan=subagent_telemetry_pilo
 
 Rules for the pilot path:
 - the skill-run session should return a brief summary to the main session
-- Codex hooks should start and finish telemetry for that session automatically
+- Codex `SessionStart` should anchor the run start time and `Stop` should finish telemetry automatically
 - do not call the normal `telemetry-flow start/finish` path manually for this pilot
 
 ## Notes

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -83,6 +84,17 @@ def extract_prompt(payload: dict[str, Any]) -> str:
     return ""
 
 
+def extract_transcript_path(payload: dict[str, Any]) -> str | None:
+    for value in (
+        payload.get("transcript_path"),
+        nested_get(payload, "payload", "transcript_path"),
+        nested_get(payload, "session", "transcript_path"),
+    ):
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
 def state_path(session_id: str) -> Path:
     ensure_dirs()
     return STATE_DIR / f"{session_id}.json"
@@ -126,7 +138,50 @@ def script_json(args: list[str]) -> dict[str, Any]:
     return json.loads(result.stdout)
 
 
-def telemetry_start(session_id: str, metadata: dict[str, str]) -> dict[str, Any]:
+def prompt_from_transcript(transcript_path: str | None) -> str:
+    if not transcript_path:
+        return ""
+    path = Path(transcript_path)
+    if not path.exists():
+        return ""
+    prompts: list[str] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            payload = event.get("payload")
+            if not isinstance(payload, dict):
+                continue
+            if event.get("type") == "event_msg" and payload.get("type") == "user_message":
+                message = payload.get("message")
+                if isinstance(message, str) and message:
+                    prompts.append(message)
+                continue
+            if payload.get("type") != "message" or payload.get("role") != "user":
+                continue
+            content = payload.get("content")
+            if not isinstance(content, list):
+                continue
+            parts: list[str] = []
+            for item in content:
+                if not isinstance(item, dict):
+                    continue
+                if item.get("type") in {"input_text", "text"} and isinstance(item.get("text"), str):
+                    parts.append(item["text"])
+            if parts:
+                prompts.append("\n".join(parts))
+    for prompt in reversed(prompts):
+        if MARKER_PREFIX in prompt:
+            return prompt
+    return prompts[-1] if prompts else ""
+
+
+def telemetry_start(session_id: str, metadata: dict[str, str], started_at: str | None = None) -> dict[str, Any]:
     command = [
         sys.executable,
         str(REPO_ROOT / "skills" / "telemetry-flow" / "scripts" / "telemetry_hook.py"),
@@ -146,6 +201,8 @@ def telemetry_start(session_id: str, metadata: dict[str, str]) -> dict[str, Any]
         "--codex-session-id",
         session_id,
     ]
+    if started_at:
+        command.extend(["--started-at", started_at])
     return script_json(command)
 
 
@@ -206,6 +263,7 @@ def handle_session_start(payload: dict[str, Any]) -> int:
     state["session_id"] = session_id
     state["cwd"] = extract_cwd(payload)
     state["session_started_at"] = utc_now_iso()
+    state["transcript_path"] = extract_transcript_path(payload)
     save_state(session_id, state)
     return 0
 
@@ -225,7 +283,7 @@ def handle_user_prompt_submit(payload: dict[str, Any]) -> int:
     if state.get("run_id"):
         save_state(session_id, state)
         return 0
-    start_result = telemetry_start(session_id, metadata)
+    start_result = telemetry_start(session_id, metadata, state.get("session_started_at"))
     state["run_id"] = start_result["run_id"]
     state["telemetry_started_at"] = start_result["started_at"]
     state["telemetry_staging_file"] = start_result["staging_file"]
@@ -238,10 +296,22 @@ def handle_stop(payload: dict[str, Any]) -> int:
     if not session_id:
         return 0
     state = load_state(session_id)
-    run_id = state.get("run_id")
-    metadata = state.get("metadata") or {}
-    if not run_id or metadata.get("skill") != PILOT_SKILL:
+    transcript_path = extract_transcript_path(payload) or state.get("transcript_path")
+    prompt = state.get("prompt") or prompt_from_transcript(transcript_path)
+    metadata = state.get("metadata") or parse_marker(prompt)
+    state["transcript_path"] = transcript_path
+    if metadata.get("skill") != PILOT_SKILL:
+        save_state(session_id, state)
         return 0
+    run_id = state.get("run_id")
+    if not run_id:
+        start_result = telemetry_start(session_id, metadata, state.get("session_started_at"))
+        run_id = start_result["run_id"]
+        state["run_id"] = run_id
+        state["telemetry_started_at"] = start_result["started_at"]
+        state["telemetry_staging_file"] = start_result["staging_file"]
+        state["metadata"] = metadata
+        state["prompt"] = prompt
     if state.get("telemetry_finished"):
         return 0
     finish_result = telemetry_finish(session_id, run_id, metadata)
@@ -252,7 +322,6 @@ def handle_stop(payload: dict[str, Any]) -> int:
     state["finish_result"] = finish_result
     state["result_file"] = str((Path.home() / ".logs" / "codex" / "telemetry" / "runs").resolve())
     save_state(session_id, state)
-    print(json.dumps({"continue": True, "run_id": run_id, "skill": PILOT_SKILL}, ensure_ascii=True))
     return 0
 
 

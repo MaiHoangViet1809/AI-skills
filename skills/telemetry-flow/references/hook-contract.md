@@ -150,7 +150,7 @@ CODEX_SKILL_RUN skill=task-router-flow sow=SOW_0033 plan=subagent_telemetry_pilo
 
 Pilot behavior:
 
-- `UserPromptSubmit` hook filters for the marker and runs telemetry `start`
-- `Stop` hook finishes the same run by `session_id`
-- `SessionStart` can register session metadata early, but prompt metadata is the main routing signal
+- `SessionStart` records the session start time
+- `Stop` reads the session transcript, extracts the first prompt marker, then runs telemetry `start` and `finish`
+- the telemetry run uses the `SessionStart` timestamp as `started_at`
 - this pilot should not replace the current explicit `sow-delegate-flow` integration

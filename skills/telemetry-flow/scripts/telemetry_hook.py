@@ -130,7 +130,7 @@ def usage_total(usage: Dict[str, Any]) -> int:
 def start_hook(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve()
     run_id = uuid.uuid4().hex
-    started_at = utc_now_iso()
+    started_at = args.started_at or utc_now_iso()
     skill = args.skill
     plan = args.plan or "-"
     sow = args.sow or "-"
@@ -430,6 +430,7 @@ def build_parser() -> argparse.ArgumentParser:
     start.add_argument("--task-type", required=True)
     start.add_argument("--intent")
     start.add_argument("--codex-session-id")
+    start.add_argument("--started-at")
 
     finish = subparsers.add_parser("finish")
     finish.add_argument("--repo-root", required=True)
