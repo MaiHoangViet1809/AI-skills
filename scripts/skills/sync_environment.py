@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import shutil
 from pathlib import Path
+import re
 
 
 def repo_root() -> Path:
@@ -31,7 +32,11 @@ def sync_codex(dry_run: bool) -> list[str]:
     rule_dest = target_root / "rules" / "brief-execution.md"
     actions.append(f"rule  {rule_src} -> {rule_dest}")
 
-    for skill_name in ("task-router-flow", "sow-delegate-flow"):
+    hooks_template = root / ".codex" / "hooks.json.template"
+    hooks_dest = target_root / "hooks.json"
+    actions.append(f"hooks {hooks_template} -> {hooks_dest}")
+
+    for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow"):
         skill_src = root / "skills" / skill_name
         skill_dest = target_root / "skills" / skill_name
         actions.append(f"skill {skill_src} -> {skill_dest}")
@@ -42,8 +47,23 @@ def sync_codex(dry_run: bool) -> list[str]:
     rule_dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(rule_src, rule_dest)
 
-    for skill_name in ("task-router-flow", "sow-delegate-flow"):
+    hooks_dest.parent.mkdir(parents=True, exist_ok=True)
+    hooks_text = hooks_template.read_text(encoding="utf-8").replace("/Users/maihoangviet/Projects/AISkills", str(root))
+    hooks_dest.write_text(hooks_text, encoding="utf-8")
+
+    for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow"):
         copy_tree(root / "skills" / skill_name, target_root / "skills" / skill_name)
+
+    config_path = target_root / "config.toml"
+    config_text = config_path.read_text(encoding="utf-8") if config_path.exists() else ""
+    if "[features]" not in config_text:
+        config_text = config_text.rstrip() + "\n\n[features]\n"
+    if re.search(r"(?m)^codex_hooks\s*=\s*true\s*$", config_text) is None:
+        if re.search(r"(?m)^\[features\]\s*$", config_text):
+            config_text = re.sub(r"(?m)^\[features\]\s*$", "[features]\ncodex_hooks = true", config_text, count=1)
+        else:
+            config_text = config_text.rstrip() + "\n\n[features]\ncodex_hooks = true\n"
+        config_path.write_text(config_text.rstrip() + "\n", encoding="utf-8")
 
     return actions
 

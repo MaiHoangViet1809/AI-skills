@@ -137,3 +137,20 @@ The finish hook should return one JSON object with at least these fields:
 - Run `start` before the first Claude delegate call in a run.
 - Keep the returned `run_id` active across repair or advice loops.
 - Run `finish` once the run reaches a terminal workflow outcome.
+
+## Hook-Based Pilot For `task-router-flow`
+
+The `SOW_0033` pilot uses Codex hooks instead of explicit flow calls.
+
+Prompt convention for the pilot session:
+
+```text
+CODEX_SKILL_RUN skill=task-router-flow sow=SOW_0033 plan=subagent_telemetry_pilot task_type=docs
+```
+
+Pilot behavior:
+
+- `UserPromptSubmit` hook filters for the marker and runs telemetry `start`
+- `Stop` hook finishes the same run by `session_id`
+- `SessionStart` can register session metadata early, but prompt metadata is the main routing signal
+- this pilot should not replace the current explicit `sow-delegate-flow` integration

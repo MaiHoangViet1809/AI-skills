@@ -41,3 +41,8 @@ Preview sync actions:
 ```bash
 uv run python scripts/skills/sync_environment.py --target codex --dry-run
 ```
+
+This sync also:
+
+- writes `~/.codex/hooks.json` from the repo template
+- enables `codex_hooks = true` in `~/.codex/config.toml`

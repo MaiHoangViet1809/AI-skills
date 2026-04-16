@@ -62,6 +62,21 @@ After any branch finishes:
 - commit with a clear message unless the user defers commits
 - report the result to the user
 
+## Subagent Pilot
+
+For the `SOW_0033` pilot path, `task-router-flow` may run in its own Codex session or subagent instead of inline.
+
+Use a first-line prompt marker like:
+
+```text
+CODEX_SKILL_RUN skill=task-router-flow sow=SOW_0033 plan=subagent_telemetry_pilot task_type=docs
+```
+
+Rules for the pilot path:
+- the skill-run session should return a brief summary to the main session
+- Codex hooks should start and finish telemetry for that session automatically
+- do not call the normal `telemetry-flow start/finish` path manually for this pilot
+
 ## Notes
 
 - This skill decides the branch. It does not replace downstream execution skills.

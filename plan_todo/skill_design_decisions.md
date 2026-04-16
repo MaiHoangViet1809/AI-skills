@@ -218,6 +218,36 @@ Reason:
 - Persisting extra parsed files and ledgers created unnecessary file sprawl.
 
 Relevant files:
+
+## 19. Global Ledger Is The Dashboard Source Of Truth
+
+Decision:
+- Dashboard reads only from `~/.logs/codex/telemetry/runs/`
+- project-local telemetry files are debug or backfill sources only
+
+Reason:
+- cross-project tracking is incomplete if the dashboard reads per-repo logs directly
+
+## 20. Hook-Based Skill Pilot Starts With `task-router-flow`
+
+Decision:
+- the first hook-based skill telemetry pilot is `task-router-flow`
+- current `sow-delegate-flow` keeps the explicit `start/finish` telemetry path
+- the pilot uses Codex hook events to self-trigger telemetry for a skill-run session
+
+Reason:
+- this validates cleaner skill/session boundaries without risking the existing delegate flow
+
+## 21. Prompt Marker Is The Pilot Routing Signal
+
+Decision:
+- `UserPromptSubmit` carries the pilot routing signal through a first-line marker like:
+  - `CODEX_SKILL_RUN skill=task-router-flow ...`
+- `Stop` finishes the same run
+
+Reason:
+- `UserPromptSubmit` and `Stop` are available now
+- prompt metadata is a more reliable skill signal than guessing from later tool events
 - `skills/sow-delegate-flow/scripts/parse_delegate_log.py`
 - `skills/sow-delegate-flow/references/log-parsing.md`
 
