@@ -62,20 +62,19 @@ After any branch finishes:
 - commit with a clear message unless the user defers commits
 - report the result to the user
 
-## Subagent Pilot
+## Global Hook Telemetry
 
-For the `SOW_0033` pilot path, `task-router-flow` may run in its own Codex session or subagent instead of inline.
-
-Use a first-line prompt marker like:
+When `task-router-flow` runs in its own Codex session or subagent, use a first-line marker like:
 
 ```text
-CODEX_SKILL_RUN skill=task-router-flow sow=SOW_0033 plan=subagent_telemetry_pilot task_type=docs
+CODEX_SKILL_RUN skill=task-router-flow plan=<plan> sow=<sow> task_type=<task_type> intent=<intent>
 ```
 
-Rules for the pilot path:
-- the skill-run session should return a brief summary to the main session
-- Codex `SessionStart` should anchor the run start time and `Stop` should finish telemetry automatically
-- do not call the normal `telemetry-flow start/finish` path manually for this pilot
+Rules:
+- the skill-run session should return a brief summary to the parent or main session
+- global Codex hooks should anchor `started_at` at `SessionStart` and finish telemetry at `Stop`
+- the current project should be resolved from the session `cwd`, not from this repo path
+- do not call the normal `telemetry-flow start/finish` path manually for this isolated-session path
 
 ## Notes
 

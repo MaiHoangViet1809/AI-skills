@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -11,12 +10,12 @@ from pathlib import Path
 from typing import Any
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+CODEX_ROOT = Path.home() / ".codex"
 GLOBAL_ROOT = Path.home() / ".logs" / "codex" / "telemetry"
 STATE_DIR = GLOBAL_ROOT / "hook-state"
 DEBUG_DIR = GLOBAL_ROOT / "hook-debug"
 MARKER_PREFIX = "CODEX_SKILL_RUN"
-PILOT_SKILL = "task-router-flow"
+EXCLUDED_SKILLS = {"telemetry-flow"}
 
 
 def utc_now_iso() -> str:
@@ -67,6 +66,16 @@ def extract_cwd(payload: dict[str, Any]) -> str | None:
         if isinstance(value, str) and value:
             return value
     return None
+
+
+def resolve_repo_root(payload: dict[str, Any], state: dict[str, Any] | None = None) -> Path | None:
+    cwd = extract_cwd(payload) or ((state or {}).get("cwd"))
+    if not cwd:
+        return None
+    path = Path(cwd).resolve()
+    if not path.exists() or not path.is_dir():
+        return None
+    return path
 
 
 def extract_prompt(payload: dict[str, Any]) -> str:
@@ -131,6 +140,10 @@ def parse_marker(prompt: str) -> dict[str, str]:
     return metadata
 
 
+def should_track_skill(skill_name: str | None) -> bool:
+    return bool(skill_name) and skill_name not in EXCLUDED_SKILLS
+
+
 def script_json(args: list[str]) -> dict[str, Any]:
     result = subprocess.run(args, capture_output=True, text=True, check=False)
     if result.returncode != 0:
@@ -181,38 +194,42 @@ def prompt_from_transcript(transcript_path: str | None) -> str:
     return prompts[-1] if prompts else ""
 
 
-def telemetry_start(session_id: str, metadata: dict[str, str], started_at: str | None = None) -> dict[str, Any]:
+def telemetry_hook_path() -> Path:
+    return CODEX_ROOT / "skills" / "telemetry-flow" / "scripts" / "telemetry_hook.py"
+
+
+def telemetry_start(repo_root: Path, session_id: str, metadata: dict[str, str], started_at: str | None = None) -> dict[str, Any]:
     command = [
         sys.executable,
-        str(REPO_ROOT / "skills" / "telemetry-flow" / "scripts" / "telemetry_hook.py"),
+        str(telemetry_hook_path()),
         "start",
         "--repo-root",
-        str(REPO_ROOT),
+        str(repo_root),
         "--skill",
-        metadata.get("skill", PILOT_SKILL),
+        metadata["skill"],
         "--plan",
-        metadata.get("plan", "subagent telemetry pilot"),
+        metadata.get("plan", "global_skill_telemetry"),
         "--sow",
-        metadata.get("sow", "SOW_0033"),
+        metadata.get("sow", ""),
         "--task-type",
         metadata.get("task_type", "docs"),
         "--intent",
-        metadata.get("intent", "task-router hook pilot"),
+        metadata.get("intent", "global skill telemetry"),
         "--codex-session-id",
         session_id,
     ]
     if started_at:
         command.extend(["--started-at", started_at])
-    return script_json(command)
+    return script_json([part for part in command if part != ""])
 
 
-def telemetry_finish(session_id: str, run_id: str, metadata: dict[str, str]) -> dict[str, Any]:
+def telemetry_finish(repo_root: Path, session_id: str, run_id: str, metadata: dict[str, str]) -> dict[str, Any]:
     command = [
         sys.executable,
-        str(REPO_ROOT / "skills" / "telemetry-flow" / "scripts" / "telemetry_hook.py"),
+        str(telemetry_hook_path()),
         "finish",
         "--repo-root",
-        str(REPO_ROOT),
+        str(repo_root),
         "--run-id",
         run_id,
         "--codex-session-id",
@@ -233,7 +250,7 @@ def telemetry_finish(session_id: str, run_id: str, metadata: dict[str, str]) -> 
     except RuntimeError as exc:
         return {
             "run_id": run_id,
-            "skill": metadata.get("skill", PILOT_SKILL),
+            "skill": metadata.get("skill"),
             "finished_at": utc_now_iso(),
             "anomaly_flags": ["hook_finish_failed", str(exc)],
         }
@@ -249,7 +266,7 @@ def write_fallback_run_record(state: dict[str, Any], finish_result: dict[str, An
     record = json.loads(path.read_text(encoding="utf-8"))
     record["finished_at"] = finish_result.get("finished_at")
     record["result"] = finish_result
-    project_name = record.get("project_name") or REPO_ROOT.name
+    project_name = record.get("project_name") or Path(record.get("repo_root") or "").name or "unknown-project"
     global_path = global_run_path(project_name, record["run_id"])
     global_path.parent.mkdir(parents=True, exist_ok=True)
     global_path.write_text(json.dumps(record, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
@@ -274,16 +291,20 @@ def handle_user_prompt_submit(payload: dict[str, Any]) -> int:
         return 0
     prompt = extract_prompt(payload)
     metadata = parse_marker(prompt)
-    if metadata.get("skill") != PILOT_SKILL:
+    if not should_track_skill(metadata.get("skill")):
         return 0
     state = load_state(session_id)
+    repo_root = resolve_repo_root(payload, state)
+    if repo_root is None:
+        return 0
     state["prompt"] = prompt
     state["metadata"] = metadata
     state["cwd"] = extract_cwd(payload) or state.get("cwd")
+    state["repo_root"] = str(repo_root)
     if state.get("run_id"):
         save_state(session_id, state)
         return 0
-    start_result = telemetry_start(session_id, metadata, state.get("session_started_at"))
+    start_result = telemetry_start(repo_root, session_id, metadata, state.get("session_started_at"))
     state["run_id"] = start_result["run_id"]
     state["telemetry_started_at"] = start_result["started_at"]
     state["telemetry_staging_file"] = start_result["staging_file"]
@@ -296,16 +317,20 @@ def handle_stop(payload: dict[str, Any]) -> int:
     if not session_id:
         return 0
     state = load_state(session_id)
+    repo_root = resolve_repo_root(payload, state)
+    if repo_root is None:
+        return 0
     transcript_path = extract_transcript_path(payload) or state.get("transcript_path")
     prompt = state.get("prompt") or prompt_from_transcript(transcript_path)
     metadata = state.get("metadata") or parse_marker(prompt)
     state["transcript_path"] = transcript_path
-    if metadata.get("skill") != PILOT_SKILL:
+    state["repo_root"] = str(repo_root)
+    if not should_track_skill(metadata.get("skill")):
         save_state(session_id, state)
         return 0
     run_id = state.get("run_id")
     if not run_id:
-        start_result = telemetry_start(session_id, metadata, state.get("session_started_at"))
+        start_result = telemetry_start(repo_root, session_id, metadata, state.get("session_started_at"))
         run_id = start_result["run_id"]
         state["run_id"] = run_id
         state["telemetry_started_at"] = start_result["started_at"]
@@ -314,7 +339,7 @@ def handle_stop(payload: dict[str, Any]) -> int:
         state["prompt"] = prompt
     if state.get("telemetry_finished"):
         return 0
-    finish_result = telemetry_finish(session_id, run_id, metadata)
+    finish_result = telemetry_finish(repo_root, session_id, run_id, metadata)
     if "hook_finish_failed" in (finish_result.get("anomaly_flags") or []):
         write_fallback_run_record(state, finish_result)
     state["telemetry_finished"] = True

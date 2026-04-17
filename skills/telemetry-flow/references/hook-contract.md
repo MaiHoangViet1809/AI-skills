@@ -138,19 +138,21 @@ The finish hook should return one JSON object with at least these fields:
 - Keep the returned `run_id` active across repair or advice loops.
 - Run `finish` once the run reaches a terminal workflow outcome.
 
-## Hook-Based Pilot For `task-router-flow`
+## Global Hook Contract For Isolated Skill Sessions
 
-The `SOW_0033` pilot uses Codex hooks instead of explicit flow calls.
+Codex hooks can wrap an isolated skill session instead of explicit flow calls.
 
-Prompt convention for the pilot session:
+Prompt convention:
 
 ```text
-CODEX_SKILL_RUN skill=task-router-flow sow=SOW_0033 plan=subagent_telemetry_pilot task_type=docs
+CODEX_SKILL_RUN skill=<skill> plan=<plan> sow=<sow> task_type=<task_type> intent=<intent>
 ```
 
-Pilot behavior:
+Behavior:
 
 - `SessionStart` records the session start time
-- `Stop` reads the session transcript, extracts the first prompt marker, then runs telemetry `start` and `finish`
+- `Stop` reads the session transcript, extracts the most recent marker, then runs telemetry `start` and `finish`
 - the telemetry run uses the `SessionStart` timestamp as `started_at`
-- this pilot should not replace the current explicit `sow-delegate-flow` integration
+- the current project is resolved from the hook session `cwd`
+- `telemetry-flow` itself is excluded to avoid recursive self-telemetry
+- this hook contract should not replace the current explicit `sow-delegate-flow` integration unless that skill is intentionally run as its own isolated session

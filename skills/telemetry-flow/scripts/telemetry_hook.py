@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+SKILL_ROOT = Path(__file__).resolve().parent
+
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -105,8 +107,19 @@ def read_json(path: Path) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def script_json(repo_root: Path, relative_script: str, args: List[str]) -> Dict[str, Any]:
-    command = [sys.executable, str(repo_root / relative_script), *args]
+def resolve_helper_script(name: str) -> Path:
+    candidates = [
+        SKILL_ROOT / name,
+        Path.home() / ".codex" / "skills" / "telemetry-flow" / "scripts" / name,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(f"missing helper script: {name}")
+
+
+def script_json(script_path: Path, args: List[str]) -> Dict[str, Any]:
+    command = [sys.executable, str(script_path), *args]
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "command failed")
@@ -186,10 +199,10 @@ def start_hook(args: argparse.Namespace) -> int:
 
 def parse_claude_logs(repo_root: Path, raw_logs: List[str], mode: str) -> List[Dict[str, Any]]:
     summaries: List[Dict[str, Any]] = []
+    parser_path = resolve_helper_script("parse_delegate_log.py")
     for raw_log in raw_logs:
         summary = script_json(
-            repo_root,
-            "scripts/telemetry/parse_delegate_log.py",
+            parser_path,
             ["--raw-log", str(Path(raw_log).resolve()), "--mode", mode, "--repo-root", str(repo_root)],
         )
         raw_log_path = Path(summary["raw_log_path"])
@@ -208,6 +221,7 @@ def parse_codex_window(
     start_marker: str,
     finish_marker: str,
 ) -> Dict[str, Any]:
+    parser_path = resolve_helper_script("parse_codex_rollout.py")
     if rollout_file:
         args = ["--rollout-file", str(Path(rollout_file).resolve())]
     elif codex_session_id:
@@ -227,7 +241,7 @@ def parse_codex_window(
         ]
     if "--started-at" not in args:
         args.extend(["--started-at", started_at, "--finished-at", finished_at, "--start-marker", start_marker, "--finish-marker", finish_marker])
-    return script_json(repo_root, "scripts/telemetry/parse_codex_rollout.py", args)
+    return script_json(parser_path, args)
 
 
 def finish_hook(args: argparse.Namespace) -> int:

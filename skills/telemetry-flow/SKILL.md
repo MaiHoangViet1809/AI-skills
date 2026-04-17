@@ -24,15 +24,16 @@ Use this skill to capture calculable run-level telemetry without mixing reportin
 5. Run the `finish` hook with the `run_id`, Claude raw log paths, and workflow outcome metadata.
 6. If a finish marker is being used, emit it around closeout so rollout parsing can cross-check the run window.
 
-## Hook Pilot
+## Global Hook Contract
 
-For the `SOW_0033` pilot, Codex hooks may trigger telemetry around a `task-router-flow` session automatically.
+Codex hooks may trigger telemetry around an isolated skill session automatically.
 
-Rules for the pilot:
-- treat the skill-run session as the telemetry boundary
-- let Codex hooks own the pilot boundary, with `SessionStart` anchoring time and `Stop` reading the session transcript to hydrate skill metadata
-- keep `sow-delegate-flow` on the existing explicit `start/finish` path
-- the pilot session should return a brief summary back to the parent or main session
+Rules:
+- treat the isolated skill session as the telemetry boundary
+- let global Codex hooks own that boundary, with `SessionStart` anchoring time and `Stop` reading the session transcript to hydrate skill metadata
+- resolve the current project from the session `cwd`
+- keep `sow-delegate-flow` on the existing explicit `start/finish` path unless it is intentionally run as its own skill session
+- the isolated skill session should return a brief summary back to the parent or main session
 
 ## Metrics
 

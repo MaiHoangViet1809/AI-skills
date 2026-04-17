@@ -34,6 +34,8 @@ For execution-time progress updates, follow [brief-execution.md](../../rules/bri
 - Capture Claude output to a raw log file first, then parse it on demand and read the parser output by default.
 - Open the raw log only when the parser reports an anomaly or the flow explicitly needs deep debugging.
 - If `telemetry-flow` is available, start a telemetry run before the first delegate call and finish it once the workflow reaches a terminal outcome.
+- If `sow-delegate-flow` is intentionally run in its own Codex session or subagent, use the same `CODEX_SKILL_RUN` first-line marker convention so global hooks can attribute that isolated session to the current project and skill.
+- Do not emit the hook marker for the normal in-session delegate flow when explicit `telemetry-flow start/finish` is already active.
 
 ## Flow
 
