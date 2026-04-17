@@ -148,6 +148,11 @@ Prompt convention:
 CODEX_SKILL_RUN skill=<skill> plan=<plan> sow=<sow> task_type=<task_type> intent=<intent>
 ```
 
+Rules:
+
+- the marker must be the first line of the first user prompt in the isolated session
+- do not leave placeholder values like `<sow>` or `<task_type>` in a real run
+
 Behavior:
 
 - `SessionStart` records the session start time

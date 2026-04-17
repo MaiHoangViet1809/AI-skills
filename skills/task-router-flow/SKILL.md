@@ -71,6 +71,7 @@ CODEX_SKILL_RUN skill=task-router-flow plan=<plan> sow=<sow> task_type=<task_typ
 ```
 
 Rules:
+- use real values in the marker; do not leave placeholders like `<sow>` or `<task_type>`
 - the skill-run session should return a brief summary to the parent or main session
 - global Codex hooks should anchor `started_at` at `SessionStart` and finish telemetry at `Stop`
 - the current project should be resolved from the session `cwd`, not from this repo path

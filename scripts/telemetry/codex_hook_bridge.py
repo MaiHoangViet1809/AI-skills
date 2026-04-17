@@ -16,6 +16,7 @@ STATE_DIR = GLOBAL_ROOT / "hook-state"
 DEBUG_DIR = GLOBAL_ROOT / "hook-debug"
 MARKER_PREFIX = "CODEX_SKILL_RUN"
 EXCLUDED_SKILLS = {"telemetry-flow"}
+PLACEHOLDER_PREFIXES = ("<",)
 
 
 def utc_now_iso() -> str:
@@ -140,6 +141,17 @@ def parse_marker(prompt: str) -> dict[str, str]:
     return metadata
 
 
+def marker_has_placeholder(metadata: dict[str, str]) -> bool:
+    required = ("skill", "plan", "sow", "task_type", "intent")
+    for key in required:
+        value = metadata.get(key)
+        if not value:
+            return True
+        if any(value.startswith(prefix) and value.endswith(">") for prefix in PLACEHOLDER_PREFIXES):
+            return True
+    return False
+
+
 def should_track_skill(skill_name: str | None) -> bool:
     return bool(skill_name) and skill_name not in EXCLUDED_SKILLS
 
@@ -151,13 +163,13 @@ def script_json(args: list[str]) -> dict[str, Any]:
     return json.loads(result.stdout)
 
 
-def prompt_from_transcript(transcript_path: str | None) -> str:
+def first_user_prompt_from_transcript(transcript_path: str | None) -> str:
     if not transcript_path:
         return ""
     path = Path(transcript_path)
     if not path.exists():
         return ""
-    prompts: list[str] = []
+    fallback_prompt = ""
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             line = line.strip()
@@ -173,7 +185,7 @@ def prompt_from_transcript(transcript_path: str | None) -> str:
             if event.get("type") == "event_msg" and payload.get("type") == "user_message":
                 message = payload.get("message")
                 if isinstance(message, str) and message:
-                    prompts.append(message)
+                    return message
                 continue
             if payload.get("type") != "message" or payload.get("role") != "user":
                 continue
@@ -187,11 +199,22 @@ def prompt_from_transcript(transcript_path: str | None) -> str:
                 if item.get("type") in {"input_text", "text"} and isinstance(item.get("text"), str):
                     parts.append(item["text"])
             if parts:
-                prompts.append("\n".join(parts))
-    for prompt in reversed(prompts):
-        if MARKER_PREFIX in prompt:
-            return prompt
-    return prompts[-1] if prompts else ""
+                fallback_prompt = fallback_prompt or "\n".join(parts)
+    return fallback_prompt
+
+
+def extract_isolated_marker(transcript_path: str | None, prompt: str | None = None) -> tuple[str, dict[str, str]]:
+    candidate = (prompt or "").strip()
+    if not candidate:
+        candidate = first_user_prompt_from_transcript(transcript_path).strip()
+    if not candidate.startswith(MARKER_PREFIX):
+        return "", {}
+    metadata = parse_marker(candidate)
+    if not should_track_skill(metadata.get("skill")):
+        return "", {}
+    if marker_has_placeholder(metadata):
+        return "", {}
+    return candidate, metadata
 
 
 def telemetry_hook_path() -> Path:
@@ -321,11 +344,10 @@ def handle_stop(payload: dict[str, Any]) -> int:
     if repo_root is None:
         return 0
     transcript_path = extract_transcript_path(payload) or state.get("transcript_path")
-    prompt = state.get("prompt") or prompt_from_transcript(transcript_path)
-    metadata = state.get("metadata") or parse_marker(prompt)
+    prompt, metadata = extract_isolated_marker(transcript_path, state.get("prompt"))
     state["transcript_path"] = transcript_path
     state["repo_root"] = str(repo_root)
-    if not should_track_skill(metadata.get("skill")):
+    if not metadata:
         save_state(session_id, state)
         return 0
     run_id = state.get("run_id")
