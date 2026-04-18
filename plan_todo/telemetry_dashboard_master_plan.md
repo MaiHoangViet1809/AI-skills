@@ -8,8 +8,8 @@ This document is the plan-level source of truth for the dashboard effort. Implem
 
 ## Current Inputs
 
-- Telemetry run records are written under `logs_session_ai_agent/telemetry-run-<run_id>.json`
-- Claude raw logs are written under `logs_session_ai_agent/claude-<session-id>.log`
+- Telemetry run records are written under `~/.logs/codex/telemetry/staging/<project>/telemetry-run-<run_id>.json`
+- Claude raw logs are written under `~/.logs/codex/telemetry/claude/<project>/claude-<session-id>.log`
 - Codex rollout history is available under `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`
 - Existing parsers already expose:
   - Codex task-local token metrics

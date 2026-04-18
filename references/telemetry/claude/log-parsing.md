@@ -6,7 +6,7 @@ The coordinator should not read full Claude CLI output directly unless the parse
 
 ## Canonical Paths
 
-- Raw logs: `<repo>/logs_session_ai_agent/claude-<session-id>.log`
+- Raw logs: `~/.logs/codex/telemetry/claude/<project>/claude-<session-id>.log`
 - No parsed artifact is persisted by default.
 - No Claude usage ledger is persisted by default.
 
@@ -18,7 +18,7 @@ If `session_id` is unknown when the call starts, write to a temporary file first
 Claude CLI call
    |
    v
-Write raw output to logs_session_ai_agent/<temp-or-session>.log
+Write raw output to `~/.logs/codex/telemetry/claude/<project>/claude-<temp-or-session>.log`
    |
    v
 Run parser script on demand
@@ -76,7 +76,7 @@ The parser should extract only the smallest useful set:
   },
   "duration_ms": 13771,
   "stop_reason": "end_turn",
-  "raw_log_path": "/abs/repo/logs_session_ai_agent/claude-uuid.log",
+  "raw_log_path": "/Users/<you>/.logs/codex/telemetry/claude/<project>/claude-uuid.log",
   "anomaly_flags": []
 }
 ```
@@ -122,7 +122,7 @@ Open the raw log only when one of these is true:
 Write raw JSON output to a temp log, then parse it on demand:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
@@ -133,7 +133,7 @@ python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegat
 Use `stream-json` only for deep delegate debugging, then parse the raw JSONL file the same way:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format stream-json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \

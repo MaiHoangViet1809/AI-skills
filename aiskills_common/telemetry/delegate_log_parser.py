@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .path_utils import ensure_logs_dir
+from .path_utils import claude_log_path
 
 
 def load_events(raw_text: str) -> List[Dict[str, Any]]:
@@ -186,13 +186,12 @@ def main() -> int:
 
     raw_log = Path(args.raw_log).resolve()
     repo_root = Path(args.repo_root).resolve()
-    logs_dir = ensure_logs_dir(repo_root)
     raw_text = raw_log.read_text(encoding="utf-8")
     events = load_events(raw_text)
     summary = extract_summary(events, args.mode, raw_log)
 
     session_id = summary.get("session_id") or f"unknown-{int(datetime.now().timestamp())}"
-    final_raw_log = logs_dir / f"claude-{session_id}.log"
+    final_raw_log = claude_log_path(repo_root, session_id)
     if raw_log != final_raw_log:
         final_raw_log.write_text(raw_text, encoding="utf-8")
         raw_log.unlink(missing_ok=True)

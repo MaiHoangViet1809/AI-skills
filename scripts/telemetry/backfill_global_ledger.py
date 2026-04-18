@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Backfill project-local telemetry summaries into the global ledger."""
+"""Backfill legacy project-local telemetry summaries into the global ledger."""
 
 from __future__ import annotations
 

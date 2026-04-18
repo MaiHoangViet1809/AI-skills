@@ -57,7 +57,7 @@ Use `json` by default. Switch to `stream-json` only when you need deeper delegat
 Capture raw CLI output to a file first, then parse it on demand before the coordinator reads it.
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --output-format json \
   --json-schema '<schema-json>' \
@@ -75,7 +75,7 @@ python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegat
 Follow-up turns:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --resume <session-id> \
   --output-format json \
@@ -91,7 +91,7 @@ python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegat
 Fresh-session follow-up after compaction:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --output-format json \
   --json-schema '<schema-json>' \

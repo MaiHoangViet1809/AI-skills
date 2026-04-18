@@ -57,7 +57,7 @@ Use `stream-json` by default so the coordinator can parse progress from the raw 
 Capture raw CLI output to a file first, then parse it on demand before the coordinator reads it.
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --output-format stream-json \
   --json-schema '<schema-json>' \
@@ -82,7 +82,7 @@ Normal polling:
 Follow-up turns:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --resume <session-id> \
   --output-format stream-json \
@@ -98,7 +98,7 @@ python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegat
 Fresh-session follow-up after compaction:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --output-format stream-json \
   --json-schema '<schema-json>' \

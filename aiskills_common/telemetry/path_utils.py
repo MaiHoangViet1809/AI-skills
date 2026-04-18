@@ -4,13 +4,14 @@ from pathlib import Path
 from typing import Optional
 
 
-GLOBAL_RUNS_ROOT = Path.home() / ".logs" / "codex" / "telemetry" / "runs"
+GLOBAL_TELEMETRY_ROOT = Path.home() / ".logs" / "codex" / "telemetry"
+GLOBAL_RUNS_ROOT = GLOBAL_TELEMETRY_ROOT / "runs"
+GLOBAL_STAGING_ROOT = GLOBAL_TELEMETRY_ROOT / "staging"
+GLOBAL_CLAUDE_ROOT = GLOBAL_TELEMETRY_ROOT / "claude"
 
 
-def ensure_logs_dir(repo_root: Path) -> Path:
-    path = repo_root / "logs_session_ai_agent"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+def _safe_project_name(project_name: str) -> str:
+    return project_name.replace("/", "_")
 
 
 def ensure_global_runs_dir() -> Path:
@@ -18,12 +19,28 @@ def ensure_global_runs_dir() -> Path:
     return GLOBAL_RUNS_ROOT
 
 
+def ensure_global_staging_dir(project_name: str) -> Path:
+    path = GLOBAL_STAGING_ROOT / _safe_project_name(project_name)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def ensure_global_claude_dir(project_name: str) -> Path:
+    path = GLOBAL_CLAUDE_ROOT / _safe_project_name(project_name)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def staging_path(repo_root: Path, run_id: str) -> Path:
-    return ensure_logs_dir(repo_root) / f"telemetry-run-{run_id}.json"
+    return ensure_global_staging_dir(repo_root.name) / f"telemetry-run-{run_id}.json"
+
+
+def claude_log_path(repo_root: Path, session_id: str) -> Path:
+    return ensure_global_claude_dir(repo_root.name) / f"claude-{session_id}.log"
 
 
 def global_run_path(project_name: str, run_id: str) -> Path:
-    safe_project = project_name.replace("/", "_")
+    safe_project = _safe_project_name(project_name)
     return ensure_global_runs_dir() / f"{safe_project}__{run_id}.json"
 
 

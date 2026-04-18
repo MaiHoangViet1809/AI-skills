@@ -45,7 +45,7 @@ For execution-time progress updates, follow [brief-execution.md](../../rules/bri
 4. If run telemetry is needed, start a `telemetry-flow` run and keep the `run_id`.
 5. Start a delegate session or decide whether to resume the current one.
 6. Delegate by SOW path, not by pasting the full SOW.
-7. Write raw delegate output to `logs_session_ai_agent/`, parse it with the helper script, and read the parser output.
+7. Write raw delegate output to the global telemetry Claude log path, parse it with the helper script, and read the parser output.
 8. Enter the coordinator loop:
    - classify task difficulty
    - poll with backoff

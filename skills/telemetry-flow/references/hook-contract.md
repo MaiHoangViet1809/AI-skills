@@ -11,8 +11,8 @@ This v1 does not create reports or dashboards. It only captures a single run sum
 
 ## Canonical Files
 
-- Staging record: `<repo>/logs_session_ai_agent/telemetry-run-<run_id>.json`
-- Claude raw logs: `<repo>/logs_session_ai_agent/claude-<session-id>.log`
+- Staging record: `~/.logs/codex/telemetry/staging/<project>/telemetry-run-<run_id>.json`
+- Claude raw logs: `~/.logs/codex/telemetry/claude/<project>/claude-<session-id>.log`
 - Codex rollout logs: `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`
 
 ## Start Hook
@@ -56,7 +56,7 @@ Run after execution, review, and validation, but before commit:
 uv run python skills/telemetry-flow/scripts/telemetry_hook.py finish \
   --repo-root "$REPO" \
   --run-id "$RUN_ID" \
-  --claude-log "$REPO/logs_session_ai_agent/claude-abc.log" \
+  --claude-log "$HOME/.logs/codex/telemetry/claude/<project>/claude-abc.log" \
   --success-state accepted \
   --validation-pass true
 ```

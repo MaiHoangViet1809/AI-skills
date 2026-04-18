@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional
 
 from aiskills_common.telemetry.io_utils import read_json, run_json_command, write_json
 from aiskills_common.telemetry.path_utils import (
-    ensure_logs_dir,
     global_run_path,
     resolve_sow_file,
     staging_path,

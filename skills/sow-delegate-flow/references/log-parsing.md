@@ -8,7 +8,7 @@ The parser output is meant to support a long-running coordinator loop, not a sin
 
 ## Canonical Paths
 
-- Raw logs: `<repo>/logs_session_ai_agent/claude-<session-id>.log`
+- Raw logs: `~/.logs/codex/telemetry/claude/<project>/claude-<session-id>.log`
 - No parsed artifact is persisted by default.
 - No Claude usage ledger is persisted by default.
 
@@ -20,7 +20,7 @@ If `session_id` is unknown when the call starts, write to a temporary file first
 Claude CLI call
    |
    v
-Write raw output to logs_session_ai_agent/<temp-or-session>.log
+Write raw output to `~/.logs/codex/telemetry/claude/<project>/claude-<temp-or-session>.log`
    |
    v
 Run parser script on demand
@@ -97,7 +97,7 @@ For `stream-json`, the parser should also expose lightweight progress fields:
   "tool_event_count": 3,
   "last_event_type": "result",
   "has_result": true,
-  "raw_log_path": "/abs/repo/logs_session_ai_agent/claude-uuid.log",
+  "raw_log_path": "/Users/<you>/.logs/codex/telemetry/claude/<project>/claude-uuid.log",
   "anomaly_flags": []
 }
 ```
@@ -149,7 +149,7 @@ Open the raw log only when one of these is true:
 Default capture path uses `stream-json`:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format stream-json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
@@ -160,7 +160,7 @@ python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegat
 Use `json` only when you explicitly do not need progress inspection:
 
 ```bash
-tmp_log="$REPO/logs_session_ai_agent/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
 python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \

@@ -208,7 +208,7 @@ Reason:
 
 Decision:
 - Claude telemetry/logging should keep only raw logs:
-  - `logs_session_ai_agent/claude-<session-id>.log`
+  - `~/.logs/codex/telemetry/claude/<project>/claude-<session-id>.log`
 - No persisted parsed artifact by default
 - No persisted Claude usage ledger by default
 - Parse on demand using Python
