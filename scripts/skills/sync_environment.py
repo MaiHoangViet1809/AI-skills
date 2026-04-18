@@ -38,6 +38,9 @@ def sync_codex(dry_run: bool) -> list[str]:
     bridge_src = root / "scripts" / "telemetry" / "codex_hook_bridge.py"
     bridge_dest = target_root / "hooks" / "codex_hook_bridge.py"
     actions.append(f"hook  {bridge_src} -> {bridge_dest}")
+    common_src = root / "aiskills_common"
+    common_dest = target_root / "lib" / "aiskills_common"
+    actions.append(f"lib   {common_src} -> {common_dest}")
 
     for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow"):
         skill_src = root / "skills" / skill_name
@@ -55,6 +58,7 @@ def sync_codex(dry_run: bool) -> list[str]:
     hooks_dest.write_text(hooks_text, encoding="utf-8")
     bridge_dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(bridge_src, bridge_dest)
+    copy_tree(common_src, common_dest)
 
     for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow"):
         copy_tree(root / "skills" / skill_name, target_root / "skills" / skill_name)

@@ -4,17 +4,14 @@
 from __future__ import annotations
 
 import argparse
-import json
 import shutil
 from pathlib import Path
 
+from aiskills_common.telemetry.io_utils import read_json
+from aiskills_common.telemetry.path_utils import global_run_path
 
 GLOBAL_RUNS_DIR = Path.home() / ".logs" / "codex" / "telemetry" / "runs"
 PROJECTS_ROOT = Path.home() / "Projects"
-
-
-def read_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def discover_run_files() -> list[Path]:
@@ -25,7 +22,7 @@ def target_path(source: Path) -> Path:
     payload = read_json(source)
     project_name = payload.get("project_name") or Path(str(payload.get("repo_root") or source.parents[2])).name
     run_id = payload.get("run_id") or source.stem.removeprefix("telemetry-run-")
-    return GLOBAL_RUNS_DIR / f"{project_name}__{run_id}.json"
+    return global_run_path(project_name, run_id)
 
 
 def parse_args() -> argparse.Namespace:

@@ -8,17 +8,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from aiskills_common.telemetry.io_utils import read_json, run_json_command, write_json
+from aiskills_common.telemetry.path_utils import (
+    ensure_logs_dir,
+    global_run_path,
+    resolve_sow_file,
+    staging_path,
+)
+from aiskills_common.telemetry.time_utils import parse_timestamp, utc_now_iso
+
 SKILL_ROOT = Path(__file__).resolve().parent
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
-
-
-def parse_timestamp(value: Optional[str]) -> Optional[datetime]:
-    if not value:
-        return None
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def parse_bool(value: str) -> bool:
@@ -28,39 +27,6 @@ def parse_bool(value: str) -> bool:
     if lowered in {"false", "0", "no"}:
         return False
     raise ValueError(f"invalid boolean value: {value}")
-
-
-def ensure_logs_dir(repo_root: Path) -> Path:
-    path = repo_root / "logs_session_ai_agent"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def ensure_global_runs_dir() -> Path:
-    path = Path.home() / ".logs" / "codex" / "telemetry" / "runs"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def staging_path(repo_root: Path, run_id: str) -> Path:
-    return ensure_logs_dir(repo_root) / f"telemetry-run-{run_id}.json"
-
-
-def global_run_path(project_name: str, run_id: str) -> Path:
-    safe_project = project_name.replace("/", "_")
-    return ensure_global_runs_dir() / f"{safe_project}__{run_id}.json"
-
-
-def resolve_sow_file(repo_root: Path, sow: Optional[str]) -> Optional[str]:
-    if not sow:
-        return None
-    candidates = [
-        *sorted((repo_root / "plan_todo").glob(f"{sow}*.md")),
-        *sorted((repo_root / "plan_todo" / "finished").glob(f"{sow}*.md")),
-    ]
-    if not candidates:
-        return None
-    return str(candidates[0].resolve())
 
 
 def run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -99,14 +65,6 @@ def marker_text(kind: str, run_id: str, skill: str, plan: str, sow: str) -> str:
     return f"TELEMETRY_{kind} run_id={run_id} skill={skill} plan={plan or '-'} sow={sow or '-'}"
 
 
-def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
-
-
-def read_json(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
 def resolve_helper_script(name: str) -> Path:
     candidates = [
         SKILL_ROOT / name,
@@ -116,14 +74,6 @@ def resolve_helper_script(name: str) -> Path:
         if candidate.exists():
             return candidate
     raise FileNotFoundError(f"missing helper script: {name}")
-
-
-def script_json(script_path: Path, args: List[str]) -> Dict[str, Any]:
-    command = [sys.executable, str(script_path), *args]
-    result = subprocess.run(command, capture_output=True, text=True, check=False)
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "command failed")
-    return json.loads(result.stdout)
 
 
 def usage_total(usage: Dict[str, Any]) -> int:
@@ -201,9 +151,17 @@ def parse_claude_logs(repo_root: Path, raw_logs: List[str], mode: str) -> List[D
     summaries: List[Dict[str, Any]] = []
     parser_path = resolve_helper_script("parse_delegate_log.py")
     for raw_log in raw_logs:
-        summary = script_json(
-            parser_path,
-            ["--raw-log", str(Path(raw_log).resolve()), "--mode", mode, "--repo-root", str(repo_root)],
+        summary = run_json_command(
+            [
+                sys.executable,
+                str(parser_path),
+                "--raw-log",
+                str(Path(raw_log).resolve()),
+                "--mode",
+                mode,
+                "--repo-root",
+                str(repo_root),
+            ]
         )
         raw_log_path = Path(summary["raw_log_path"])
         summary["finished_at"] = datetime.fromtimestamp(raw_log_path.stat().st_mtime, timezone.utc).isoformat().replace("+00:00", "Z")
@@ -241,7 +199,7 @@ def parse_codex_window(
         ]
     if "--started-at" not in args:
         args.extend(["--started-at", started_at, "--finished-at", finished_at, "--start-marker", start_marker, "--finish-marker", finish_marker])
-    return script_json(parser_path, args)
+    return run_json_command([sys.executable, str(parser_path), *args])
 
 
 def finish_hook(args: argparse.Namespace) -> int:

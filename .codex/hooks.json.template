@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run python ~/.codex/hooks/codex_hook_bridge.py session-start",
+            "command": "PYTHONPATH=$HOME/.codex/lib${PYTHONPATH:+:$PYTHONPATH} uv run python ~/.codex/hooks/codex_hook_bridge.py session-start",
             "statusMessage": "Registering Codex session"
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run python ~/.codex/hooks/codex_hook_bridge.py stop",
+            "command": "PYTHONPATH=$HOME/.codex/lib${PYTHONPATH:+:$PYTHONPATH} uv run python ~/.codex/hooks/codex_hook_bridge.py stop",
             "statusMessage": "Finishing skill telemetry"
           }
         ]

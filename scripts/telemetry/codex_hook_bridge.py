@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from aiskills_common.telemetry.io_utils import read_json, run_json_command, write_json
+from aiskills_common.telemetry.path_utils import global_run_path
+from aiskills_common.telemetry.time_utils import utc_now_iso
 
 CODEX_ROOT = Path.home() / ".codex"
 GLOBAL_ROOT = Path.home() / ".logs" / "codex" / "telemetry"
@@ -17,10 +19,6 @@ DEBUG_DIR = GLOBAL_ROOT / "hook-debug"
 MARKER_PREFIX = "CODEX_SKILL_RUN"
 EXCLUDED_SKILLS = {"telemetry-flow"}
 PLACEHOLDER_PREFIXES = ("<",)
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
 def ensure_dirs() -> None:
@@ -114,16 +112,11 @@ def load_state(session_id: str) -> dict[str, Any]:
     path = state_path(session_id)
     if not path.exists():
         return {"session_id": session_id}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return read_json(path)
 
 
 def save_state(session_id: str, state: dict[str, Any]) -> None:
-    state_path(session_id).write_text(json.dumps(state, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
-
-
-def global_run_path(project_name: str, run_id: str) -> Path:
-    safe_project = project_name.replace("/", "_")
-    return GLOBAL_ROOT / "runs" / f"{safe_project}__{run_id}.json"
+    write_json(state_path(session_id), state)
 
 
 def parse_marker(prompt: str) -> dict[str, str]:
@@ -154,13 +147,6 @@ def marker_has_placeholder(metadata: dict[str, str]) -> bool:
 
 def should_track_skill(skill_name: str | None) -> bool:
     return bool(skill_name) and skill_name not in EXCLUDED_SKILLS
-
-
-def script_json(args: list[str]) -> dict[str, Any]:
-    result = subprocess.run(args, capture_output=True, text=True, check=False)
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "command failed")
-    return json.loads(result.stdout)
 
 
 def first_user_prompt_from_transcript(transcript_path: str | None) -> str:
@@ -243,7 +229,7 @@ def telemetry_start(repo_root: Path, session_id: str, metadata: dict[str, str], 
     ]
     if started_at:
         command.extend(["--started-at", started_at])
-    return script_json([part for part in command if part != ""])
+    return run_json_command([part for part in command if part != ""])
 
 
 def telemetry_finish(repo_root: Path, session_id: str, run_id: str, metadata: dict[str, str]) -> dict[str, Any]:
@@ -269,7 +255,7 @@ def telemetry_finish(repo_root: Path, session_id: str, run_id: str, metadata: di
         metadata.get("outcome", "hook_subagent_pilot"),
     ]
     try:
-        return script_json(command)
+        return run_json_command(command)
     except RuntimeError as exc:
         return {
             "run_id": run_id,
@@ -286,13 +272,13 @@ def write_fallback_run_record(state: dict[str, Any], finish_result: dict[str, An
     path = Path(staging_file)
     if not path.exists():
         return
-    record = json.loads(path.read_text(encoding="utf-8"))
+    record = read_json(path)
     record["finished_at"] = finish_result.get("finished_at")
     record["result"] = finish_result
     project_name = record.get("project_name") or Path(record.get("repo_root") or "").name or "unknown-project"
     global_path = global_run_path(project_name, record["run_id"])
     global_path.parent.mkdir(parents=True, exist_ok=True)
-    global_path.write_text(json.dumps(record, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+    write_json(global_path, record)
 
 
 def handle_session_start(payload: dict[str, Any]) -> int:
