@@ -42,7 +42,7 @@ def sync_codex(dry_run: bool) -> list[str]:
     common_dest = target_root / "lib" / "aiskills_common"
     actions.append(f"lib   {common_src} -> {common_dest}")
 
-    for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow"):
+    for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow", "playwright-flow"):
         skill_src = root / "skills" / skill_name
         skill_dest = target_root / "skills" / skill_name
         actions.append(f"skill {skill_src} -> {skill_dest}")
@@ -60,7 +60,7 @@ def sync_codex(dry_run: bool) -> list[str]:
     shutil.copy2(bridge_src, bridge_dest)
     copy_tree(common_src, common_dest)
 
-    for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow"):
+    for skill_name in ("task-router-flow", "sow-delegate-flow", "telemetry-flow", "playwright-flow"):
         copy_tree(root / "skills" / skill_name, target_root / "skills" / skill_name)
 
     config_path = target_root / "config.toml"
