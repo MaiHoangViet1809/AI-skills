@@ -12,6 +12,8 @@ For docs, plan, or SOW-only edits, do not create a new SOW unless the request ch
 
 Use the repository's active SOW template. In this repo, the template is:
 
+- **Status**: lifecycle state such as `draft`, `approved`, `in_progress`, or `done`
+- **Approval**: explicit approval state such as `pending` or `approved`
 - **Task**: one-sentence change
 - **Location**: exact folder or file paths
 - **Why**: business or technical driver
@@ -23,6 +25,12 @@ Use the repository's active SOW template. In this repo, the template is:
 - **Proposed-By**: agent name
 - **plan**: related plan name or SOW path when relevant
 - **Cautions / Risks**: likely failure modes or cautions
+
+Rules:
+
+- Every active SOW should show both `Status` and `Approval`.
+- Before code changes begin, `Approval` must be `approved`.
+- When work is finished and the SOW is moved to `finished/`, set `Status` to a completed state such as `done`.
 
 ## Indexing
 
