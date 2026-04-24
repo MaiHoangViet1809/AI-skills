@@ -1,7 +1,7 @@
 # SOW: Dashboard Frontend Visuals
 
 - **Task**: Xây activity chart, duration chart, runs table, và run detail panel cho telemetry dashboard dựa trên backend APIs đã ổn định.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0025_dashboard_frontend_visuals.md`, frontend directory dashboard mới, và assets/config liên quan nếu cần.
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0025_dashboard_frontend_visuals.md`, frontend directory dashboard mới, và assets/config liên quan nếu cần.
 - **Why**: Đây là phần giá trị trực quan chính của dashboard, nhưng nên tách khỏi shell để giảm rủi ro delegate.
 - **As-Is Diagram (ASCII)**:
 ```text

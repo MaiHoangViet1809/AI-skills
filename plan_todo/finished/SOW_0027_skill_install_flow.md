@@ -1,7 +1,7 @@
 # SOW: Skill Install Flow
 
 - **Task**: Add a local script and docs to install repo skills into `~/.codex/skills` with support for installing all skills, one skill, dry-run, and overwrite.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0027_skill_install_flow.md`, `/Users/maihoangviet/Projects/AISkills/scripts/skills/**`, and related docs if needed.
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0027_skill_install_flow.md`, `~/Projects/AISkills/scripts/skills/**`, and related docs if needed.
 - **Why**: The repo needs a repeatable way to sync curated skills into Codex local skills without manual copy steps.
 - **As-Is Diagram (ASCII)**:
 ```text

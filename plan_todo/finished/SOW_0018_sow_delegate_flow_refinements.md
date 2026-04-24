@@ -1,7 +1,7 @@
 # SOW: SowDelegateFlow Refinements
 
 - **Task**: Cập nhật skill `sow-delegate-flow` để thêm validation matrix theo loại SOW, termination policy ngắn gọn, và final review note template; đồng thời gom toàn bộ SOW liên quan tới skill vào `plan_todo/`.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_refinements.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, các file SOW liên quan dưới `plan_todo/finished/`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_refinements.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, các file SOW liên quan dưới `plan_todo/finished/`
 - **Why**: Giảm operator judgment, làm flow bớt ceremonial, và tách tài liệu refine skill khỏi tài liệu đặc thù project.
 - **As-Is Diagram (ASCII)**:
 ```text

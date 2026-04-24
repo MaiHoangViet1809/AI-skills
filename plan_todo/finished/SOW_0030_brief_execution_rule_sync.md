@@ -1,7 +1,7 @@
 # SOW: Brief Execution Rule Sync
 
 - **Task**: Add a repo-owned brief execution rule plus a sync script that copies the rule and selected skills into the local Codex environment.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0030_brief_execution_rule_sync.md`, `/Users/maihoangviet/Projects/AISkills/rules/**`, `/Users/maihoangviet/Projects/AISkills/scripts/skills/**`, `/Users/maihoangviet/Projects/AISkills/skills/task-router-flow/SKILL.md`, `/Users/maihoangviet/Projects/AISkills/skills/sow-delegate-flow/SKILL.md`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0030_brief_execution_rule_sync.md`, `~/Projects/AISkills/rules/**`, `~/Projects/AISkills/scripts/skills/**`, `~/Projects/AISkills/skills/task-router-flow/SKILL.md`, `~/Projects/AISkills/skills/sow-delegate-flow/SKILL.md`
 - **Why**: The brevity rule should live in the repo as source of truth, then sync into Codex now and other environments later.
 - **As-Is Diagram (ASCII)**:
 ```text

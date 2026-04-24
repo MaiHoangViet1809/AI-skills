@@ -1,7 +1,7 @@
 # SOW: Dashboard Trace Metadata
 
 - **Task**: Add Codex-side telemetry metadata for `project_name`, `project_path`, and `sow_file`, then show them on the dashboard with hoverable full paths.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0029_dashboard_trace_metadata.md`, `/Users/maihoangviet/Projects/AISkills/skills/telemetry-flow/scripts/telemetry_hook.py`, `/Users/maihoangviet/Projects/AISkills/scripts/dashboard/**`, `/Users/maihoangviet/Projects/AISkills/dashboard_ui/**`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0029_dashboard_trace_metadata.md`, `~/Projects/AISkills/skills/telemetry-flow/scripts/telemetry_hook.py`, `~/Projects/AISkills/scripts/dashboard/**`, `~/Projects/AISkills/dashboard_ui/**`
 - **Why**: Runs need clearer traceability by project and SOW file from the Codex side.
 - **As-Is Diagram (ASCII)**:
 ```text

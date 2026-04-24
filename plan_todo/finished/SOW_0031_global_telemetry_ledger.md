@@ -1,7 +1,7 @@
 # SOW: Global Telemetry Ledger
 
 - **Task**: Add a global telemetry ledger at `~/.logs/codex/telemetry/runs/`, write run summaries there from the telemetry hook, backfill existing project-local run summaries from `~/Projects/*/logs_session_ai_agent/`, and make the dashboard read only from the global ledger.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0031_global_telemetry_ledger.md`, `/Users/maihoangviet/Projects/AISkills/skills/telemetry-flow/scripts/telemetry_hook.py`, `/Users/maihoangviet/Projects/AISkills/scripts/dashboard/**`, `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/**`, `/Users/maihoangviet/.logs/codex/telemetry/runs/`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0031_global_telemetry_ledger.md`, `~/Projects/AISkills/skills/telemetry-flow/scripts/telemetry_hook.py`, `~/Projects/AISkills/scripts/dashboard/**`, `~/Projects/AISkills/scripts/telemetry/**`, `~/.logs/codex/telemetry/runs/`
 - **Why**: Cross-project tracking needs one shared source of truth; repo-local telemetry files are not enough for total usage tracking.
 - **As-Is Diagram (ASCII)**:
 ```text

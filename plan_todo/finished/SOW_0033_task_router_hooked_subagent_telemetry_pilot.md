@@ -1,5 +1,5 @@
 - **Task**: Pilot hook-based telemetry cho `task-router-flow` bằng Codex hooks để một skill-run/session tự start/finish telemetry và trả summary ngắn về main session, không làm vỡ flow telemetry hiện tại của `sow-delegate-flow`.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0033_task_router_hooked_subagent_telemetry_pilot.md`, `/Users/maihoangviet/Projects/AISkills/skills/task-router-flow/**`, `/Users/maihoangviet/Projects/AISkills/skills/telemetry-flow/**`, `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/**`, `/Users/maihoangviet/Projects/AISkills/.codex/**`, `/Users/maihoangviet/Projects/AISkills/scripts/skills/sync_environment.py`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0033_task_router_hooked_subagent_telemetry_pilot.md`, `~/Projects/AISkills/skills/task-router-flow/**`, `~/Projects/AISkills/skills/telemetry-flow/**`, `~/Projects/AISkills/scripts/telemetry/**`, `~/Projects/AISkills/.codex/**`, `~/Projects/AISkills/scripts/skills/sync_environment.py`
 - **Why**: Cần kiểm chứng kiến trúc skill/session riêng cho `task-router-flow` có thể tự emit telemetry qua Codex hooks, giữ main session sạch hơn, trong khi không đụng path cũ của `sow-delegate-flow`.
 - **As-Is Diagram (ASCII)**:
 ```text

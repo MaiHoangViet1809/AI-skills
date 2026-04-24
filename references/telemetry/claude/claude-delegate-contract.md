@@ -66,7 +66,7 @@ claude -p \
   --permission-mode bypassPermissions \
   "<prompt>" > "$tmp_log"
 
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode json \
   --repo-root "$REPO"
@@ -82,7 +82,7 @@ claude -p \
   --json-schema '<schema-json>' \
   "<prompt>" > "$tmp_log"
 
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode json \
   --repo-root "$REPO"
@@ -97,7 +97,7 @@ claude -p \
   --json-schema '<schema-json>' \
   "<prompt with compact history>" > "$tmp_log"
 
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode json \
   --repo-root "$REPO"

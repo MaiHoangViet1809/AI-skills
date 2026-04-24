@@ -1,7 +1,7 @@
 # SOW: Dashboard Boot And Smoke
 
 - **Task**: Hoàn thiện one-command boot flow cho telemetry dashboard trên port `9999`, serve frontend + API cùng một port, thêm docs chạy local, và smoke test end-to-end.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0026_dashboard_boot_and_smoke.md`, `/Users/maihoangviet/Projects/AISkills/scripts/dashboard/**`, frontend dashboard directory, và docs liên quan nếu cần.
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0026_dashboard_boot_and_smoke.md`, `~/Projects/AISkills/scripts/dashboard/**`, frontend dashboard directory, và docs liên quan nếu cần.
 - **Why**: Cần một entrypoint rõ ràng để dùng dashboard thật sự thay vì ghép tay backend/frontend.
 - **As-Is Diagram (ASCII)**:
 ```text

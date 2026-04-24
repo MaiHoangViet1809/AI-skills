@@ -1,7 +1,7 @@
 # SOW: Copy Telemetry Tooling Into AISkills
 
 - **Task**: Copy the current telemetry measurement tooling and related design references into `AISkills` so telemetry-aware skills can be designed from one central repository.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0002_copy_telemetry_tooling.md`, `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/**`, `/Users/maihoangviet/Projects/AISkills/references/telemetry/**`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0002_copy_telemetry_tooling.md`, `~/Projects/AISkills/scripts/telemetry/**`, `~/Projects/AISkills/references/telemetry/**`
 - **Why**: Telemetry measurement is now part of the workflow design surface. Keeping the relevant parser code and measurement notes inside `AISkills` makes it easier to evolve skills that depend on telemetry without jumping back to the project repo or local runtime folders.
 - **As-Is Diagram (ASCII)**:
 ```text

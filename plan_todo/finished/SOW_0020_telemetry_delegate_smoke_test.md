@@ -1,7 +1,7 @@
 # SOW: Telemetry Delegate Smoke Test
 
 - **Task**: Chạy một smoke test end-to-end cho `telemetry-flow` và `sow-delegate-flow` bằng cách delegate một tác vụ Python rất nhỏ cho Claude rồi kiểm tra metrics output thực tế.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/finished/SOW_0020_telemetry_delegate_smoke_test.md`, `/Users/maihoangviet/Projects/AISkills/telemetry_smoke_math.py`, và `/Users/maihoangviet/Projects/AISkills/logs_session_ai_agent/`
+- **Location**: `~/Projects/AISkills/plan_todo/finished/SOW_0020_telemetry_delegate_smoke_test.md`, `~/Projects/AISkills/telemetry_smoke_math.py`, và `~/Projects/AISkills/logs_session_ai_agent/`
 - **Why**: Cần xác nhận telemetry hook chạy được với một lần delegate thực tế, không chỉ với synthetic log.
 - **As-Is Diagram (ASCII)**:
 ```text

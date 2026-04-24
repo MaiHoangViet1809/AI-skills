@@ -1,7 +1,7 @@
 # SOW: SowDelegateFlow Guardrails
 
 - **Task**: Cập nhật skill `sow-delegate-flow` để thêm precedence rule giữa `SOW / AGENTS.md / CLAUDE.md`, mở rộng result contract với `scope_respected` và `validation_hint`, và phân loại failure thành `infra / quality / uncertainty`.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_guardrails.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_guardrails.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
 - **Why**: Làm workflow chặt hơn trước khi dùng lâu dài: rõ precedence, dễ machine-parse hơn, và dễ tách lỗi hạ tầng khỏi lỗi chất lượng hay bất định.
 - **As-Is Diagram (ASCII)**:
 ```text

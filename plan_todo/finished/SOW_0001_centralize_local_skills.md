@@ -1,7 +1,7 @@
 # SOW: Centralize Local Skills Into AISkills
 
 - **Task**: Copy the current custom Codex skills from `~/.codex/skills/` into the `AISkills` repository so they can be versioned and shared from one central project.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0001_centralize_local_skills.md`, `/Users/maihoangviet/Projects/AISkills/skills/sow-delegate-flow/**`, `/Users/maihoangviet/Projects/AISkills/skills/task-router-flow/**`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0001_centralize_local_skills.md`, `~/Projects/AISkills/skills/sow-delegate-flow/**`, `~/Projects/AISkills/skills/task-router-flow/**`
 - **Why**: The skills currently live only under `~/.codex/skills/`, which makes versioning, reuse, and sharing harder. Centralizing them in `AISkills` creates one source-controlled place for refinement and distribution.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -15,7 +15,7 @@ Local-only skill storage
 ```
 - **To-Be Diagram (ASCII)**:
 ```text
-~/.codex/skills/                     /Users/.../Projects/AISkills/skills/
+~/.codex/skills/                     ~/Projects/AISkills/skills/
    |                                 |
    +--> local runtime copies         +--> sow-delegate-flow/
                                      +--> task-router-flow/

@@ -1,7 +1,7 @@
 # SOW: Sow Delegate Flow Json First
 
 - **Task**: Cập nhật `sow-delegate-flow` để dùng `json` làm output mode mặc định, chỉ bật `stream-json` khi cần debug sâu hơn delegate behavior, và ghi rõ rằng stream capture nên lọc bỏ `system` noise thay vì thay đổi runtime environment của Claude.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_json_first.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_json_first.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
 - **Why**: Giảm log bloat và context cost cho coordinator, trong khi vẫn giữ khả năng chuyển sang `stream-json` khi cần debug delegate failures hoặc output bất thường.
 - **As-Is Diagram (ASCII)**:
 ```text

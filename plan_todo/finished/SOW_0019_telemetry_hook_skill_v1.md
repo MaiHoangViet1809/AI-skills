@@ -1,7 +1,7 @@
 # SOW: Telemetry Hook Skill V1
 
 - **Task**: Tạo một skill telemetry riêng với đúng 2 hook `start` và `finish` để capture metric run-level từ Codex rollout và Claude raw log cho việc đo hiệu quả sử dụng sau này.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/skills/telemetry-flow/**`, `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/parse_codex_rollout.py`, reference telemetry liên quan, và integration tối thiểu vào `/Users/maihoangviet/Projects/AISkills/skills/sow-delegate-flow/SKILL.md`
+- **Location**: `~/Projects/AISkills/skills/telemetry-flow/**`, `~/Projects/AISkills/scripts/telemetry/parse_codex_rollout.py`, reference telemetry liên quan, và integration tối thiểu vào `~/Projects/AISkills/skills/sow-delegate-flow/SKILL.md`
 - **Why**: Cần tách telemetry khỏi execution flow nhưng vẫn đo được token, duration, outcome, và các metric calculable khác cho từng run mà không cần LLM đánh giá.
 - **As-Is Diagram (ASCII)**:
 ```text

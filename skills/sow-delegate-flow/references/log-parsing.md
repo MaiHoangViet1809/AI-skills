@@ -97,7 +97,7 @@ For `stream-json`, the parser should also expose lightweight progress fields:
   "tool_event_count": 3,
   "last_event_type": "result",
   "has_result": true,
-  "raw_log_path": "/Users/<you>/.logs/codex/telemetry/claude/<project>/claude-uuid.log",
+  "raw_log_path": "~/.logs/codex/telemetry/claude/<project>/claude-uuid.log",
   "anomaly_flags": []
 }
 ```
@@ -151,7 +151,7 @@ Default capture path uses `stream-json`:
 ```bash
 tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format stream-json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode stream-json \
   --repo-root "$REPO"
@@ -162,7 +162,7 @@ Use `json` only when you explicitly do not need progress inspection:
 ```bash
 tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode json \
   --repo-root "$REPO"

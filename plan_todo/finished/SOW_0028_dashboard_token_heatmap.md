@@ -1,7 +1,7 @@
 # SOW: Dashboard Token Heatmap
 
 - **Task**: Replace the dashboard activity chart with a GitHub-style daily heatmap whose color intensity reflects token burn, with toggle modes for `total`, `codex`, and `claude`.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0028_dashboard_token_heatmap.md`, `/Users/maihoangviet/Projects/AISkills/scripts/dashboard/**`, `/Users/maihoangviet/Projects/AISkills/dashboard_ui/**`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0028_dashboard_token_heatmap.md`, `~/Projects/AISkills/scripts/dashboard/**`, `~/Projects/AISkills/dashboard_ui/**`
 - **Why**: The current activity chart does not surface which days burned the most tokens.
 - **As-Is Diagram (ASCII)**:
 ```text

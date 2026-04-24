@@ -1,7 +1,7 @@
 # SOW: Sow Delegate Flow Output Filtering
 
 - **Task**: Cập nhật `sow-delegate-flow` để tách output filtering thành reference file riêng có ví dụ, làm rõ rằng `json` là mode mặc định đồng thời output filtering là bắt buộc mặc định: phải lọc bỏ `system`-typed messages khỏi captured output trừ khi flow hoặc user yêu cầu giữ lại, và bổ sung code samples shell cụ thể để operator không phải tự đoán cách filter.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_output_filtering.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, reference file mới trong `references/`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_output_filtering.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, reference file mới trong `references/`
 - **Why**: Cụm “filter captured system noise” hiện quá chung chung. Cần mô tả riêng, có ví dụ, và chốt rõ cách hiểu `json default` để giảm operator ambiguity và context waste.
 - **As-Is Diagram (ASCII)**:
 ```text

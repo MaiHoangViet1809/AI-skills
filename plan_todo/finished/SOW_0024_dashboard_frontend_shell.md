@@ -1,7 +1,7 @@
 # SOW: Dashboard Frontend Shell
 
 - **Task**: Scaffold frontend Vue 3 + Vite cho telemetry dashboard và dựng shell layout với summary cards cùng filter state cơ bản.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0024_dashboard_frontend_shell.md`, frontend directory dashboard mới, và file build config liên quan nếu cần.
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0024_dashboard_frontend_shell.md`, frontend directory dashboard mới, và file build config liên quan nếu cần.
 - **Why**: Cần một shell UI ổn định để cắm summary/runs data trước khi làm charts và detail interactions.
 - **As-Is Diagram (ASCII)**:
 ```text

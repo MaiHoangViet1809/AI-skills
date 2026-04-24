@@ -1,5 +1,5 @@
 - **Task**: Cập nhật dashboard backend để luôn thấy telemetry mới bằng cách reload dữ liệu mỗi request và thêm API refresh cache thủ công.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0034_dashboard_reload_and_refresh_api.md`, `/Users/maihoangviet/Projects/AISkills/dashboard/backend/app.py`, và nếu cần docs ở `/Users/maihoangviet/Projects/AISkills/dashboard/README.md`
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0034_dashboard_reload_and_refresh_api.md`, `~/Projects/AISkills/dashboard/backend/app.py`, và nếu cần docs ở `~/Projects/AISkills/dashboard/README.md`
 - **Why**: Dashboard đang giữ snapshot `_df` từ lúc boot nên telemetry mới đã ghi vào global ledger nhưng UI không thấy ngay.
 - **As-Is Diagram (ASCII)**:
 ```text

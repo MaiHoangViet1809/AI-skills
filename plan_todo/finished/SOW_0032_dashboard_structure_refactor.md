@@ -1,7 +1,7 @@
 # SOW: Dashboard Structure Refactor
 
 - **Task**: Refactor the telemetry dashboard from the current prototype layout into a top-level `dashboard/` structure with separate frontend, backend, and static areas.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0032_dashboard_structure_refactor.md`, `/Users/maihoangviet/Projects/AISkills/dashboard/**`, `/Users/maihoangviet/Projects/AISkills/scripts/run_dashboard.py`, and related docs.
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0032_dashboard_structure_refactor.md`, `~/Projects/AISkills/dashboard/**`, `~/Projects/AISkills/scripts/run_dashboard.py`, and related docs.
 - **Why**: The current split between `dashboard_ui/` and `scripts/dashboard/` is hard to read and awkward to extend.
 - **As-Is Diagram (ASCII)**:
 ```text

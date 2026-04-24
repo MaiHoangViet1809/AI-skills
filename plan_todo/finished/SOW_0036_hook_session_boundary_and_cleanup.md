@@ -1,5 +1,5 @@
 - **Task**: Sửa global hook telemetry để chỉ ghi run cho isolated skill session thật, đồng thời dọn các run sai đã ghi vào global ledger.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/codex_hook_bridge.py`, `/Users/maihoangviet/Projects/AISkills/skills/telemetry-flow/references/hook-contract.md`, `/Users/maihoangviet/Projects/AISkills/skills/task-router-flow/SKILL.md`, `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/**`, và `~/.logs/codex/telemetry/runs/`
+- **Location**: `~/Projects/AISkills/scripts/telemetry/codex_hook_bridge.py`, `~/Projects/AISkills/skills/telemetry-flow/references/hook-contract.md`, `~/Projects/AISkills/skills/task-router-flow/SKILL.md`, `~/Projects/AISkills/scripts/telemetry/**`, và `~/.logs/codex/telemetry/runs/`
 - **Why**: Dashboard đang có false-positive run do hook quét marker từ toàn transcript và nuốt luôn placeholder metadata từ probe/prompt không hợp lệ.
 - **As-Is Diagram (ASCII)**:
 ```text

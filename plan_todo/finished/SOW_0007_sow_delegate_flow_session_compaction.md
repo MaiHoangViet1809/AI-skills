@@ -1,7 +1,7 @@
 # SOW: SowDelegateFlow Session Compaction
 
 - **Task**: Cập nhật skill `sow-delegate-flow` để dùng policy session cost-aware: chỉ resume khi delegate session còn ngắn và sạch; nếu session đã dài/noisy thì Codex đọc transcript, compact history ngắn gọn, rồi mở session mới thay vì resume mù.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_session_compaction.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_session_compaction.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
 - **Why**: Giảm token cost do context accumulation trong Claude Code, trong khi vẫn giữ continuity thông qua summary ngắn do Codex kiểm soát.
 - **As-Is Diagram (ASCII)**:
 ```text

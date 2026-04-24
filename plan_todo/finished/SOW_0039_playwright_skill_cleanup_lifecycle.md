@@ -1,5 +1,5 @@
 - **Task**: Import skill Playwright vào repo dưới tên `playwright-flow` và bổ sung session lifecycle/cleanup guardrails để tránh để lại browser sessions sống dai.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/skills/playwright-flow/`, `/Users/maihoangviet/Projects/AISkills/scripts/skills/sync_environment.py`
+- **Location**: `~/Projects/AISkills/skills/playwright-flow/`, `~/Projects/AISkills/scripts/skills/sync_environment.py`
 - **Why**: Skill Playwright hiện tại dạy cách mở và dùng browser, nhưng chưa nhấn mạnh cleanup lifecycle như `list`, `close`, `close-all`, `kill-all`, nên dễ để lại session stale sau khi debug UI.
 - **As-Is Diagram (ASCII)**:
 ```text

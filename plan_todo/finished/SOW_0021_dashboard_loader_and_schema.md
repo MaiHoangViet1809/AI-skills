@@ -1,7 +1,7 @@
 # SOW: Dashboard Loader And Schema
 
 - **Task**: Xây slice loader/schema cho telemetry dashboard bằng Python + Polars để đọc local telemetry logs và chuẩn hóa dataset one-row-per-run dùng chung cho các SOW backend sau.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0021_dashboard_loader_and_schema.md`, `/Users/maihoangviet/Projects/AISkills/scripts/dashboard/**`, và file cấu hình Python liên quan nếu cần.
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0021_dashboard_loader_and_schema.md`, `~/Projects/AISkills/scripts/dashboard/**`, và file cấu hình Python liên quan nếu cần.
 - **Why**: Lần delegate trước scope backend/data/API quá rộng. Slice này thu hẹp còn loader + schema để Claude xử lý gọn hơn.
 - **As-Is Diagram (ASCII)**:
 ```text

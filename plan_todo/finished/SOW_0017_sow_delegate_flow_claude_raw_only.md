@@ -1,7 +1,7 @@
 # SOW: Sow Delegate Flow Claude Raw-Only Parser
 
 - **Task**: Đồng bộ flow Claude parser với triết lý raw-only: chỉ giữ raw log `claude-<session-id>.log`, không persist parsed artifact hoặc usage ledger, và parse on demand bằng Python khi cần.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_claude_raw_only.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/log-parsing.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_claude_raw_only.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`, `~/.codex/skills/sow-delegate-flow/references/log-parsing.md`, `~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py`
 - **Why**: Parser Claude hiện đang ghi thêm parsed artifact và usage ledger, trong khi raw file đã đủ làm source of truth và Python parse dưới 1 giây. Giữ thêm artifact chỉ làm tăng số file, tăng độ phức tạp, và lệch khỏi hướng rollout/raw-first hiện tại của Codex.
 - **As-Is Diagram (ASCII)**:
 ```text

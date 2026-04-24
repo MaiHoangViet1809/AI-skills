@@ -76,7 +76,7 @@ The parser should extract only the smallest useful set:
   },
   "duration_ms": 13771,
   "stop_reason": "end_turn",
-  "raw_log_path": "/Users/<you>/.logs/codex/telemetry/claude/<project>/claude-uuid.log",
+  "raw_log_path": "~/.logs/codex/telemetry/claude/<project>/claude-uuid.log",
   "anomaly_flags": []
 }
 ```
@@ -124,7 +124,7 @@ Write raw JSON output to a temp log, then parse it on demand:
 ```bash
 tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode json \
   --repo-root "$REPO"
@@ -135,7 +135,7 @@ Use `stream-json` only for deep delegate debugging, then parse the raw JSONL fil
 ```bash
 tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
 claude -p --output-format stream-json --json-schema "$SCHEMA" "$PROMPT" > "$tmp_log"
-python /Users/maihoangviet/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
   --raw-log "$tmp_log" \
   --mode stream-json \
   --repo-root "$REPO"

@@ -1,5 +1,5 @@
 - **Task**: Chuyển toàn bộ telemetry writes từ `logs_session_ai_agent` trong từng project sang global telemetry paths dưới `~/.logs/codex/telemetry/`.
-- **Location**: `/Users/maihoangviet/Projects/AISkills/plan_todo/SOW_0038_move_all_telemetry_logs_global.md`, `/Users/maihoangviet/Projects/AISkills/aiskills_common/telemetry/**`, `/Users/maihoangviet/Projects/AISkills/skills/telemetry-flow/scripts/**`, `/Users/maihoangviet/Projects/AISkills/skills/sow-delegate-flow/scripts/**`, `/Users/maihoangviet/Projects/AISkills/scripts/telemetry/**`, và docs/reference telemetry liên quan
+- **Location**: `~/Projects/AISkills/plan_todo/SOW_0038_move_all_telemetry_logs_global.md`, `~/Projects/AISkills/aiskills_common/telemetry/**`, `~/Projects/AISkills/skills/telemetry-flow/scripts/**`, `~/Projects/AISkills/skills/sow-delegate-flow/scripts/**`, `~/Projects/AISkills/scripts/telemetry/**`, và docs/reference telemetry liên quan
 - **Why**: Dashboard đã đọc global ledger, nhưng raw/staging telemetry vẫn còn write local theo từng repo; điều này đi ngược mục tiêu centralized telemetry.
 - **As-Is Diagram (ASCII)**:
 ```text

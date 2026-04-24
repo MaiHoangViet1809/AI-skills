@@ -2,7 +2,7 @@
 
 - **Task**: Cập nhật skill `sow-delegate-flow` để hỗ trợ advisor loop với câu hỏi ngược từ Claude, đồng thời áp dụng rule `1 plan = 1 delegate session` và theo dõi `session_id` từ CLI output.
 - **Task**: Cập nhật skill `sow-delegate-flow` để hỗ trợ advisor loop với câu hỏi ngược từ Claude, áp dụng rule `1 plan = 1 delegate session`, theo dõi `session_id` từ CLI output, và phát hiện quota/token-limit hit từ output JSON/event sau khi submit delegate call.
-- **Location**: `plan_todo/SOW_sow_delegate_flow_advisor_session.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/SKILL.md`, `/Users/maihoangviet/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
+- **Location**: `plan_todo/SOW_sow_delegate_flow_advisor_session.md`, `~/.codex/skills/sow-delegate-flow/SKILL.md`, `~/.codex/skills/sow-delegate-flow/references/claude-delegate-contract.md`
 - **Why**: Giảm prompt drift, giữ context theo từng plan thay vì trộn nhiều plan vào một session, và cho phép Claude escalates blocker về Codex theo kiểu advisor thay vì đoán tiếp.
 - **As-Is Diagram (ASCII)**:
 ```text
