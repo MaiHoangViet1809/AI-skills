@@ -28,6 +28,9 @@ Flow:
 Use this branch when the user changes scope for work already covered by an active SOW or by a plan that owns one or more SOWs.
 
 Flow:
+- Check how many approved extensions the active SOW already has.
+- If the next change would become extension 4, do not keep extending the same SOW.
+- Draft a new SOW that references the prior SOW and carries forward only the still-relevant context.
 - If the work belongs to a plan, extend the plan first and then update the aligned SOW.
 - Otherwise extend or update the standalone SOW.
 - Wait for approval.
@@ -40,7 +43,8 @@ Use this branch when the user asks to debug, investigate, or fix a bug or regres
 Flow:
 - Find the root cause first.
 - Confirm user intent only if there is a real ambiguity or tradeoff.
-- If the resulting fix is a big change, extend the active SOW before major edits.
+- If the resulting fix is a big change, extend the active SOW before major edits unless that SOW already has 3 extensions.
+- If the active SOW already has 3 extensions, draft a new SOW for the fix and link it back to the prior SOW.
 - Continue to execution.
 - Record the bug in `plan_todo/fix_bug.md`.
 
@@ -53,6 +57,14 @@ Flow:
 - Show a concrete edit plan.
 - Wait for approval.
 - Edit the docs or planning files directly.
+
+## SOW Extension Limit
+
+- Treat 3 extensions as the hard maximum for a single SOW.
+- Count each explicit extension section or equivalent approved addendum toward that limit.
+- If a requested change would become extension 4, open a new SOW instead of appending more to the old one.
+- The new SOW should reference the prior SOW so reviewers can trace continuity without letting one document grow indefinitely.
+- Prefer carrying forward only active context, unresolved risks, and dependency notes rather than copying the entire old SOW.
 
 ## Closeout
 

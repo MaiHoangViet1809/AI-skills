@@ -49,6 +49,9 @@ Choose the next available index by scanning the repository's planning area, incl
 - In this repo, planning files live under `plan_todo/`.
 - Before writing code, confirm an approved SOW exists unless the repo explicitly exempts the task.
 - If scope changes materially, update or extend the active SOW and get approval again.
+- A single SOW may have at most 3 approved extensions.
+- If a follow-up change would become extension 4, create a new SOW instead of adding another extension block.
+- A replacement SOW should reference the prior SOW and carry forward only the still-relevant context, risks, and dependencies.
 - When the work is complete, move the SOW into the repo's finished-plans location.
 - In this repo, completed SOWs move to a `finished/` directory under the planning area.
 
@@ -56,6 +59,7 @@ Choose the next available index by scanning the repository's planning area, incl
 
 - New code change not covered by an active SOW: draft a new SOW.
 - Change to active scoped work under a plan: extend the plan first, then update the aligned SOW.
-- Change to active scoped work not under a plan: extend the existing SOW.
+- Change to active scoped work not under a plan: extend the existing SOW only while it stays within the 3-extension limit.
 - Debug request: find root cause first, then extend the SOW only if the fix becomes a substantial code change.
+- Debug or follow-up work that would exceed the 3-extension limit: draft a new SOW and cross-reference the prior SOW.
 - Docs, plan, or SOW-only request: no new SOW by default.
