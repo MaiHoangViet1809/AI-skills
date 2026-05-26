@@ -1,7 +1,7 @@
 - **Status**: draft
 - **Approval**: pending
 - **Task**: Implement runtime cho `SkillPipeline.run(...)` theo linear-stage public contract đã khóa ở `0042` và thêm một demo text-skill path dùng `prompt + expected answer + metric`.
-- **Location**: `~/Projects/AISkills/aiskills_common/skill_framework/`, `~/Projects/AISkills/tests/skill_framework/`, `~/Projects/AISkills/references/SkillOpt_intake.md`
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt_intake.md`
 - **Why**: Mục tiêu của framework không chỉ là bắt chước `sklearn`, mà còn phải phù hợp các project nội bộ dùng composition/chaining. Phase này implement composition path công khai nhưng giữ semantics hẹp ở linear stages để tránh khóa nhầm graph API.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -36,7 +36,7 @@ SkillPipeline path
   - thêm tests chứng minh facade path và pipeline path cùng dùng được core chung
   - cập nhật intake/reference note để phản ánh mapping thiết kế từ SkillOpt sang framework mới
 - **Done Criteria**:
-  - có thể chạy một demo flow bằng `SkillPipeline.run(...)` và nhận `RunArtifacts`
+  - có thể chạy một demo flow bằng `from darwinSkill.pipeline import SkillPipeline` rồi `SkillPipeline.run(...)` và nhận `RunArtifacts`
   - pipeline path chỉ hỗ trợ linear stages và điều này được test rõ
   - facade path và pipeline path không diverge về sample/evaluator/artifact contract cốt lõi
   - demo text-skill path chạy được với metric evaluator

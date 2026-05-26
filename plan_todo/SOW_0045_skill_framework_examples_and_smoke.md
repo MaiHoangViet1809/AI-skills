@@ -1,7 +1,7 @@
 - **Status**: draft
 - **Approval**: pending
 - **Task**: Hoàn thiện usability cho framework mới bằng scripts/examples mỏng, docs usage ngắn, và integration smoke tests cho cả facade path lẫn pipeline path.
-- **Location**: `~/Projects/AISkills/scripts/skill_framework/`, `~/Projects/AISkills/tests/skill_framework/`, `~/Projects/AISkills/aiskills_common/skill_framework/`, `~/Projects/AISkills/pyproject.toml`
+- **Location**: `~/Projects/AISkills/scripts/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/darwinSkill/`
 - **Why**: Sau khi framework core và composition path đã có, cần chốt cách dùng thực tế và kiểm tra last-mile để framework dùng được rõ ràng trong repo này mà không buộc người dùng phải đọc nội bộ implementation.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -22,6 +22,7 @@ framework core
   - thêm scripts/examples mỏng cho facade path và pipeline path trên anchor text skill
   - thêm docs usage ngắn trong repo
   - thêm smoke tests cho import/run path chính
+  - examples dùng concrete imports từ `darwinSkill.*`, không rely vào `__init__.py`
   - nói rõ trong docs/examples rằng branching/merge được orchestration bằng Python caller, không phải graph API của `SkillPipeline`
   - cleanup naming, import ergonomics, và final acceptance gaps
 - **Done Criteria**:

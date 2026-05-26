@@ -2,7 +2,7 @@
 
 ## Goal
 
-Distill `SkillOpt` thành một framework Python-native để train/evaluate AI skills bằng API importable, sạch hơn và ổn định hơn cho các project nội bộ.
+Distill `SkillOpt` thành một module tree Python-native tên `darwinSkill` để train/evaluate AI skills bằng API importable qua concrete submodules, sạch hơn và ổn định hơn cho các project nội bộ.
 
 Plan này là source of truth ở mức chương trình cho effort distillation. Thay vì giữ một SOW quá lớn, implementation sẽ được chia thành các SOW nhỏ, tuần tự, dễ review và dễ test.
 
@@ -29,16 +29,20 @@ Plan này là source of truth ở mức chương trình cho effort distillation.
   - `SkillPipeline` v1 là linear stages tuần tự
   - branching/merge không là public graph API; caller tự orchestration bằng Python ngoài pipeline
   - proof v1 chỉ cần chạy tốt trong repo này
+  - source tree dùng tên `darwinSkill/`
+  - không dùng `__init__.py` hay package bootstrap; imports đi qua concrete submodules
 
 ## Final Product Shape
 
 Framework mới nên hỗ trợ đồng thời 2 cách dùng:
 
 - kiểu facade đơn giản:
+  - `from darwinSkill.trainer import SkillTrainer`
   - `trainer = SkillTrainer(...)`
   - `trainer.fit(train_data)`
   - `trainer.evaluate(test_data)`
 - kiểu composition/pipeline:
+  - `from darwinSkill.pipeline import SkillPipeline`
   - `pipeline = SkillPipeline([...])`
   - `pipeline.run(...)`
 
@@ -70,6 +74,8 @@ project code / notebook / service
 ## Design Constraints
 
 - giữ framework Python-native và importable, không phụ thuộc CLI khổng lồ
+- source tree là `darwinSkill/`, không tạo package với `__init__.py`
+- public imports phải dùng concrete submodules, ví dụ `darwinSkill.trainer`, `darwinSkill.pipeline`
 - không dùng global mutable backend state trong public API
 - tách core framework khỏi benchmark-specific logic
 - ưu tiên mockable/testable boundaries trước khi thêm benchmark thật
@@ -108,7 +114,7 @@ project code / notebook / service
 
 Focus:
 
-- tạo package `aiskills_common/skill_framework/`
+- tạo module tree `darwinSkill/`
 - khóa contracts cho `SkillTrainer`, `SkillPipeline`, `RunArtifacts`
 - khóa typed config/object model
 - khóa interfaces cho sample/evaluator/backend/stages
@@ -173,7 +179,7 @@ Why grouped:
 
 Khi toàn plan hoàn tất:
 
-- repo có package framework importable để train/evaluate skill bằng Python API
+- repo có module tree `darwinSkill/` importable qua concrete submodules để train/evaluate skill bằng Python API
 - có cả facade path và pipeline path
 - framework core không buộc người dùng phải chạy qua CLI lớn
 - có mockable contracts cho adapter/backend/stage/artifacts
@@ -188,6 +194,7 @@ Khi toàn plan hoàn tất:
 - migration toàn bộ project trong `~/Projects`
 - integration sâu với workflow engines như Temporal
 - public graph workflow API cho pipeline
+- package bootstrap bằng `__init__.py`
 
 ## Risks
 

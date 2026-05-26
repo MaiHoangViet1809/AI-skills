@@ -1,7 +1,7 @@
 - **Status**: draft
 - **Approval**: pending
 - **Task**: Implement trainer core tối thiểu cho framework mới, gồm `fit()` / `evaluate()`, run state, và artifact persistence cho anchor text-skill contract đã khóa ở `0042`.
-- **Location**: `~/Projects/AISkills/aiskills_common/skill_framework/`, `~/Projects/AISkills/tests/skill_framework/`, `~/Projects/AISkills/scripts/skill_framework/`
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`
 - **Why**: Sau khi contracts đã chốt, cần một lõi thực thi thật để chứng minh framework không chỉ là type shell. Phase này tập trung vào control flow và persistence của trainer path trước khi thêm pipeline runtime.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -28,7 +28,7 @@ SkillTrainer.fit/evaluate
   - implement mock text backend, mock evaluator, và mock text sample dataset để test control flow
   - thêm tests cho train loop, eval-only flow, artifact writes
 - **Done Criteria**:
-  - có thể chạy một mocked text-skill training run end-to-end qua `SkillTrainer.fit(...)`
+  - có thể chạy một mocked text-skill training run end-to-end qua `from darwinSkill.trainer import SkillTrainer`
   - có thể chạy một mocked evaluation run qua `SkillTrainer.evaluate(...)` và nhận `EvaluationReport`
   - artifacts được ghi và đọc lại theo contract
   - tests xác nhận lifecycle chính pass mà không cần benchmark thật

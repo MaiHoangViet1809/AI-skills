@@ -1,14 +1,14 @@
 - **Status**: draft
 - **Approval**: pending
 - **Task**: Tạo skeleton framework Python-native cho text-skill training/evaluation và khóa các public contracts cốt lõi, gồm cả `SkillTrainer` và `SkillPipeline`, trước khi viết runtime thực thi.
-- **Location**: `~/Projects/AISkills/aiskills_common/skill_framework/`, `~/Projects/AISkills/tests/skill_framework/`, `~/Projects/AISkills/pyproject.toml`
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`
 - **Why**: Phase đầu cần khóa boundary và object model để các phase sau không phải refactor lại kiến trúc nền. Đây là bước thay thế public surface CLI/dict-heavy của `SkillOpt` bằng contracts importable, typed, và rõ dependency, đồng thời khóa sớm linear-pipeline API để tránh drift giữa facade path và pipeline path.
 - **As-Is Diagram (ASCII)**:
 ```text
 consumer code
     |
     v
- no local skill framework package
+ no local darwinSkill module tree
     |
     v
  ad hoc direct scripts or future guesswork
@@ -18,7 +18,7 @@ consumer code
 consumer code
     |
     v
- skill_framework package
+ darwinSkill module tree
     |
     +--> SkillTrainer contract
     +--> SkillPipeline contract
@@ -28,7 +28,7 @@ consumer code
     +--> backend/artifact interfaces
 ```
 - **Deliverables**:
-  - tạo package `aiskills_common/skill_framework/`
+  - tạo module tree `darwinSkill/` không dùng `__init__.py`
   - define public contracts cố định: `SkillTrainer`, `SkillPipeline`, `SkillStage`, `RunArtifacts`, `SkillSample`, `SkillEvaluator`, `MetricResult`, `EvaluationReport`
   - define typed config/object model cho run/training/eval của anchor `text skill`
   - define `SkillPipeline` là linear stages tuần tự; không có graph DSL, branch DSL, hay merge DSL
@@ -40,12 +40,12 @@ consumer code
   - define `SkillTrainer.evaluate(samples, ...) -> EvaluationReport`
   - define `SkillPipeline.run(samples, ...) -> RunArtifacts`
   - define `SkillStage` nhận/trả về typed run context thay vì raw dict context
+  - chốt concrete import paths qua submodules, ví dụ `darwinSkill.trainer` và `darwinSkill.pipeline`
   - define backend client interface và artifact interface dùng chung cho trainer path và pipeline path
   - thêm unit tests cho contract construction/import shape
   - thêm test-level usage examples chứng minh shape của `SkillTrainer.fit/evaluate` và `SkillPipeline.run`
-  - cập nhật `pyproject.toml` để package mới import được sạch
 - **Done Criteria**:
-  - package mới import được trong repo
+  - module tree `darwinSkill/` import được trong repo qua concrete submodules
   - public names, sample schema, metric/evaluation shapes, và module boundaries rõ ràng
   - không còn phụ thuộc vào flat dict/global backend state ở API surface mới
   - tests xác nhận object creation, pipeline linear-stage invariants, và evaluator contract pass
@@ -59,3 +59,4 @@ consumer code
 - **Cautions / Risks**:
   - nếu contracts quá abstract sẽ khó dùng ở phase sau
   - nếu pipeline contract ôm nhiều semantics hơn linear stages, phase đầu sẽ khóa sai API
+  - nếu vô tình quay lại pattern package bootstrap, source layout sẽ lệch khỏi constraint đã chốt
