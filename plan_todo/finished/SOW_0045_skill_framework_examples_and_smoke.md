@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: done
+- **Approval**: approved
 - **Task**: Hoàn thiện usability cho framework mới bằng scripts/examples mỏng, docs usage ngắn, và integration smoke tests cho cả facade path lẫn pipeline path.
 - **Location**: `~/Projects/AISkills/scripts/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/darwinSkill/`
 - **Why**: Sau khi framework core và composition path đã có, cần chốt cách dùng thực tế và kiểm tra last-mile để framework dùng được rõ ràng trong repo này mà không buộc người dùng phải đọc nội bộ implementation.

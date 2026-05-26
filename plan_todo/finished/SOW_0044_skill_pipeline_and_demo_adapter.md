@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: done
+- **Approval**: approved
 - **Task**: Implement runtime cho `SkillPipeline.run(...)` theo linear-stage public contract đã khóa ở `0042` và thêm một demo text-skill path dùng `prompt + expected answer + metric`.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt_intake.md`
 - **Why**: Mục tiêu của framework không chỉ là bắt chước `sklearn`, mà còn phải phù hợp các project nội bộ dùng composition/chaining. Phase này implement composition path công khai nhưng giữ semantics hẹp ở linear stages để tránh khóa nhầm graph API.

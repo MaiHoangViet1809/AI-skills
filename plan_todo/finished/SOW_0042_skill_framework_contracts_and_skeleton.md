@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: done
+- **Approval**: approved
 - **Task**: Tạo skeleton framework Python-native cho text-skill training/evaluation và khóa các public contracts cốt lõi, gồm cả `SkillTrainer` và `SkillPipeline`, trước khi viết runtime thực thi.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`
 - **Why**: Phase đầu cần khóa boundary và object model để các phase sau không phải refactor lại kiến trúc nền. Đây là bước thay thế public surface CLI/dict-heavy của `SkillOpt` bằng contracts importable, typed, và rõ dependency, đồng thời khóa sớm linear-pipeline API để tránh drift giữa facade path và pipeline path.

@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: done
+- **Approval**: approved
 - **Task**: Implement trainer core tối thiểu cho framework mới, gồm `fit()` / `evaluate()`, run state, và artifact persistence cho anchor text-skill contract đã khóa ở `0042`.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`
 - **Why**: Sau khi contracts đã chốt, cần một lõi thực thi thật để chứng minh framework không chỉ là type shell. Phase này tập trung vào control flow và persistence của trainer path trước khi thêm pipeline runtime.

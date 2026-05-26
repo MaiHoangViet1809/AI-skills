@@ -109,3 +109,20 @@ to:
 - typed config objects
 - explicit dependency injection
 - stable reusable train/eval interfaces
+
+## darwinSkill Mapping
+
+The local implementation direction now chosen in this repo is intentionally narrower than upstream SkillOpt:
+
+- source tree: `darwinSkill/`
+- no `__init__.py` bootstrap layer
+- public imports go through concrete submodules such as:
+  - `darwinSkill.trainer`
+  - `darwinSkill.pipeline`
+- anchor use case is `text skill`
+- sample/eval contract is:
+  - `prompt`
+  - `expected_answer`
+  - metric-based evaluation
+- public pipeline v1 is linear-stage only
+- branching and merge behavior stay in Python caller code, not in a graph DSL
