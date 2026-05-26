@@ -22,6 +22,13 @@ Plan này là source of truth ở mức chương trình cho effort distillation.
   - facade object API từ `~/Projects/nanobot/nanobot/nanobot.py`
   - compiler/executor separation từ `~/Projects/libraries/cores/workflows/common/compiler.py`
   - backend interface/registry từ `~/Projects/hybrid_brain/core/trainers/framework/backend_base.py`
+- Các quyết định đã khóa cho v1:
+  - anchor use case là `text skill`
+  - sample/eval contract là `prompt + expected answer + metric`
+  - public API khóa sớm cả `SkillTrainer` và `SkillPipeline`
+  - `SkillPipeline` v1 là linear stages tuần tự
+  - branching/merge không là public graph API; caller tự orchestration bằng Python ngoài pipeline
+  - proof v1 chỉ cần chạy tốt trong repo này
 
 ## Final Product Shape
 
@@ -34,6 +41,13 @@ Framework mới nên hỗ trợ đồng thời 2 cách dùng:
 - kiểu composition/pipeline:
   - `pipeline = SkillPipeline([...])`
   - `pipeline.run(...)`
+
+Composition model v1:
+
+- `SkillPipeline` nhận danh sách stage tuần tự
+- mỗi stage nhận context/artifacts hiện tại và trả về context/artifacts kế tiếp
+- không có node graph, edge graph, branch DSL, hay merge DSL ở public API v1
+- nếu caller cần `if/else/merge`, caller viết orchestration bằng Python ngoài `SkillPipeline`
 
 Kiến trúc đích:
 
@@ -60,6 +74,33 @@ project code / notebook / service
 - tách core framework khỏi benchmark-specific logic
 - ưu tiên mockable/testable boundaries trước khi thêm benchmark thật
 - chưa theo đuổi parity đầy đủ với toàn bộ upstream `SkillOpt`
+- contract công khai phải chốt sớm và không đổi giữa `0042` đến `0045` trừ khi có SOW mới
+
+## Public Interfaces To Lock In Phase 1
+
+- `SkillSample`
+  - typed object, không dùng raw dict ở public API
+  - fields tối thiểu: `prompt`, `expected_answer`, `metadata`
+- `MetricResult`
+  - typed object cho kết quả một sample
+  - fields tối thiểu: `score`, `passed`, `details`
+- `EvaluationReport`
+  - typed object cho kết quả aggregate của `evaluate(...)`
+  - chứa aggregate metrics và per-sample results theo contract thống nhất
+- `SkillEvaluator`
+  - entrypoint tối thiểu nhận prediction + sample
+  - trả về `MetricResult`
+- `SkillTrainer`
+  - `fit(samples: Sequence[SkillSample], ...) -> RunArtifacts`
+  - `evaluate(samples: Sequence[SkillSample], ...) -> EvaluationReport`
+- `SkillPipeline`
+  - `run(samples: Sequence[SkillSample], ...) -> RunArtifacts`
+  - linear stages only
+- `SkillStage`
+  - protocol cho một stage tuần tự dùng lại được giữa trainer path và pipeline path
+  - stage nhận typed run context và trả về typed run context, không dùng raw dict context ở public contract
+- `RunArtifacts`
+  - typed object chuẩn cho outputs và persistence của train/pipeline runs
 
 ## SOW Breakdown
 
@@ -68,9 +109,10 @@ project code / notebook / service
 Focus:
 
 - tạo package `aiskills_common/skill_framework/`
-- define contracts cho `SkillTrainer`, `SkillPipeline`, `RunArtifacts`
-- define typed config/object model
-- define interfaces cho dataset/env/backend/stages
+- khóa contracts cho `SkillTrainer`, `SkillPipeline`, `RunArtifacts`
+- khóa typed config/object model
+- khóa interfaces cho sample/evaluator/backend/stages
+- khóa anchor text-skill sample schema
 
 Why grouped:
 
@@ -84,7 +126,7 @@ Focus:
 - implement trainer core tối thiểu
 - implement train/eval lifecycle cơ bản
 - implement artifact persistence và run state
-- dùng mock backend + mock adapter để validate control flow
+- dùng mock text backend + mock evaluator để validate control flow
 
 Why grouped:
 
@@ -95,10 +137,10 @@ Why grouped:
 
 Focus:
 
-- thêm composition/pipeline execution path
-- map core loop vào chain/step abstraction
-- thêm một demo adapter/backend stub hoặc local mock benchmark
-- chứng minh coexistence giữa facade API và pipeline API
+- implement runtime cho `SkillPipeline` linear stages
+- map core loop vào stage abstraction đã khóa ở `0042`
+- thêm demo text-skill path dựa trên `prompt + expected answer + metric`
+- chứng minh coexistence giữa facade API và pipeline API mà không thêm graph semantics
 
 Why grouped:
 
@@ -113,6 +155,7 @@ Focus:
 - thêm docs usage ngắn
 - integration smoke tests cho facade path và pipeline path
 - cleanup naming và import ergonomics
+- nói rõ branching/merge nằm ở Python caller, không ở pipeline core
 
 Why grouped:
 
@@ -134,7 +177,8 @@ Khi toàn plan hoàn tất:
 - có cả facade path và pipeline path
 - framework core không buộc người dùng phải chạy qua CLI lớn
 - có mockable contracts cho adapter/backend/stage/artifacts
-- có ít nhất một demo path chứng minh khả năng nhúng vào project nội bộ
+- có ít nhất một demo text-skill path dùng `prompt + expected answer + metric`
+- public pipeline API chỉ là linear stages và được test rõ
 
 ## Out-of-Scope For This Plan
 
@@ -143,9 +187,11 @@ Khi toàn plan hoàn tất:
 - web UI/dashboard cho framework mới
 - migration toàn bộ project trong `~/Projects`
 - integration sâu với workflow engines như Temporal
+- public graph workflow API cho pipeline
 
 ## Risks
 
 - nếu ép chặt vào `sklearn` metaphor thì sẽ làm nghèo hóa multi-stage reflective optimization
 - nếu giữ quá gần shape cũ của `SkillOpt` thì framework mới vẫn mang legacy CLI/config
 - nếu generalize quá sớm trước khi có mock/demo path, contracts sẽ khó kiểm chứng
+- nếu đưa graph semantics vào quá sớm, phase 1 sẽ khóa nhầm API và làm tăng blast radius refactor

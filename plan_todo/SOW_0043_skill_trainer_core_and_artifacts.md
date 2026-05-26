@@ -1,8 +1,8 @@
 - **Status**: draft
 - **Approval**: pending
-- **Task**: Implement trainer core tối thiểu cho framework mới, gồm train/eval lifecycle cơ bản, run state, và artifact persistence với mock backend/adapter.
+- **Task**: Implement trainer core tối thiểu cho framework mới, gồm `fit()` / `evaluate()`, run state, và artifact persistence cho anchor text-skill contract đã khóa ở `0042`.
 - **Location**: `~/Projects/AISkills/aiskills_common/skill_framework/`, `~/Projects/AISkills/tests/skill_framework/`, `~/Projects/AISkills/scripts/skill_framework/`
-- **Why**: Sau khi contracts đã chốt, cần một lõi thực thi thật để chứng minh framework không chỉ là type shell. Phase này tập trung vào control flow và persistence trước khi thêm pipeline composition hay benchmark demo.
+- **Why**: Sau khi contracts đã chốt, cần một lõi thực thi thật để chứng minh framework không chỉ là type shell. Phase này tập trung vào control flow và persistence của trainer path trước khi thêm pipeline runtime.
 - **As-Is Diagram (ASCII)**:
 ```text
 contracts only
@@ -19,25 +19,25 @@ SkillTrainer.fit/evaluate
       |      |
       |      +--> artifacts / run state
       v
- mock backend + mock adapter
+ mock text backend + mock evaluator
 ```
 - **Deliverables**:
-  - implement trainer core tối thiểu cho fit/evaluate lifecycle
-  - implement artifact model và persistence cơ bản
-  - implement run state/resume-friendly structures ở mức framework core nếu hợp lý
-  - thêm mock backend + mock adapter để test control flow
+  - implement trainer core tối thiểu cho `fit(...)` / `evaluate(...)` lifecycle đúng contract đã khóa ở `0042`
+  - implement artifact model và persistence cơ bản theo `RunArtifacts` contract đã khóa ở `0042`
+  - implement run state structure cho trainer path
+  - implement mock text backend, mock evaluator, và mock text sample dataset để test control flow
   - thêm tests cho train loop, eval-only flow, artifact writes
 - **Done Criteria**:
-  - có thể chạy một mocked training run end-to-end qua Python API
+  - có thể chạy một mocked text-skill training run end-to-end qua `SkillTrainer.fit(...)`
+  - có thể chạy một mocked evaluation run qua `SkillTrainer.evaluate(...)` và nhận `EvaluationReport`
   - artifacts được ghi và đọc lại theo contract
-  - tests xác nhận lifecycle chính pass
-  - không cần benchmark thật để validate phase này
+  - tests xác nhận lifecycle chính pass mà không cần benchmark thật
 - **Out-of-Scope**:
-  - chưa có chain/pipeline composition path
-  - chưa có demo adapter benchmark-facing
+  - chưa implement `SkillPipeline.run(...)`
+  - chưa có demo text-skill path ở pipeline runtime
   - chưa có usage docs hoàn chỉnh
 - **Proposed-By**: Codex GPT-5
 - **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Cautions / Risks**:
-  - phase này dễ kéo theo benchmark-specific assumptions; cần giữ mock-first
-  - artifact shape phải đủ ổn định để phase sau không phải đổi lớn
+  - phase này dễ kéo theo benchmark-specific assumptions; cần giữ mock text-skill contract đúng mức tối thiểu
+  - artifact shape phải đủ ổn định để phase sau chỉ tái dùng, không đổi contract
