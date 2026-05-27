@@ -72,6 +72,7 @@ Parity notes:
 - SearchQA, DocVQA, OfficeQA da co loader + evaluator + adapter path rieng
 - ALFWorld, SpreadsheetBench, LiveMathematicianBench da co benchmark-native loader/evaluator/adapter path
 - SpreadsheetBench evaluator da co the chay prediction dang Python code block de sinh workbook output
+- SpreadsheetBench evaluator cung hieu prediction dang JSON artifact bundle chua `solution.py` hoac `output.xlsx`
 - runtime/tool parity day du con thieu chu yeu o:
   - ALFWorld simulator runtime
   - SpreadsheetBench react path va full upstream orchestration

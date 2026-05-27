@@ -147,6 +147,51 @@ def extract_code(text: str) -> str:
     return text[newline + 1 : end].strip()
 
 
+def _load_json_payload(text: str) -> dict[str, Any] | None:
+    stripped = text.strip()
+    if not stripped or stripped[0] not in "{[":
+        return None
+    try:
+        parsed = json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
+    payload = _load_json_payload(prediction)
+    if payload is None:
+        return {
+            "kind": "text",
+            "predicted_answer": extract_answer(prediction),
+            "code": extract_code(prediction),
+        }
+
+    artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
+    files = payload.get("files") if isinstance(payload.get("files"), dict) else {}
+    code = (
+        payload.get("code")
+        or payload.get("solution.py")
+        or artifacts.get("solution.py")
+        or files.get("solution.py")
+        or ""
+    )
+    output_path = (
+        payload.get("output_path")
+        or payload.get("pred_path")
+        or artifacts.get("output.xlsx")
+        or files.get("output.xlsx")
+        or ""
+    )
+    return {
+        "kind": "bundle",
+        "predicted_answer": str(payload.get("predicted_answer") or extract_answer(prediction)),
+        "code": str(code or ""),
+        "output_path": str(output_path or ""),
+        "payload": payload,
+    }
+
+
 def _strip_path_assignments(code: str) -> str:
     return PATH_ASSIGN_RE.sub("", code)
 
@@ -338,25 +383,28 @@ def extract_answer(text: str) -> str:
 
 class SpreadsheetBenchEvaluator(SkillEvaluator):
     def evaluate(self, prediction: str, sample: SkillSample) -> MetricResult:
-        predicted_answer = extract_answer(prediction)
+        bundle = resolve_prediction_bundle(prediction)
+        predicted_answer = str(bundle.get("predicted_answer") or "")
         answer_position = str(sample.metadata.get("answer_position") or "")
         direct_gold_path = str(sample.metadata.get("gold_path") or "")
-        if direct_gold_path and answer_position and os.path.exists(predicted_answer):
-            ok, reason = compare_workbooks(direct_gold_path, predicted_answer, answer_position)
+        direct_output_path = str(bundle.get("output_path") or predicted_answer)
+        if direct_gold_path and answer_position and direct_output_path and os.path.exists(direct_output_path):
+            ok, reason = compare_workbooks(direct_gold_path, direct_output_path, answer_position)
             return MetricResult(
                 score=1.0 if ok else 0.0,
                 passed=ok,
                 details={
                     "ok": ok,
                     "reason": reason,
-                    "predicted_answer": predicted_answer,
+                    "predicted_answer": direct_output_path,
                     "instruction_type": sample.metadata.get("instruction_type", ""),
                     "task_type": sample.metadata.get("task_type", ""),
+                    "mode": "output_path",
                 },
             )
 
         cases = resolve_test_cases(sample.metadata)
-        code = extract_code(prediction)
+        code = str(bundle.get("code") or "")
         if cases and answer_position and code:
             case_results: list[dict[str, Any]] = []
             passed_cases = 0
@@ -396,7 +444,7 @@ class SpreadsheetBenchEvaluator(SkillEvaluator):
                     "predicted_answer": predicted_answer,
                     "instruction_type": sample.metadata.get("instruction_type", ""),
                     "task_type": sample.metadata.get("task_type", ""),
-                    "mode": "generated_code",
+                    "mode": "generated_code_bundle" if bundle.get("kind") == "bundle" else "generated_code",
                 },
             )
 

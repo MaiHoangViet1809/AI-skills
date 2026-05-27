@@ -24,6 +24,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
   - `LiveMathematicianBench`
   - da co native loader/evaluator/adapter path va acceptance tests cho benchmark surface
   - `SpreadsheetBench` evaluator co the execute prediction dang Python code block de cham workbook output
+  - `SpreadsheetBench` evaluator cung hieu structured JSON artifact bundle cho `solution.py` / `output.xlsx`
 - native benchmark helpers:
   - `run_reference_benchmark(...)`
   - `run_reference_adapter(...)`

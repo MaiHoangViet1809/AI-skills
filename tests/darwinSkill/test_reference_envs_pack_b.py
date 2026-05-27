@@ -163,6 +163,54 @@ wb.save(OUTPUT_PATH)
             self.assertTrue(metric.passed)
             self.assertEqual(metric.details["hard"], 1)
 
+    def test_spreadsheet_evaluator_accepts_json_artifact_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-2"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "1_task_init.xlsx"
+            gold_path = task_dir / "1_task_golden.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["B2"] = 5
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["B2"] = 99
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-2",
+                        "instruction": "Set B2 to 99",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!B2",
+                        "spreadsheet_path": "spreadsheet/task-2",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            prediction = json.dumps(
+                {
+                    "artifacts": {
+                        "solution.py": (
+                            "import openpyxl\n"
+                            "wb = openpyxl.load_workbook(INPUT_PATH)\n"
+                            "ws = wb['Sheet1']\n"
+                            "ws['B2'] = 99\n"
+                            "wb.save(OUTPUT_PATH)\n"
+                        )
+                    }
+                }
+            )
+            metric = SpreadsheetBenchEvaluator().evaluate(prediction, adapter.train_samples[0])
+            self.assertTrue(metric.passed)
+            self.assertEqual(metric.details["mode"], "generated_code_bundle")
+
     def test_alfworld_loader_evaluator_and_native_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
