@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: done
+- **Approval**: approved
 - **Task**: Hoàn thiện các gap còn lại của `darwinSkill` bằng cách thêm eval-only artifact persistence, siết `run state`, harden import/reuse path, và mở rộng test coverage cho failure modes và contract depth.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`, `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Why**: Review sau implementation đầu tiên cho thấy framework đã chạy được nhưng chưa đủ sâu ở 4 điểm: `SkillTrainer.evaluate(...)` chưa persist artifacts, `run state` mới chỉ là history tạm, examples còn phụ thuộc path bootstrapping ad hoc, và tests chưa bao phủ failure modes chính. Slice này đóng các gap đó mà không đổi hướng kiến trúc đã khóa.

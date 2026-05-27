@@ -58,6 +58,7 @@ class SkillTrainer:
                     skill_text=skill_text,
                     backend=self._backend,
                     evaluator=self._evaluator,
+                    started_at=started_at,
                     history=[],
                 )
                 batch_context = run_stages(
@@ -84,6 +85,7 @@ class SkillTrainer:
             skill_text=skill_text,
             backend=self._backend,
             evaluator=self._evaluator,
+            started_at=started_at,
             history=history,
         )
         final_context = run_stages(
@@ -98,6 +100,7 @@ class SkillTrainer:
         *,
         config: EvaluationConfig,
     ) -> EvaluationReport:
+        started_at = isoformat(utc_now())
         context = RunContext(
             run_id=make_run_id(),
             run_name=config.run_name,
@@ -107,7 +110,12 @@ class SkillTrainer:
             skill_text=config.skill_text,
             backend=self._backend,
             evaluator=self._evaluator,
-            history=[{"stage": "start", "started_at": isoformat(utc_now())}],
+            started_at=started_at,
+            history=[{"stage": "start", "started_at": started_at}],
         )
         context = run_stages(context, [PredictionStage(), EvaluationStage()])
-        return context.evaluation_report
+        report = context.evaluation_report
+        if report is None:
+            raise ValueError("SkillTrainer.evaluate() requires an evaluation report.")
+        report.artifacts = self._artifact_store.persist(context)
+        return report

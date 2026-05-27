@@ -47,6 +47,7 @@ class SkillPipeline:
             skill_text=active_config.initial_skill,
             backend=self._backend,
             evaluator=self._evaluator,
+            started_at=started_at,
             history=[{"stage": "start", "started_at": started_at}],
         )
         context = run_stages(context, self._stages)

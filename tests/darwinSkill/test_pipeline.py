@@ -4,11 +4,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from darwinSkill.contracts import PipelineConfig
+from darwinSkill.contracts import PipelineConfig, RunContext
 from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
 from darwinSkill.evaluators import ExactMatchEvaluator
 from darwinSkill.pipeline import SkillPipeline
 from darwinSkill.stages import EvaluationStage, ImprovementStage, PredictionStage
+from darwinSkill.storage import isoformat, utc_now
 
 
 class PipelineTest(unittest.TestCase):
@@ -27,7 +28,39 @@ class PipelineTest(unittest.TestCase):
             artifacts = pipeline.run(demo_samples())
             self.assertEqual(artifacts.mean_score, 1.0)
             self.assertTrue(artifacts.history_path.exists())
+            self.assertTrue(artifacts.run_state_path.exists())
             self.assertIn("Jupiter", artifacts.final_skill)
+
+    def test_pipeline_requires_evaluation_before_persistence(self) -> None:
+        pipeline = SkillPipeline(
+            [PredictionStage()],
+            backend=DarwinMemoryBackend(),
+            evaluator=ExactMatchEvaluator(),
+        )
+
+        with self.assertRaisesRegex(ValueError, "requires an EvaluationStage"):
+            pipeline.run(demo_samples())
+
+    def test_stage_ordering_failures_raise_clear_errors(self) -> None:
+        context = RunContext(
+            run_id="run123",
+            run_name="pipeline-order",
+            run_kind="pipeline",
+            output_root=Path("."),
+            samples=demo_samples(),
+            skill_text="",
+            backend=DarwinMemoryBackend(),
+            evaluator=ExactMatchEvaluator(),
+            started_at=isoformat(utc_now()),
+            history=[],
+        )
+
+        with self.assertRaisesRegex(ValueError, "Predictions must align"):
+            EvaluationStage().run(context)
+
+        predicted = PredictionStage().run(context)
+        with self.assertRaisesRegex(ValueError, "Evaluations must exist"):
+            ImprovementStage().run(predicted)
 
 
 if __name__ == "__main__":

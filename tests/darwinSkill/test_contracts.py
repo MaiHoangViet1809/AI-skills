@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from darwinSkill.contracts import EvaluationReport, MetricResult, SkillSample, TrainingConfig
+from darwinSkill.contracts import EvaluationReport, MetricResult, PipelineConfig, SkillSample, TrainingConfig
 from darwinSkill.evaluators import ExactMatchEvaluator
 
 
@@ -30,6 +30,14 @@ class ContractsTest(unittest.TestCase):
         metric: MetricResult = ExactMatchEvaluator().evaluate("  jupiter  ", sample)
         self.assertTrue(metric.passed)
         self.assertEqual(metric.score, 1.0)
+
+    def test_configs_reject_invalid_values(self) -> None:
+        with self.assertRaises(ValueError):
+            TrainingConfig(num_epochs=0)
+        with self.assertRaises(ValueError):
+            TrainingConfig(batch_size=0)
+        with self.assertRaises(ValueError):
+            PipelineConfig(run_name="  ")
 
 
 if __name__ == "__main__":

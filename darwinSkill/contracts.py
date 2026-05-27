@@ -33,6 +33,7 @@ class EvaluationReport:
     pass_rate: float
     skill_text: str
     results: list[SampleEvaluation] = field(default_factory=list)
+    artifacts: "RunArtifacts | None" = None
 
 
 @dataclass(slots=True)
@@ -52,6 +53,9 @@ class TrainingConfig:
 
     def __post_init__(self) -> None:
         self.output_root = Path(self.output_root)
+        _validate_positive("num_epochs", self.num_epochs)
+        _validate_positive("batch_size", self.batch_size)
+        _validate_run_name(self.run_name)
 
 
 @dataclass(slots=True)
@@ -62,6 +66,7 @@ class EvaluationConfig:
 
     def __post_init__(self) -> None:
         self.output_root = Path(self.output_root)
+        _validate_run_name(self.run_name)
 
 
 @dataclass(slots=True)
@@ -72,6 +77,38 @@ class PipelineConfig:
 
     def __post_init__(self) -> None:
         self.output_root = Path(self.output_root)
+        _validate_run_name(self.run_name)
+
+
+def _validate_run_name(run_name: str) -> None:
+    if not str(run_name).strip():
+        raise ValueError("run_name must not be empty.")
+
+
+def _validate_positive(name: str, value: int) -> None:
+    if value <= 0:
+        raise ValueError(f"{name} must be positive.")
+
+
+@dataclass(slots=True)
+class RunStateEntry:
+    stage: str
+    details: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RunState:
+    run_id: str
+    run_name: str
+    run_kind: str
+    started_at: str
+    finished_at: str
+    last_stage: str
+    sample_count: int
+    prediction_count: int
+    evaluation_count: int
+    skill_text: str
+    history: list[RunStateEntry] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -88,6 +125,7 @@ class RunArtifacts:
     final_skill: str
     summary_path: Path
     history_path: Path
+    run_state_path: Path
     evaluations_path: Path
     final_skill_path: Path
 
@@ -102,6 +140,7 @@ class RunContext:
     skill_text: str
     backend: "SkillBackend"
     evaluator: "SkillEvaluator"
+    started_at: str
     predictions: list[str] = field(default_factory=list)
     evaluations: list[SampleEvaluation] = field(default_factory=list)
     evaluation_report: EvaluationReport | None = None

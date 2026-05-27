@@ -18,3 +18,10 @@ Philosophy v1:
 - sample contract la `prompt + expected_answer + metric`
 - `SkillPipeline` chi ho tro linear stages
 - `if/else/merge` duoc orchestration bang Python caller, khong phai graph API
+
+Run demos:
+
+```bash
+PYTHONPATH=. uv run python scripts/darwinSkill/train_demo.py
+PYTHONPATH=. uv run python scripts/darwinSkill/pipeline_demo.py
+```
