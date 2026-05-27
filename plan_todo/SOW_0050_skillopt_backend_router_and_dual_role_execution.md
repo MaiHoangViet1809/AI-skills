@@ -33,14 +33,13 @@ BackendRouter
 - **Done Criteria**:
   - trainer engine can use distinct backends for reflection/update and rollout/evaluation
   - backend routing lives behind explicit objects rather than process-global public assumptions
-  - compatibility behavior is testable without forcing all callers through CLI
+  - compatibility behavior is testable from native Python call sites
 - **Out-of-Scope**:
   - migrating every benchmark adapter
-  - WebUI integration
+  - UI integration
   - exact token accounting parity with every provider
 - **Proposed-By**: Codex GPT-5
 - **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Cautions / Risks**:
   - provider abstractions quá chung sẽ làm mất capability-specific knobs
   - provider compatibility nên được giữ ở internal/operator layer, không tràn vào public trainer constructor vô tổ chức
-

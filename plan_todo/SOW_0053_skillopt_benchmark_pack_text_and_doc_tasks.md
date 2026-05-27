@@ -23,17 +23,16 @@ darwinSkill benchmark pack A
   - add benchmark-scoped smoke tests or replayable fixture tests
   - document any intentional deltas where the new framework keeps behavior equivalent but API/layout differs
 - **Done Criteria**:
-  - the three benchmark families can run through `darwinSkill` with the new engine/operator surface
+  - the three benchmark families can run through `darwinSkill` with the new engine/native Python surface
   - tests or controlled smokes prove end-to-end wiring
   - benchmark logic lives behind adapters, not in trainer core
 - **Out-of-Scope**:
   - ALFWorld
   - SpreadsheetBench
   - LiveMathematicianBench
-  - WebUI parity
+  - UI parity
 - **Proposed-By**: Codex GPT-5
 - **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Cautions / Risks**:
   - asset/prompt migration có thể kéo theo path/layout decisions cần nhất quán với later benchmark packs
   - fixture strategy cần tránh phụ thuộc external services trong test mặc định
-

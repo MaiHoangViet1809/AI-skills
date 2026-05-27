@@ -26,7 +26,7 @@ darwinSkill benchmark pack B
   - framework boundaries remain intact despite the more complex env requirements
   - heavy dependencies are documented and isolated cleanly
 - **Out-of-Scope**:
-  - WebUI parity
+  - UI parity
   - paper-metric reproduction
   - support for benchmark families outside the reference snapshot
 - **Proposed-By**: Codex GPT-5
@@ -34,4 +34,3 @@ darwinSkill benchmark pack B
 - **Cautions / Risks**:
   - đây là slice có blast radius lớn nhất về dependencies và execution runtime
   - cần tránh cho benchmark-specific hacks rò vào engine core
-

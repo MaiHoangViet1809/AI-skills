@@ -41,10 +41,9 @@ epoch N
 - **Out-of-Scope**:
   - provider-specific prompting quality
   - full benchmark migration
-  - WebUI visualization of slow-update/meta-skill artifacts
+  - UI visualization of slow-update/meta-skill artifacts
 - **Proposed-By**: Codex GPT-5
 - **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Cautions / Risks**:
   - nếu comparison-pair schema không ổn định, benchmark adapters sẽ phải rewrite nhiều lần
   - memory injection cần tránh làm bẩn public trainer API
-

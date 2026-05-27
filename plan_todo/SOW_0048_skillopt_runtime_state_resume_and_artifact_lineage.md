@@ -49,10 +49,9 @@ run start
 - **Out-of-Scope**:
   - slow update / meta skill logic itself
   - benchmark-specific rollout data formats beyond what core persistence needs
-  - WebUI rendering of these artifacts
+  - UI rendering of these artifacts
 - **Proposed-By**: Codex GPT-5
 - **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Cautions / Risks**:
   - resume semantics phải rõ giữa “candidate chưa gate” và “accepted current skill”
   - artifact schema phình quá sớm sẽ làm benchmark migration khó ổn định
-

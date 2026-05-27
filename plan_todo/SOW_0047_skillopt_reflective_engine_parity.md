@@ -58,10 +58,9 @@ SkillTrainer.fit()
   - slow update / meta skill epoch memory
   - provider-specific backend routing
   - benchmark-specific adapter migration
-  - CLI/operator parity
+  - usability helpers ngoài native Python API core
 - **Proposed-By**: Codex GPT-5
 - **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
 - **Cautions / Risks**:
   - nếu leak các internal stage contracts ra public API quá sớm, caller ergonomics sẽ xấu đi
   - nếu cố bắt parity bằng cách copy trực tiếp trainer upstream, design mới sẽ mang theo legacy coupling
-
