@@ -4,9 +4,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from darwinSkill.benchmarks import build_benchmark_samples, get_benchmark_spec, load_initial_skill
+from darwinSkill.benchmarks import (
+    build_benchmark_evaluator,
+    build_benchmark_samples,
+    get_benchmark_spec,
+    load_initial_skill,
+)
 from darwinSkill.demo_text import DarwinMemoryBackend
-from darwinSkill.evaluators import ExactMatchEvaluator
 from darwinSkill.native import run_reference_adapter, run_reference_benchmark
 from darwinSkill.reference_adapters import OfficeQAAdapter
 from darwinSkill.contracts import TrainingConfig
@@ -25,17 +29,26 @@ class BenchmarksTest(unittest.TestCase):
         )
         self.assertEqual(samples[0].prompt, "Capital of France?")
         self.assertEqual(samples[0].expected_answer, "Paris")
-        self.assertEqual(samples[0].metadata["id"], 1)
+        self.assertEqual(samples[0].metadata["id"], "1")
+
+    def test_build_benchmark_evaluator_returns_env_specific_metric(self) -> None:
+        evaluator = build_benchmark_evaluator("searchqa")
+        sample = build_benchmark_samples(
+            "searchqa",
+            [{"question": "Capital of France?", "answers": ["Paris"]}],
+        )[0]
+        metric = evaluator.evaluate("<answer>Paris</answer>", sample)
+        self.assertTrue(metric.passed)
+        self.assertEqual(metric.details["em"], 1.0)
 
     def test_run_reference_benchmark_uses_loaded_initial_skill(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             artifacts = run_reference_benchmark(
                 name="searchqa",
                 backend=DarwinMemoryBackend(),
-                evaluator=ExactMatchEvaluator(),
                 records=[
-                    {"question": "Capital of France?", "answer": "Paris"},
-                    {"question": "Largest planet?", "answer": "Jupiter"},
+                    {"question": "Capital of France?", "answers": ["Paris"]},
+                    {"question": "Largest planet?", "answers": ["Jupiter"]},
                 ],
                 config=TrainingConfig(
                     num_epochs=1,
@@ -55,7 +68,6 @@ class BenchmarksTest(unittest.TestCase):
             )
             artifacts = run_reference_adapter(
                 backend=DarwinMemoryBackend(),
-                evaluator=ExactMatchEvaluator(),
                 adapter=adapter,
                 config=TrainingConfig(
                     num_epochs=1,

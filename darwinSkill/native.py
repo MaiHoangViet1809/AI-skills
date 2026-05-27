@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from darwinSkill.adapters import InMemoryDatasetAdapter
-from darwinSkill.benchmarks import build_benchmark_samples, load_initial_skill
+from darwinSkill.benchmarks import build_benchmark_evaluator, build_benchmark_samples, load_initial_skill
 from darwinSkill.contracts import EvaluationConfig, EvaluationReport, RunArtifacts, SkillBackend, SkillEvaluator, SkillSample, TrainingConfig
 from darwinSkill.reference_adapters import ReferenceBenchmarkAdapter
 from darwinSkill.trainer import SkillTrainer
@@ -53,7 +53,7 @@ def run_reference_benchmark(
     *,
     name: str,
     backend: SkillBackend,
-    evaluator: SkillEvaluator,
+    evaluator: SkillEvaluator | None = None,
     records: list[dict[str, object]],
     config: TrainingConfig | None = None,
 ) -> RunArtifacts:
@@ -72,7 +72,7 @@ def run_reference_benchmark(
     )
     return run_training(
         backend=backend,
-        evaluator=evaluator,
+        evaluator=evaluator or build_benchmark_evaluator(name),
         samples=samples,
         config=benchmark_config,
     )
@@ -81,11 +81,13 @@ def run_reference_benchmark(
 def run_reference_adapter(
     *,
     backend: SkillBackend,
-    evaluator: SkillEvaluator,
+    evaluator: SkillEvaluator | None = None,
     adapter: ReferenceBenchmarkAdapter,
     config: TrainingConfig | None = None,
 ) -> RunArtifacts:
     active_config = config or TrainingConfig()
+    if adapter.benchmark is None:
+        raise ValueError("Reference benchmark adapters require an attached benchmark spec.")
     benchmark_config = TrainingConfig(
         num_epochs=active_config.num_epochs,
         batch_size=active_config.batch_size,
@@ -99,7 +101,7 @@ def run_reference_adapter(
     )
     return run_with_adapter(
         backend=backend,
-        evaluator=evaluator,
+        evaluator=evaluator or build_benchmark_evaluator(adapter.benchmark.name),
         adapter=adapter,
         config=benchmark_config,
     )

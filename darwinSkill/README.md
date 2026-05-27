@@ -11,6 +11,7 @@ from darwinSkill.pipeline import SkillPipeline
 from darwinSkill.contracts import SkillSample, TrainingConfig, EvaluationConfig, PipelineConfig
 from darwinSkill.evaluators import ExactMatchEvaluator
 from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
+from darwinSkill.reference_adapters import SearchQAAdapter, DocVQAAdapter, OfficeQAAdapter
 ```
 
 Philosophy v1:
@@ -27,6 +28,32 @@ Native helpers:
 - `darwinSkill.native.run_evaluation(...)`
 - `darwinSkill.native.run_reference_benchmark(...)`
 - `darwinSkill.reference_adapters.*Adapter`
+
+Benchmark-native surfaces:
+
+- `darwinSkill.searchqa_env`
+- `darwinSkill.docvqa_env`
+- `darwinSkill.officeqa_env`
+- `run_reference_benchmark(...)` tu auto chon evaluator benchmark-specific cho SearchQA, DocVQA, OfficeQA
+
+Run artifact layout:
+
+- `summary.json`
+- `history.json`
+- `run_state.json`
+- `evaluations.json`
+- `best_skill.md`
+- `final_skill.txt`
+- `steps/step_XXXX/`
+- `skills/skill_vXXXX.md`
+- `slow_update/epoch_XX/`
+- `meta_skill/epoch_XX/`
+
+Parity notes:
+
+- khong co CLI va WebUI; native Python API la surface chinh
+- SearchQA, DocVQA, OfficeQA da co loader + evaluator + adapter path rieng
+- ALFWorld, SpreadsheetBench, LiveMathematicianBench chua parity day du
 
 Run demos:
 

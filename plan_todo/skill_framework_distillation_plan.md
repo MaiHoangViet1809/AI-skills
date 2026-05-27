@@ -338,6 +338,12 @@ Why grouped:
 - đây là benchmark family có giá trị parity cao nhưng blast radius vừa phải
 - phù hợp làm wave benchmark đầu tiên sau khi engine/platform layers đã sẵn sàng
 
+Current status:
+
+- completed
+- benchmark-native modules da co cho `SearchQA`, `DocVQA`, `OfficeQA`
+- native benchmark helpers da auto resolve evaluator cho 3 env nay
+
 ### SOW_0054_skillopt_benchmark_pack_interactive_and_tool_tasks.md
 
 Focus:

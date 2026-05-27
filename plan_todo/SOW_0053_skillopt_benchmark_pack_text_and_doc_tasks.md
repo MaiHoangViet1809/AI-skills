@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Migrate benchmark pack đầu tiên của reference SkillOpt gồm `SearchQA`, `DocVQA`, và `OfficeQA` vào `darwinSkill` trên nền engine/adapters/backend mới.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/searchqa/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/docvqa/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/officeqa/`
@@ -26,6 +26,13 @@ darwinSkill benchmark pack A
   - the three benchmark families can run through `darwinSkill` with the new engine/native Python surface
   - tests or controlled smokes prove end-to-end wiring
   - benchmark logic lives behind adapters, not in trainer core
+- **Completion Notes**:
+  - added benchmark-native modules:
+    - `darwinSkill/searchqa_env.py`
+    - `darwinSkill/docvqa_env.py`
+    - `darwinSkill/officeqa_env.py`
+  - `run_reference_benchmark(...)` va `run_reference_adapter(...)` da tu auto resolve evaluator cho 3 env nay
+  - fixture tests va smoke runs da cover loader normalization + evaluator semantics + native benchmark flow
 - **Out-of-Scope**:
   - ALFWorld
   - SpreadsheetBench
