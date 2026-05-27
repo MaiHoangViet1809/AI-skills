@@ -168,12 +168,27 @@ Why grouped:
 - đây là last-mile usability và acceptance
 - nên làm sau khi contracts và runtime đã chốt
 
+### SOW_0046_skill_framework_hardening_and_eval_persistence.md
+
+Focus:
+
+- implement eval-only artifact persistence cho trainer path
+- nâng `run state` từ history tạm thành contract/persistence rõ ràng hơn
+- harden import/reuse path cho examples và module consumption
+- thêm failure-mode tests và contract-depth tests còn thiếu
+
+Why grouped:
+
+- đây là follow-up slice phát sinh từ review sau implementation đầu tiên
+- gom các gap còn lại về completeness và quality bar mà không mở rộng scope sang graph API hay benchmark parity
+
 ## Execution Order
 
 1. `SOW_0042`
 2. `SOW_0043`
 3. `SOW_0044`
 4. `SOW_0045`
+5. `SOW_0046`
 
 ## Program-Level Acceptance
 
@@ -185,6 +200,8 @@ Khi toàn plan hoàn tất:
 - có mockable contracts cho adapter/backend/stage/artifacts
 - có ít nhất một demo text-skill path dùng `prompt + expected answer + metric`
 - public pipeline API chỉ là linear stages và được test rõ
+- trainer path có eval-only persistence rõ ràng
+- run state có contract/persistence rõ ràng hơn history tạm
 
 ## Out-of-Scope For This Plan
 
