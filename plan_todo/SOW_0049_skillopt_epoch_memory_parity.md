@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Tái tạo các mechanics cuối epoch của SkillOpt gồm `slow update`, longitudinal comparison, và `meta skill` memory trong `darwinSkill`.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/optimizer/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/trainer.py`
 - **Why**: Đây là phần giúp original SkillOpt chống catastrophic forgetting và duy trì optimizer memory giữa các epoch. Nếu bỏ phần này thì engine parity chỉ mới ngang step loop chứ chưa đạt learning dynamics của original project.

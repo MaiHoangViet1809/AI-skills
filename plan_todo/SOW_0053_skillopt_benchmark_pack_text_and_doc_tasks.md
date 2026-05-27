@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Migrate benchmark pack đầu tiên của reference SkillOpt gồm `SearchQA`, `DocVQA`, và `OfficeQA` vào `darwinSkill` trên nền engine/adapters/backend mới.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/searchqa/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/docvqa/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/officeqa/`
 - **Why**: Sau khi engine/platform layers ổn định, cần benchmark packs thật để chứng minh parity là functional chứ không chỉ architectural. Nhóm text/document tasks là wave phù hợp đầu tiên vì ít phụ thuộc runtime tool phức tạp hơn.

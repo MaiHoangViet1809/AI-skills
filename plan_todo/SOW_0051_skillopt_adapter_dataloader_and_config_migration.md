@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Xây adapter, dataloader, batch spec, và config migration layer cho `darwinSkill` để benchmark/runtime có thể chạy trên framework mới qua native Python API mà không quay lại CLI-first architecture.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/`, `~/Projects/AISkills/references/SkillOpt/skillopt/datasets/`, `~/Projects/AISkills/references/SkillOpt/skillopt/config.py`
 - **Why**: Benchmark parity phụ thuộc trực tiếp vào cách original SkillOpt build batches, splits, eval envs, và config resolution. Nếu không tái tạo lớp này, các SOW benchmark sau sẽ phải nhét logic benchmark vào trainer core.

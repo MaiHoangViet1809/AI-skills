@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Dựng native Python run/eval surface cho `darwinSkill` để cung cấp train/eval orchestration tương đương original SkillOpt mà không kéo framework quay lại CLI-first.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/scripts/`
 - **Why**: Functional parity không dừng ở import được vài class. Original project có `train.py` và `eval_only.py` để chạy end-to-end; ở framework mới, phần tương đương cần được hấp thụ vào bề mặt native Python API thay vì giữ lại CLI wrapper.

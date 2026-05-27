@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Thiết kế lại backend/model layer của `darwinSkill` để hỗ trợ dual-role execution tương đương original SkillOpt, gồm optimizer backend và target backend với routing rõ ràng.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/model/`
 - **Why**: Original SkillOpt dùng các runtime và provider khác nhau cho optimizer path và target path. Một `SkillBackend.predict/improve_skill` đơn giản không đủ để tái tạo execution semantics này trên các benchmark thật.

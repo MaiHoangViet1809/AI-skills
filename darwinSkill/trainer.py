@@ -10,15 +10,9 @@ from darwinSkill.contracts import (
     SkillSample,
     TrainingConfig,
 )
-from darwinSkill.storage import LocalArtifactStore, isoformat, make_run_id, utc_now
-from darwinSkill.stages import EvaluationStage, ImprovementStage, PredictionStage, run_stages
-
-
-def _batched(samples: list[SkillSample], batch_size: int) -> list[list[SkillSample]]:
-    return [
-        samples[index : index + batch_size]
-        for index in range(0, len(samples), batch_size)
-    ]
+from darwinSkill.engine import ReflectiveSkillEngine
+from darwinSkill.storage import LocalArtifactStore, isoformat, load_run_state, make_run_id, utc_now
+from darwinSkill.stages import EvaluationStage, PredictionStage, run_stages
 
 
 class SkillTrainer:
@@ -29,11 +23,13 @@ class SkillTrainer:
         evaluator: SkillEvaluator,
         artifact_store: LocalArtifactStore | None = None,
         config: TrainingConfig | None = None,
+        engine: ReflectiveSkillEngine | None = None,
     ) -> None:
         self._backend = backend
         self._evaluator = evaluator
         self._artifact_store = artifact_store or LocalArtifactStore()
         self._config = config or TrainingConfig()
+        self._engine = engine or ReflectiveSkillEngine()
 
     def fit(
         self,
@@ -43,55 +39,29 @@ class SkillTrainer:
     ) -> RunArtifacts:
         active_config = config or self._config
         run_id = make_run_id()
+        run_name = active_config.run_name
+        output_root = active_config.output_root
         started_at = isoformat(utc_now())
+        if active_config.resume_from is not None:
+            resumed_state = load_run_state(active_config.resume_from / "run_state.json")
+            run_id = resumed_state.run_id
+            run_name = resumed_state.run_name
+            output_root = active_config.resume_from.parent
+            started_at = resumed_state.started_at
         history: list[dict[str, object]] = [{"stage": "start", "started_at": started_at}]
-        skill_text = active_config.initial_skill
-
-        for epoch in range(active_config.num_epochs):
-            for batch_index, batch in enumerate(_batched(list(samples), active_config.batch_size), start=1):
-                batch_context = RunContext(
-                    run_id=run_id,
-                    run_name=active_config.run_name,
-                    run_kind="train",
-                    output_root=active_config.output_root,
-                    samples=batch,
-                    skill_text=skill_text,
-                    backend=self._backend,
-                    evaluator=self._evaluator,
-                    started_at=started_at,
-                    history=[],
-                )
-                batch_context = run_stages(
-                    batch_context,
-                    [PredictionStage(), EvaluationStage(), ImprovementStage()],
-                )
-                skill_text = batch_context.skill_text
-                history.append(
-                    {
-                        "stage": "batch",
-                        "epoch": epoch + 1,
-                        "batch_index": batch_index,
-                        "mean_score": batch_context.evaluation_report.mean_score if batch_context.evaluation_report else 0.0,
-                        "pass_rate": batch_context.evaluation_report.pass_rate if batch_context.evaluation_report else 0.0,
-                    }
-                )
-
         final_context = RunContext(
             run_id=run_id,
-            run_name=active_config.run_name,
+            run_name=run_name,
             run_kind="train",
-            output_root=active_config.output_root,
+            output_root=output_root,
             samples=list(samples),
-            skill_text=skill_text,
+            skill_text=active_config.initial_skill,
             backend=self._backend,
             evaluator=self._evaluator,
             started_at=started_at,
             history=history,
         )
-        final_context = run_stages(
-            final_context,
-            [PredictionStage(), EvaluationStage()],
-        )
+        final_context = self._engine.run_training(final_context, config=active_config)
         return self._artifact_store.persist(final_context)
 
     def evaluate(

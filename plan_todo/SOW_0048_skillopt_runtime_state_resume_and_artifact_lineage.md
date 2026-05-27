@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Xây runtime-state, artifact lineage, và resume model theo step/epoch để `darwinSkill` có persistence depth tương đương original SkillOpt thay vì chỉ final-run persistence.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/trainer.py`
 - **Why**: Original SkillOpt không chỉ có engine mạnh mà còn có khả năng inspect và resume chi tiết qua `history.json`, `runtime_state.json`, `best_skill.md`, per-step records, và skill versions. Nếu thiếu lớp này thì parity mechanics khó xác thực và khó vận hành thực tế.

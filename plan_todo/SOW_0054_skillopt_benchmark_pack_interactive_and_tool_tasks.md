@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Migrate benchmark pack thứ hai của reference SkillOpt gồm `ALFWorld`, `SpreadsheetBench`, và `LiveMathematicianBench`, bao gồm các runtime/tool needs và evaluator contracts phức tạp hơn.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/alfworld/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/spreadsheetbench/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/livemathematicianbench/`
 - **Why**: Đây là nhóm benchmark gần nhất với độ phức tạp thật của original project. Nếu không migrate nhóm này thì parity với original sẽ vẫn thiếu những execution paths khó nhất.

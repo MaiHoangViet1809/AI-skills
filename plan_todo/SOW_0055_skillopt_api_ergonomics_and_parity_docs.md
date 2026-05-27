@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Hoàn thiện API ergonomics, artifact inspection docs, và parity documentation cuối chương trình cho `darwinSkill` theo hướng native Python API.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/plan_todo/`, `~/Projects/AISkills/references/SkillOpt/docs/`
 - **Why**: Sau khi core engine và benchmark surfaces đã được migrate, cần một slice cuối để chốt trải nghiệm dùng framework qua Python API. Original project có thêm lớp vận hành bằng UI/CLI, nhưng với hướng mới thứ cần giữ lại là inspectability và tài liệu parity.

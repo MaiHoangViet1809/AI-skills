@@ -24,6 +24,11 @@ class ExplodingBackend:
         return skill_text
 
 
+class RejectingBackend(DarwinMemoryBackend):
+    def improve_skill(self, skill_text: str, feedback: list[SkillFeedback]) -> str:
+        return skill_text
+
+
 class TrainerTest(unittest.TestCase):
     def test_trainer_fit_and_evaluate_end_to_end(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -109,6 +114,81 @@ class TrainerTest(unittest.TestCase):
                 demo_samples(),
                 config=EvaluationConfig(skill_text="", run_name="exploding-eval"),
             )
+
+    def test_reflective_engine_persists_step_and_epoch_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            trainer = SkillTrainer(
+                backend=DarwinMemoryBackend(),
+                evaluator=ExactMatchEvaluator(),
+                config=TrainingConfig(
+                    num_epochs=2,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=Path(temp_dir),
+                    run_name="reflective-engine",
+                ),
+            )
+
+            artifacts = trainer.fit(demo_samples())
+            self.assertTrue((artifacts.output_dir / "steps" / "step_0001" / "step_record.json").exists())
+            self.assertTrue((artifacts.output_dir / "skills" / "skill_v0001.md").exists())
+            self.assertTrue((artifacts.output_dir / "best_skill.md").exists())
+            self.assertTrue((artifacts.output_dir / "slow_update" / "epoch_01" / "slow_update.json").exists())
+            self.assertTrue((artifacts.output_dir / "meta_skill" / "epoch_01" / "meta_skill.json").exists())
+
+            run_state = load_run_state(artifacts.run_state_path)
+            self.assertGreaterEqual(run_state.current_step, 1)
+            self.assertGreaterEqual(run_state.best_score, 1.0)
+
+    def test_gate_can_reject_candidate_updates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            trainer = SkillTrainer(
+                backend=RejectingBackend(),
+                evaluator=ExactMatchEvaluator(),
+                config=TrainingConfig(
+                    num_epochs=1,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=Path(temp_dir),
+                    run_name="rejecting-engine",
+                ),
+            )
+
+            artifacts = trainer.fit(demo_samples())
+            run_state = load_run_state(artifacts.run_state_path)
+            self.assertEqual(run_state.last_action, "reject")
+            self.assertEqual(run_state.best_score, 0.0)
+
+    def test_trainer_can_resume_from_saved_run_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            first = SkillTrainer(
+                backend=DarwinMemoryBackend(),
+                evaluator=ExactMatchEvaluator(),
+                config=TrainingConfig(
+                    num_epochs=1,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=Path(temp_dir),
+                    run_name="resume-engine",
+                ),
+            ).fit(demo_samples())
+
+            resumed = SkillTrainer(
+                backend=DarwinMemoryBackend(),
+                evaluator=ExactMatchEvaluator(),
+                config=TrainingConfig(
+                    num_epochs=2,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=Path(temp_dir),
+                    run_name="resume-engine",
+                    resume_from=first.output_dir,
+                ),
+            ).fit(demo_samples())
+
+            resumed_state = load_run_state(resumed.run_state_path)
+            self.assertEqual(resumed.output_dir, first.output_dir)
+            self.assertGreaterEqual(resumed_state.current_step, 6)
 
 
 if __name__ == "__main__":

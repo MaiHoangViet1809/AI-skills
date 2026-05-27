@@ -1,5 +1,5 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: in_progress
+- **Approval**: approved
 - **Task**: Mở rộng `darwinSkill` từ loop `predict -> evaluate -> improve` hiện tại thành reflective optimization engine có các internal stages tương ứng core training loop của original SkillOpt.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/`, `~/Projects/AISkills/references/SkillOpt/docs/guide/training-loop.md`
 - **Why**: Đây là chênh lệch lớn nhất giữa refactor hiện tại và mục tiêu ban đầu. Nếu không tái tạo `rollout -> reflect -> aggregate -> select -> update -> gate`, framework mới chỉ là trainer đơn giản chứ chưa phải distillation đúng nghĩa của SkillOpt.
