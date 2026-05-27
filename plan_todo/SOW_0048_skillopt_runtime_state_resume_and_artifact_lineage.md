@@ -1,0 +1,58 @@
+- **Status**: draft
+- **Approval**: pending
+- **Task**: Xây runtime-state, artifact lineage, và resume model theo step/epoch để `darwinSkill` có persistence depth tương đương original SkillOpt thay vì chỉ final-run persistence.
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/trainer.py`
+- **Why**: Original SkillOpt không chỉ có engine mạnh mà còn có khả năng inspect và resume chi tiết qua `history.json`, `runtime_state.json`, `best_skill.md`, per-step records, và skill versions. Nếu thiếu lớp này thì parity mechanics khó xác thực và khó vận hành thực tế.
+- **As-Is Diagram (ASCII)**:
+```text
+run start
+  -> in-memory history
+  -> final summary.json
+  -> final evaluations.json
+  -> final_skill.txt
+```
+- **To-Be Diagram (ASCII)**:
+```text
+run start
+  -> step_0001/
+  -> step_0002/
+  -> ...
+  -> skills/skill_vXXXX.md
+  -> history.json
+  -> runtime_state.json
+  -> best_skill.md
+  -> final summary
+  -> resume can continue from saved state
+```
+- **Deliverables**:
+  - define typed persisted run-state contract covering:
+    - current step
+    - current skill
+    - best skill
+    - accepted/rejected last action
+    - epoch position
+    - artifact lineage pointers
+  - expand `RunArtifacts` and storage layer to support per-step and per-epoch records
+  - add step record artifacts and skill version snapshots
+  - support readback/resume bootstrap from saved state for trainer runs
+  - add tests for:
+    - state save/readback
+    - best-skill persistence
+    - resume from partial run
+    - rejected step lineage
+    - corrupted or incomplete runtime-state handling
+- **Done Criteria**:
+  - training runs emit inspectable step/epoch artifacts, not only final outputs
+  - best/current skill lineage is recoverable from persisted state
+  - trainer can resume from a saved runtime state or fail loudly with a clear contract violation
+  - artifact persistence matches the richer engine added by the parity phase
+- **Out-of-Scope**:
+  - slow update / meta skill logic itself
+  - benchmark-specific rollout data formats beyond what core persistence needs
+  - WebUI rendering of these artifacts
+- **Proposed-By**: Codex GPT-5
+- **plan**: `~/Projects/AISkills/plan_todo/skill_framework_distillation_plan.md`
+- **Cautions / Risks**:
+  - resume semantics phải rõ giữa “candidate chưa gate” và “accepted current skill”
+  - artifact schema phình quá sớm sẽ làm benchmark migration khó ổn định
+

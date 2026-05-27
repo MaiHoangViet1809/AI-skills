@@ -2,9 +2,9 @@
 
 ## Goal
 
-Distill `SkillOpt` thành một module tree Python-native tên `darwinSkill` để train/evaluate AI skills bằng API importable qua concrete submodules, sạch hơn và ổn định hơn cho các project nội bộ.
+Distill `SkillOpt` thành một module tree Python-native tên `darwinSkill` để train/evaluate AI skills bằng API importable qua concrete submodules, nhưng vẫn tái tạo lại đầy đủ chức năng cốt lõi và các bề mặt vận hành chính của original project.
 
-Plan này là source of truth ở mức chương trình cho effort distillation. Thay vì giữ một SOW quá lớn, implementation sẽ được chia thành các SOW nhỏ, tuần tự, dễ review và dễ test.
+Plan này là source of truth ở mức chương trình cho effort distillation. Mục tiêu không chỉ là một v1 skeleton dễ nhúng, mà là một framework sạch hơn về API nhưng vẫn đạt functional parity với snapshot `references/SkillOpt/` ở các lớp: optimizer engine, runtime state, backend routing, adapter/config layer, benchmark surfaces, và operator entrypoints.
 
 ## Current Inputs
 
@@ -13,6 +13,9 @@ Plan này là source of truth ở mức chương trình cho effort distillation.
   - reflective optimization loop
   - env adapter boundary
   - validation gate
+  - epoch-boundary memory mechanisms như slow update và meta skill
+  - multi-backend execution routing
+  - benchmark-specific adapters/dataloaders đủ giàu để chạy end-to-end
 - `SkillOpt` hiện yếu ở:
   - CLI-first orchestration
   - flat config dict plumbing
@@ -31,6 +34,21 @@ Plan này là source of truth ở mức chương trình cho effort distillation.
   - proof v1 chỉ cần chạy tốt trong repo này
   - source tree dùng tên `darwinSkill/`
   - không dùng `__init__.py` hay package bootstrap; imports đi qua concrete submodules
+- Thực tế implementation hiện tại mới hoàn thành phase v1 skeleton:
+  - facade API đã có
+  - linear pipeline đã có
+  - demo text-skill path đã có
+  - nhưng mechanics của original SkillOpt mới chỉ được tái hiện một phần nhỏ
+
+## Program Principle
+
+Nguyên tắc kiến trúc của phase tiếp theo:
+
+- không đổi hướng API sạch để lấy parity
+- không chấp nhận giữ v1 mỏng như trạng thái cuối
+- public API có thể vẫn nhỏ, nhưng internal engine phải mở rộng để mang lại chức năng tương đương upstream
+- nếu original có một mechanics lõi, ưu tiên tái tạo nó trong internal engine hoặc operator layer, không đẩy trách nhiệm đó ra caller code trừ khi có lý do rõ ràng
+- parity ở đây là functional parity, không phải copy nguyên xi cấu trúc file hay implementation detail của upstream
 
 ## Final Product Shape
 
@@ -71,16 +89,46 @@ project code / notebook / service
       +--> adapters (dataset/env/backend/artifacts)
 ```
 
+Kiến trúc đích sau parity reconstruction:
+
+```text
+project code / service / notebook / cli
+                |
+                v
+    clean darwinSkill public API surface
+    - SkillTrainer.fit/evaluate
+    - SkillPipeline.run
+    - optional thin CLI wrappers
+                |
+                v
+      internal reflective optimization engine
+      - rollout
+      - reflect
+      - aggregate
+      - select
+      - update
+      - gate
+      - slow update
+      - meta skill
+                |
+                v
+   explicit backends + adapters + dataloaders + config loader
+                |
+                v
+   benchmark modules / operator scripts / artifact persistence
+```
+
 ## Design Constraints
 
 - giữ framework Python-native và importable, không phụ thuộc CLI khổng lồ
 - source tree là `darwinSkill/`, không tạo package với `__init__.py`
 - public imports phải dùng concrete submodules, ví dụ `darwinSkill.trainer`, `darwinSkill.pipeline`
-- không dùng global mutable backend state trong public API
+- không dùng global mutable backend state trong public API; nếu cần compatibility internals thì phải được bọc lại phía sau object boundary
 - tách core framework khỏi benchmark-specific logic
 - ưu tiên mockable/testable boundaries trước khi thêm benchmark thật
-- chưa theo đuổi parity đầy đủ với toàn bộ upstream `SkillOpt`
-- contract công khai phải chốt sớm và không đổi giữa `0042` đến `0045` trừ khi có SOW mới
+- contract công khai phải giữ ổn định càng nhiều càng tốt; parity expansion nên đi vào internal engine trước
+- parity với upstream phải được chia nhỏ thành nhiều SOW độc lập để không trượt thành một mega-change khó review
+- benchmark parity chỉ tính trên snapshot `references/SkillOpt/` đang có trong repo này
 
 ## Public Interfaces To Lock In Phase 1
 
@@ -182,6 +230,145 @@ Why grouped:
 - đây là follow-up slice phát sinh từ review sau implementation đầu tiên
 - gom các gap còn lại về completeness và quality bar mà không mở rộng scope sang graph API hay benchmark parity
 
+### SOW_0047_skillopt_reflective_engine_parity.md
+
+Focus:
+
+- tách `improve` đơn giản hiện tại thành reflective optimization engine có các internal stages tương ứng upstream:
+  - rollout
+  - reflect
+  - aggregate
+  - select
+  - update
+  - gate
+- thiết kế typed contracts cho patch candidates, selected edits, candidate skill, và gate decision
+- giữ facade API gọn nhưng cho phép trainer path chạy một step loop giàu hơn thay vì `predict -> evaluate -> improve` đơn giản
+
+Why grouped:
+
+- đây là chênh lệch lớn nhất giữa v1 skeleton và original SkillOpt
+- nếu không làm slice này trước, các slice parity khác sẽ không có engine đúng để bám vào
+
+### SOW_0048_skillopt_runtime_state_resume_and_artifact_lineage.md
+
+Focus:
+
+- mở rộng artifact model để lưu state theo step/epoch thay vì chỉ final summary
+- thêm runtime state rõ ràng cho resume, current skill, best skill, selected candidate lineage, và step records
+- chuẩn hóa skill versioning, per-step directories, trajectory/step digests, và artifact readback contracts
+
+Why grouped:
+
+- original SkillOpt không chỉ có loop giàu, mà còn có persistence đủ sâu để inspect và resume
+- đây là lớp hạ tầng bắt buộc để các mechanics như gate, slow update, meta skill có thể vận hành đúng
+
+### SOW_0049_skillopt_epoch_memory_parity.md
+
+Focus:
+
+- tái tạo `slow update` và `meta skill` như epoch-boundary mechanisms
+- thêm longitudinal comparison pairs, changed/regressed/stable categorizations, và injected guidance/memory flow
+- lưu artifact riêng cho `slow_update/` và `meta_skill/` theo epoch
+
+Why grouped:
+
+- đây là mechanics lõi được paper/original dùng để chống quên và tích lũy chiến lược
+- tách riêng giúp review rõ memory logic mà không lẫn với step engine
+
+### SOW_0050_skillopt_backend_router_and_dual_role_execution.md
+
+Focus:
+
+- đưa vào model/backend layer có phân vai rõ optimizer backend và target backend
+- hỗ trợ backend routing/config compatibility cho các provider chính trong original snapshot:
+  - Azure/OpenAI-style chat
+  - Codex exec-style target path
+  - Claude code/chat-style path
+  - Qwen chat-style path
+- bọc compatibility state để caller vẫn inject dependencies rõ ràng qua Python API
+
+Why grouped:
+
+- original project phụ thuộc mạnh vào dual-role execution, không chỉ một backend `predict/improve`
+- tách slice này khỏi engine core giúp cô lập rủi ro provider/runtime
+
+### SOW_0051_skillopt_adapter_dataloader_and_config_migration.md
+
+Focus:
+
+- tái tạo adapter boundary theo hướng importable:
+  - env adapter
+  - dataloader/batch spec
+  - eval/train split builders
+- thêm config loader/mapping layer để đọc structured config nhưng không ép caller đi qua CLI lớn
+- giữ bridge cho legacy-style config semantics của upstream ở internal/operator layer
+
+Why grouped:
+
+- original SkillOpt gắn chặt engine vào adapter+dataloader+config semantics
+- nếu thiếu lớp này thì parity benchmark chỉ là danh nghĩa
+
+### SOW_0052_skillopt_cli_eval_and_operator_surface.md
+
+Focus:
+
+- dựng lại thin operator surfaces tương đương `scripts/train.py` và `scripts/eval_only.py`
+- đảm bảo train/eval có thể chạy qua CLI mỏng trên nền API mới
+- expose override/config resolution, registry wiring, và eval-only artifact parity ở mức thực dụng
+
+Why grouped:
+
+- mục tiêu parity không chỉ là import API mà còn là surface để chạy end-to-end
+- nhưng CLI nên là thin wrapper, không được kéo framework quay lại CLI-first
+
+### SOW_0053_skillopt_benchmark_pack_text_and_doc_tasks.md
+
+Focus:
+
+- migrate và chuẩn hóa benchmark pack cho các env dạng text/document QA trong reference snapshot:
+  - SearchQA
+  - DocVQA
+  - OfficeQA
+- map prompts, rollout/evaluator/dataloader contracts vào engine mới
+- thêm smoke/integration coverage cho các benchmark ít phụ thuộc tool runtime hơn
+
+Why grouped:
+
+- đây là benchmark family có giá trị parity cao nhưng blast radius vừa phải
+- phù hợp làm wave benchmark đầu tiên sau khi engine/platform layers đã sẵn sàng
+
+### SOW_0054_skillopt_benchmark_pack_interactive_and_tool_tasks.md
+
+Focus:
+
+- migrate benchmark pack còn lại trong reference snapshot:
+  - ALFWorld
+  - SpreadsheetBench
+  - LiveMathematicianBench
+- hỗ trợ các runtime/tool-specific needs, trajectory capture, và evaluator contracts phức tạp hơn
+- thêm acceptance tests/instructions cho các path có phụ thuộc nặng
+
+Why grouped:
+
+- đây là phần benchmark khó nhất và gần nhất với original behavior complexity
+- cần làm sau khi backend, adapter, và artifact layers đã ổn định
+
+### SOW_0055_skillopt_operator_experience_and_optional_webui_parity.md
+
+Focus:
+
+- rà lại operator experience cuối chương trình:
+  - output layout
+  - run inspection ergonomics
+  - compatibility docs
+  - optional WebUI parity hoặc minimal replacement cho `skillopt_webui/`
+- chốt docs acceptance cho parity phase
+
+Why grouped:
+
+- original project có thêm operator-facing surface ngoài core engine
+- slice cuối này gom phần polish và operator affordances mà không làm nhiễu các SOW core trước đó
+
 ## Execution Order
 
 1. `SOW_0042`
@@ -189,6 +376,15 @@ Why grouped:
 3. `SOW_0044`
 4. `SOW_0045`
 5. `SOW_0046`
+6. `SOW_0047`
+7. `SOW_0048`
+8. `SOW_0049`
+9. `SOW_0050`
+10. `SOW_0051`
+11. `SOW_0052`
+12. `SOW_0053`
+13. `SOW_0054`
+14. `SOW_0055`
 
 ## Program-Level Acceptance
 
@@ -196,26 +392,42 @@ Khi toàn plan hoàn tất:
 
 - repo có module tree `darwinSkill/` importable qua concrete submodules để train/evaluate skill bằng Python API
 - có cả facade path và pipeline path
-- framework core không buộc người dùng phải chạy qua CLI lớn
+- framework core không buộc người dùng phải chạy qua CLI lớn, nhưng có thin CLI/operator surface khi cần
 - có mockable contracts cho adapter/backend/stage/artifacts
 - có ít nhất một demo text-skill path dùng `prompt + expected answer + metric`
 - public pipeline API chỉ là linear stages và được test rõ
 - trainer path có eval-only persistence rõ ràng
 - run state có contract/persistence rõ ràng hơn history tạm
+- internal engine tái tạo được các mechanics chính của original SkillOpt:
+  - rollout
+  - reflect
+  - aggregate
+  - select
+  - update
+  - gate
+  - slow update
+  - meta skill
+- framework hỗ trợ dual-role backend execution tương đương optimizer/target split
+- adapter/dataloader/config layer đủ để chạy lại benchmark packs trong reference snapshot
+- có benchmark migration coverage cho các env trong `references/SkillOpt/skillopt/envs/`
+- artifact layout đủ sâu để inspect, compare, và resume runs theo step/epoch
+- parity ở đây là functional parity trên snapshot reference, không yêu cầu clone nguyên implementation upstream
 
 ## Out-of-Scope For This Plan
 
-- parity toàn bộ benchmark upstream `SkillOpt`
 - reproduction paper metrics
-- web UI/dashboard cho framework mới
 - migration toàn bộ project trong `~/Projects`
 - integration sâu với workflow engines như Temporal
 - public graph workflow API cho pipeline
 - package bootstrap bằng `__init__.py`
+- bit-for-bit source parity với upstream
+- hỗ trợ những benchmark/env không tồn tại trong snapshot `references/SkillOpt/`
 
 ## Risks
 
 - nếu ép chặt vào `sklearn` metaphor thì sẽ làm nghèo hóa multi-stage reflective optimization
-- nếu giữ quá gần shape cũ của `SkillOpt` thì framework mới vẫn mang legacy CLI/config
-- nếu generalize quá sớm trước khi có mock/demo path, contracts sẽ khó kiểm chứng
-- nếu đưa graph semantics vào quá sớm, phase 1 sẽ khóa nhầm API và làm tăng blast radius refactor
+- nếu giữ quá gần shape cũ của `SkillOpt` thì framework mới vẫn mang legacy CLI/config vào public surface
+- nếu parity bị hiểu thành copy nguyên xi thay vì tái cấu trúc đúng lớp, code sẽ bị lẫn giữa adapter/framework/operator concerns
+- nếu migrate benchmark quá sớm trước khi engine/runtime state ổn định, acceptance sẽ rất nhiễu và khó debug
+- nếu trì hoãn backend/router quá lâu, reflective engine parity sẽ bị giả lập bằng mocks quá nhiều
+- nếu coi WebUI là bắt buộc quá sớm, effort sẽ lệch khỏi engine/platform parity cốt lõi
