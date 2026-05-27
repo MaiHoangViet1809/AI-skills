@@ -14,6 +14,11 @@ from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
 from darwinSkill.reference_adapters import SearchQAAdapter, DocVQAAdapter, OfficeQAAdapter
 ```
 
+Docs:
+
+- [USAGE.md](/Users/maihoangviet/Projects/AISkills/darwinSkill/USAGE.md)
+- [PARITY.md](/Users/maihoangviet/Projects/AISkills/darwinSkill/PARITY.md)
+
 Philosophy v1:
 
 - anchor la text skill
@@ -27,7 +32,11 @@ Native helpers:
 - `darwinSkill.native.run_training(...)`
 - `darwinSkill.native.run_evaluation(...)`
 - `darwinSkill.native.run_reference_benchmark(...)`
+- `darwinSkill.native.run_reference_benchmark_from_path(...)`
 - `darwinSkill.reference_adapters.*Adapter`
+- `darwinSkill.inspection.inspect_run(...)`
+- `darwinSkill.inspection.summarize_run(...)`
+- `darwinSkill.inspection.load_step_record(...)`
 
 Benchmark-native surfaces:
 

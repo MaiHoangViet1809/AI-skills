@@ -382,6 +382,12 @@ Why grouped:
 - original project có thêm vận hành phụ, nhưng ở framework mới phần cần giữ lại là inspectability và docs chứ không phải UI riêng
 - slice cuối này gom phần polish và documentation mà không làm nhiễu các SOW core trước đó
 
+Current status:
+
+- completed
+- co native inspection helpers cho run artifacts
+- co docs usage/parity cho trainer, benchmark-backed runs, va artifact inspection
+
 ## Execution Order
 
 1. `SOW_0042`

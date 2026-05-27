@@ -26,10 +26,15 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
 - native benchmark helpers:
   - `run_reference_benchmark(...)`
   - `run_reference_adapter(...)`
+  - `run_reference_benchmark_from_path(...)`
   - evaluator benchmark-specific duoc auto resolve cho ca pack A va pack B
 - split-aware adapter path:
   - `train_samples` dung cho reflective step loop
   - `eval_samples` dung cho gate/final report khi adapter co split rieng
+- inspection helpers:
+  - `inspect_run(...)`
+  - `summarize_run(...)`
+  - `load_step_record(...)`
 
 ## Con thieu
 

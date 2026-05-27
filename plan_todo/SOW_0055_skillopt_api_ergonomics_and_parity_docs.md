@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Hoàn thiện API ergonomics, artifact inspection docs, và parity documentation cuối chương trình cho `darwinSkill` theo hướng native Python API.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/plan_todo/`, `~/Projects/AISkills/references/SkillOpt/docs/`
@@ -30,6 +30,17 @@ Python API experience
   - người dùng Python API có thể hiểu rõ nơi lưu run state, best skills, step artifacts, và epoch memory artifacts
   - parity status is documented, not implicit
   - không còn dependency hay dangling scope nào tới WebUI/CLI trong parity plan
+- **Completion Notes**:
+  - added native inspection helpers:
+    - `darwinSkill.inspection.inspect_run(...)`
+    - `darwinSkill.inspection.summarize_run(...)`
+    - `darwinSkill.inspection.load_step_record(...)`
+  - added benchmark path helper:
+    - `darwinSkill.native.run_reference_benchmark_from_path(...)`
+  - finalized user-facing docs:
+    - `darwinSkill/README.md`
+    - `darwinSkill/USAGE.md`
+    - `darwinSkill/PARITY.md`
 - **Out-of-Scope**:
   - adding new benchmark families
   - redesigning the framework public API again
