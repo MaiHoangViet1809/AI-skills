@@ -302,10 +302,11 @@ class ReflectiveSkillEngine:
         (output_dir / "skills").mkdir(exist_ok=True)
         context.output_dir = output_dir
 
-        all_samples = list(context.samples)
-        batch_specs = build_batch_specs(all_samples, config)
+        train_samples = list(context.train_samples or context.samples)
+        eval_samples = list(context.eval_samples or context.samples)
+        batch_specs = build_batch_specs(train_samples, config)
         total_steps = len(batch_specs)
-        full_current_report = _build_rollout(context, context.skill_text, all_samples)
+        full_current_report = _build_rollout(context, context.skill_text, eval_samples)
 
         current_skill = context.skill_text
         current_report = full_current_report
@@ -323,8 +324,8 @@ class ReflectiveSkillEngine:
             best_skill = resumed_state.best_skill_text
             start_step = resumed_state.current_step
             start_epoch = resumed_state.current_epoch
-            current_report = _build_rollout(context, current_skill, all_samples)
-            best_report = _build_rollout(context, best_skill, all_samples)
+            current_report = _build_rollout(context, current_skill, eval_samples)
+            best_report = _build_rollout(context, best_skill, eval_samples)
             context.started_at = resumed_state.started_at
             context.current_report = current_report
             context.best_report = best_report
@@ -340,7 +341,7 @@ class ReflectiveSkillEngine:
             context.current_epoch = spec.epoch
             context.current_step = spec.step
 
-            if spec.step > 1 and spec.epoch != start_epoch and (spec.step - 1) % max(1, ceil(len(all_samples) / config.batch_size)) == 0:
+            if spec.step > 1 and spec.epoch != start_epoch and (spec.step - 1) % max(1, ceil(len(train_samples) / config.batch_size)) == 0:
                 epoch_baseline = current_report
 
             batch_rollout = _build_rollout(context, current_skill, spec.samples)
@@ -352,7 +353,7 @@ class ReflectiveSkillEngine:
             groups = aggregate_patches(patches)
             selection = select_patch_groups(groups, config.edit_budget)
             candidate = update_skill_text(context, current_skill, selection)
-            candidate.candidate_report = _build_rollout(context, candidate.skill_text, all_samples)
+            candidate.candidate_report = _build_rollout(context, candidate.skill_text, eval_samples)
             gate = gate_candidate(
                 current_skill=current_skill,
                 current_report=current_report,
@@ -403,7 +404,7 @@ class ReflectiveSkillEngine:
             persist_step_payload(output_dir, spec.step, "candidate_skill.txt", candidate.skill_text)
             _persist_runtime_state(context)
 
-            steps_per_epoch = max(1, ceil(len(all_samples) / config.batch_size))
+            steps_per_epoch = max(1, ceil(len(train_samples) / config.batch_size))
             epoch_completed = spec.step % steps_per_epoch == 0
             if epoch_completed:
                 comparisons = build_comparison_pairs(epoch_baseline, current_report)
@@ -421,14 +422,14 @@ class ReflectiveSkillEngine:
                     persist_epoch_payload(output_dir, "meta_skill", spec.epoch, "meta_skill.json", asdict(meta_record))
                 persist_skill_snapshot(output_dir, spec.step, current_skill)
                 persist_best_skill(output_dir, best_skill)
-                current_report = _build_rollout(context, current_skill, all_samples)
+                current_report = _build_rollout(context, current_skill, eval_samples)
                 context.current_report = current_report
                 context.best_skill_text = best_skill
                 context.best_report = best_report
                 epoch_baseline = current_report
                 _persist_runtime_state(context)
 
-        final_report = _build_rollout(context, current_skill, all_samples)
+        final_report = _build_rollout(context, current_skill, eval_samples)
         context.skill_text = current_skill
         context.evaluation_report = final_report
         context.current_report = final_report

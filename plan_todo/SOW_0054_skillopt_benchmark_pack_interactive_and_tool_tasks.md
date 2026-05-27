@@ -25,6 +25,14 @@ darwinSkill benchmark pack B
   - the interactive/tool-heavy benchmark families have a credible execution path on top of `darwinSkill`
   - framework boundaries remain intact despite the more complex env requirements
   - heavy dependencies are documented and isolated cleanly
+- **Progress Notes**:
+  - added benchmark-native modules for:
+    - `darwinSkill/alfworld_env.py`
+    - `darwinSkill/spreadsheetbench_env.py`
+    - `darwinSkill/livemathematician_env.py`
+  - added acceptance tests for loader/evaluator/native adapter flow of the three benchmark families
+  - `openpyxl` duoc add lam optional-runtime dependency thuc te cho SpreadsheetBench evaluator path
+  - full simulator/codegen/react runtime parity voi upstream van con la gap con lai cua SOW nay
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

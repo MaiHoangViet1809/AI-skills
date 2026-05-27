@@ -18,19 +18,26 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
   - `DocVQA`
   - `OfficeQA`
   - moi env da co loader normalization, evaluator, va adapter path rieng
-- native benchmark helpers:
-  - `run_reference_benchmark(...)`
-  - `run_reference_adapter(...)`
-  - evaluator benchmark-specific duoc auto resolve cho 3 env tren
-
-## Con thieu
-
-- benchmark pack B chua parity day du:
+- benchmark pack B:
   - `ALFWorld`
   - `SpreadsheetBench`
   - `LiveMathematicianBench`
+  - da co native loader/evaluator/adapter path va acceptance tests cho benchmark surface
+- native benchmark helpers:
+  - `run_reference_benchmark(...)`
+  - `run_reference_adapter(...)`
+  - evaluator benchmark-specific duoc auto resolve cho ca pack A va pack B
+- split-aware adapter path:
+  - `train_samples` dung cho reflective step loop
+  - `eval_samples` dung cho gate/final report khi adapter co split rieng
+
+## Con thieu
+
 - provider/runtime compatibility hien o muc routing + injection contracts, chua gom client/runtime wrappers day du cho tung provider
-- prompt/runtime behavior parity voi upstream rollout modules van con mot khoang cach o cac env tool-heavy
+- prompt/runtime behavior parity voi upstream rollout modules van con mot khoang cach o cac env tool-heavy:
+  - `ALFWorld` simulator runtime
+  - `SpreadsheetBench` codegen/react execution path
+- artifact semantics hien da du cho native Python runs, nhung chua mirror tat ca trajectory formats upstream
 
 ## Khac biet co y
 

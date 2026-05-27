@@ -34,7 +34,15 @@ Benchmark-native surfaces:
 - `darwinSkill.searchqa_env`
 - `darwinSkill.docvqa_env`
 - `darwinSkill.officeqa_env`
+- `darwinSkill.alfworld_env`
+- `darwinSkill.spreadsheetbench_env`
+- `darwinSkill.livemathematician_env`
 - `run_reference_benchmark(...)` tu auto chon evaluator benchmark-specific cho SearchQA, DocVQA, OfficeQA
+
+Adapter-aware behavior:
+
+- `run_with_adapter(...)` va `run_reference_adapter(...)` dung `train_samples` cho step loop
+- gate/final report dung `eval_samples` neu adapter co split train/eval rieng
 
 Run artifact layout:
 
@@ -53,7 +61,8 @@ Parity notes:
 
 - khong co CLI va WebUI; native Python API la surface chinh
 - SearchQA, DocVQA, OfficeQA da co loader + evaluator + adapter path rieng
-- ALFWorld, SpreadsheetBench, LiveMathematicianBench chua parity day du
+- ALFWorld, SpreadsheetBench, LiveMathematicianBench da co benchmark-native loader/evaluator/adapter path
+- runtime/tool parity day du cho ALFWorld simulator va SpreadsheetBench codegen/react van con la phan can dao sau them
 
 Run demos:
 

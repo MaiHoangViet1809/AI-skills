@@ -60,6 +60,27 @@ class NativeApiTest(unittest.TestCase):
             )
             self.assertEqual(artifacts.mean_score, 1.0)
 
+    def test_run_with_adapter_uses_eval_split_for_final_report(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            adapter = InMemoryDatasetAdapter(
+                train_samples=[demo_samples()[0]],
+                eval_samples=[demo_samples()[1]],
+            )
+            artifacts = run_with_adapter(
+                backend=DarwinMemoryBackend(),
+                evaluator=ExactMatchEvaluator(),
+                adapter=adapter,
+                config=TrainingConfig(
+                    num_epochs=1,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=Path(temp_dir),
+                    run_name="adapter-eval-split",
+                ),
+            )
+            self.assertEqual(artifacts.sample_count, 1)
+            self.assertEqual(artifacts.mean_score, 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

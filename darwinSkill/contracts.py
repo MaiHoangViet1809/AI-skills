@@ -240,6 +240,8 @@ class RunContext:
     backend: "SkillBackend"
     evaluator: "SkillEvaluator"
     started_at: str
+    train_samples: list[SkillSample] = field(default_factory=list)
+    eval_samples: list[SkillSample] = field(default_factory=list)
     output_dir: Path | None = None
     predictions: list[str] = field(default_factory=list)
     evaluations: list[SampleEvaluation] = field(default_factory=list)

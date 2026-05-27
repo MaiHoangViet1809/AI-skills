@@ -32,6 +32,9 @@ config loader / builder
   - benchmark adapters can plug into framework through explicit contracts instead of ad hoc caller wiring
   - config loading is usable from Python without requiring CLI wrappers
   - trainer no longer assumes raw sample lists are the only input path
+- **Progress Notes**:
+  - benchmark dataset loaders/evaluators da duoc map vao `darwinSkill.benchmarks`
+  - `run_with_adapter(...)` va `run_reference_adapter(...)` da dung `eval_samples` rieng cho gate/final report thay vi collapse ve train split
 - **Out-of-Scope**:
   - provider execution internals
   - actual migration of each benchmark implementation

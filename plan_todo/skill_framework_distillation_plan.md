@@ -360,6 +360,12 @@ Why grouped:
 - đây là phần benchmark khó nhất và gần nhất với original behavior complexity
 - cần làm sau khi backend, adapter, và artifact layers đã ổn định
 
+Current status:
+
+- in progress
+- benchmark-native loader/evaluator/adapter path da co cho `ALFWorld`, `SpreadsheetBench`, `LiveMathematicianBench`
+- full upstream runtime parity cho simulator/codegen/react path van la phan con lai
+
 ### SOW_0055_skillopt_api_ergonomics_and_parity_docs.md
 
 Focus:

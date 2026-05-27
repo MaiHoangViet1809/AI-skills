@@ -36,6 +36,7 @@ class SkillTrainer:
         samples: list[SkillSample],
         *,
         config: TrainingConfig | None = None,
+        eval_samples: list[SkillSample] | None = None,
     ) -> RunArtifacts:
         active_config = config or self._config
         run_id = make_run_id()
@@ -59,6 +60,8 @@ class SkillTrainer:
             backend=self._backend,
             evaluator=self._evaluator,
             started_at=started_at,
+            train_samples=list(samples),
+            eval_samples=list(eval_samples or samples),
             history=history,
         )
         final_context = self._engine.run_training(final_context, config=active_config)

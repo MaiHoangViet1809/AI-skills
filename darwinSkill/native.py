@@ -22,9 +22,10 @@ def run_training(
     evaluator: SkillEvaluator,
     samples: list[SkillSample],
     config: TrainingConfig | None = None,
+    eval_samples: list[SkillSample] | None = None,
 ) -> RunArtifacts:
     trainer = build_trainer(backend=backend, evaluator=evaluator, config=config)
-    return trainer.fit(samples, config=config)
+    return trainer.fit(samples, config=config, eval_samples=eval_samples)
 
 
 def run_evaluation(
@@ -46,7 +47,11 @@ def run_with_adapter(
     config: TrainingConfig | None = None,
 ) -> RunArtifacts:
     trainer = build_trainer(backend=backend, evaluator=evaluator, config=config)
-    return trainer.fit(adapter.get_train_samples(), config=config)
+    return trainer.fit(
+        adapter.get_train_samples(),
+        config=config,
+        eval_samples=adapter.get_eval_samples(),
+    )
 
 
 def run_reference_benchmark(
@@ -75,6 +80,7 @@ def run_reference_benchmark(
         evaluator=evaluator or build_benchmark_evaluator(name),
         samples=samples,
         config=benchmark_config,
+        eval_samples=list(samples),
     )
 
 
