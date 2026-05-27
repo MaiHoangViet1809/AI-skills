@@ -32,7 +32,8 @@ darwinSkill benchmark pack B
     - `darwinSkill/livemathematician_env.py`
   - added acceptance tests for loader/evaluator/native adapter flow of the three benchmark families
   - `openpyxl` duoc add lam optional-runtime dependency thuc te cho SpreadsheetBench evaluator path
-  - full simulator/codegen/react runtime parity voi upstream van con la gap con lai cua SOW nay
+  - `SpreadsheetBench` evaluator da ho tro execute prediction dang Python code block de sinh workbook output va cham theo answer range
+  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` react/full orchestration path
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

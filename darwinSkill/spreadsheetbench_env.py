@@ -4,6 +4,10 @@ import datetime
 import json
 import os
 import re
+import subprocess
+import sys
+import tempfile
+import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +49,24 @@ def _infer_task_type(instruction_type: str) -> str:
     if "sheet" in lowered:
         return "sheet_level"
     return "other"
+
+
+PATH_ASSIGN_RE = re.compile(r"^\s*(INPUT_PATH|OUTPUT_PATH)\s*=\s*.+$", re.MULTILINE)
+RUNNER_TEMPLATE = textwrap.dedent(
+    """
+    import sys
+    import traceback
+
+    INPUT_PATH = {input_path!r}
+    OUTPUT_PATH = {output_path!r}
+
+    try:
+    {user_code_indented}
+    except Exception:
+        traceback.print_exc()
+        sys.exit(2)
+    """
+)
 
 
 def normalize_spreadsheetbench_record(record: dict[str, Any]) -> dict[str, Any]:
@@ -112,6 +134,54 @@ def build_spreadsheetbench_samples(records: list[dict[str, Any]]) -> list[SkillS
         )
         for record in records
     ]
+
+
+def extract_code(text: str) -> str:
+    if "```" not in text:
+        return text.strip()
+    start = text.find("```")
+    newline = text.find("\n", start)
+    end = text.find("```", newline + 1)
+    if newline == -1 or end == -1:
+        return text.strip()
+    return text[newline + 1 : end].strip()
+
+
+def _strip_path_assignments(code: str) -> str:
+    return PATH_ASSIGN_RE.sub("", code)
+
+
+def run_generated_code(code: str, input_path: str, output_path: str, timeout: int = 120) -> tuple[bool, str]:
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    cleaned = _strip_path_assignments(code)
+    indented = textwrap.indent(cleaned, "    ")
+    runner = RUNNER_TEMPLATE.format(
+        input_path=input_path,
+        output_path=output_path,
+        user_code_indented=indented,
+    )
+    with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as handle:
+        handle.write(runner)
+        script_path = handle.name
+    try:
+        process = subprocess.run(
+            [sys.executable, script_path],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        if process.returncode != 0:
+            return False, (process.stdout + "\n" + process.stderr).strip()
+        if not os.path.exists(output_path):
+            return False, "output file was not created"
+        return True, ""
+    except subprocess.TimeoutExpired:
+        return False, f"timeout after {timeout}s"
+    finally:
+        try:
+            os.unlink(script_path)
+        except OSError:
+            pass
 
 
 def _datetime_to_float(value: datetime.datetime) -> float:
@@ -221,6 +291,43 @@ def compare_workbooks(gold_path: str, predicted_path: str, answer_position: str)
         pred_wb.close()
 
 
+def _find_test_cases(task_dir: Path) -> list[tuple[str, str, str]]:
+    cases: list[tuple[str, str, str]] = []
+    for input_path in sorted(task_dir.glob("*_input.xlsx")):
+        case_no = input_path.name.split("_", 1)[0]
+        gold_path = Path(str(input_path).replace("_input.xlsx", "_answer.xlsx"))
+        if gold_path.exists():
+            cases.append((case_no, str(input_path), str(gold_path)))
+    for input_path in sorted(task_dir.glob("*_init.xlsx")):
+        case_no = input_path.name.split("_", 1)[0]
+        gold_path = Path(str(input_path).replace("_init.xlsx", "_golden.xlsx"))
+        if gold_path.exists():
+            cases.append((case_no, str(input_path), str(gold_path)))
+    if not cases:
+        bare_init = task_dir / "initial.xlsx"
+        bare_gold = task_dir / "golden.xlsx"
+        if bare_init.exists() and bare_gold.exists():
+            cases.append(("1", str(bare_init), str(bare_gold)))
+    return cases
+
+
+def resolve_test_cases(metadata: dict[str, Any]) -> list[tuple[str, str, str]]:
+    input_path = str(metadata.get("input_path") or "").strip()
+    gold_path = str(metadata.get("gold_path") or "").strip()
+    if input_path and gold_path:
+        return [("1", input_path, gold_path)]
+    spreadsheet_path = str(metadata.get("spreadsheet_path") or "").strip()
+    data_root = str(metadata.get("data_root") or "").strip()
+    if not spreadsheet_path:
+        return []
+    task_dir = Path(spreadsheet_path)
+    if not task_dir.is_absolute() and data_root:
+        task_dir = Path(data_root) / spreadsheet_path
+    if task_dir.is_file():
+        return []
+    return _find_test_cases(task_dir)
+
+
 def extract_answer(text: str) -> str:
     matches = re.findall(r"<answer>(.*?)</answer>", text, re.DOTALL | re.IGNORECASE)
     if matches:
@@ -232,10 +339,10 @@ def extract_answer(text: str) -> str:
 class SpreadsheetBenchEvaluator(SkillEvaluator):
     def evaluate(self, prediction: str, sample: SkillSample) -> MetricResult:
         predicted_answer = extract_answer(prediction)
-        gold_path = str(sample.metadata.get("gold_path") or "")
         answer_position = str(sample.metadata.get("answer_position") or "")
-        if gold_path and answer_position:
-            ok, reason = compare_workbooks(gold_path, predicted_answer, answer_position)
+        direct_gold_path = str(sample.metadata.get("gold_path") or "")
+        if direct_gold_path and answer_position and os.path.exists(predicted_answer):
+            ok, reason = compare_workbooks(direct_gold_path, predicted_answer, answer_position)
             return MetricResult(
                 score=1.0 if ok else 0.0,
                 passed=ok,
@@ -245,6 +352,51 @@ class SpreadsheetBenchEvaluator(SkillEvaluator):
                     "predicted_answer": predicted_answer,
                     "instruction_type": sample.metadata.get("instruction_type", ""),
                     "task_type": sample.metadata.get("task_type", ""),
+                },
+            )
+
+        cases = resolve_test_cases(sample.metadata)
+        code = extract_code(prediction)
+        if cases and answer_position and code:
+            case_results: list[dict[str, Any]] = []
+            passed_cases = 0
+            with tempfile.TemporaryDirectory() as temp_dir:
+                for case_no, input_path, gold_path in cases:
+                    output_path = str(Path(temp_dir) / f"{case_no}_pred.xlsx")
+                    exec_ok, exec_reason = run_generated_code(code, input_path, output_path)
+                    compare_ok = False
+                    compare_reason = exec_reason
+                    if exec_ok:
+                        compare_ok, compare_reason = compare_workbooks(gold_path, output_path, answer_position)
+                    if exec_ok and compare_ok:
+                        passed_cases += 1
+                    case_results.append(
+                        {
+                            "case_no": case_no,
+                            "input_path": input_path,
+                            "gold_path": gold_path,
+                            "output_path": output_path,
+                            "exec_ok": exec_ok,
+                            "ok": exec_ok and compare_ok,
+                            "reason": compare_reason,
+                        }
+                    )
+            soft = passed_cases / len(cases)
+            hard = int(passed_cases == len(cases))
+            return MetricResult(
+                score=soft,
+                passed=bool(hard),
+                details={
+                    "ok": bool(hard),
+                    "hard": hard,
+                    "soft": soft,
+                    "n_cases": len(cases),
+                    "n_pass": passed_cases,
+                    "case_results": case_results,
+                    "predicted_answer": predicted_answer,
+                    "instruction_type": sample.metadata.get("instruction_type", ""),
+                    "task_type": sample.metadata.get("task_type", ""),
+                    "mode": "generated_code",
                 },
             )
 

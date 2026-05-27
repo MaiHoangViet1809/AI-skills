@@ -71,7 +71,10 @@ Parity notes:
 - khong co CLI va WebUI; native Python API la surface chinh
 - SearchQA, DocVQA, OfficeQA da co loader + evaluator + adapter path rieng
 - ALFWorld, SpreadsheetBench, LiveMathematicianBench da co benchmark-native loader/evaluator/adapter path
-- runtime/tool parity day du cho ALFWorld simulator va SpreadsheetBench codegen/react van con la phan can dao sau them
+- SpreadsheetBench evaluator da co the chay prediction dang Python code block de sinh workbook output
+- runtime/tool parity day du con thieu chu yeu o:
+  - ALFWorld simulator runtime
+  - SpreadsheetBench react path va full upstream orchestration
 
 Run demos:
 

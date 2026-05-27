@@ -119,6 +119,50 @@ class ReferencePackBEnvTest(unittest.TestCase):
             )
             self.assertEqual(artifacts.mean_score, 1.0)
 
+    def test_spreadsheet_evaluator_can_execute_generated_code(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-1"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "1_task_input.xlsx"
+            gold_path = task_dir / "1_task_answer.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["A1"] = 1
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["A1"] = 42
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-1",
+                        "instruction": "Set A1 to 42",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!A1",
+                        "spreadsheet_path": "spreadsheet/task-1",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            metric = SpreadsheetBenchEvaluator().evaluate(
+                """```python
+import openpyxl
+wb = openpyxl.load_workbook(INPUT_PATH)
+ws = wb["Sheet1"]
+ws["A1"] = 42
+wb.save(OUTPUT_PATH)
+```""",
+                adapter.train_samples[0],
+            )
+            self.assertTrue(metric.passed)
+            self.assertEqual(metric.details["hard"], 1)
+
     def test_alfworld_loader_evaluator_and_native_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
