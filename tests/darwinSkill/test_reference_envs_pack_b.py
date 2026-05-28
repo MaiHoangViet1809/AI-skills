@@ -322,6 +322,75 @@ wb.save(OUTPUT_PATH)
             self.assertTrue(metric.passed)
             self.assertEqual(metric.details["mode"], "tool_call_bundle")
 
+    def test_spreadsheet_evaluator_accepts_react_transcript_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-5"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "initial.xlsx"
+            gold_path = task_dir / "golden.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["E5"] = 21
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["E5"] = 777
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-5",
+                        "instruction": "Set E5 to 777",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!E5",
+                        "spreadsheet_path": "spreadsheet/task-5",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            prediction = json.dumps(
+                {
+                    "transcript": [
+                        {
+                            "role": "assistant",
+                            "content": "I will write a solution and run it.",
+                            "tool_calls": [
+                                {
+                                    "function": {
+                                        "name": "write_file",
+                                        "arguments": {
+                                            "path": "solution.py",
+                                            "content": (
+                                                "import openpyxl\n"
+                                                "wb = openpyxl.load_workbook(INPUT_PATH)\n"
+                                                "ws = wb['Sheet1']\n"
+                                                "ws['E5'] = 777\n"
+                                                "wb.save(OUTPUT_PATH)\n"
+                                            ),
+                                        },
+                                    }
+                                },
+                                {
+                                    "function": {
+                                        "name": "bash",
+                                        "arguments": {"cmd": "python solution.py"},
+                                    }
+                                },
+                            ],
+                        },
+                        {"type": "message", "content": "Done."},
+                    ]
+                }
+            )
+            metric = SpreadsheetBenchEvaluator().evaluate(prediction, adapter.train_samples[0])
+            self.assertTrue(metric.passed)
+            self.assertEqual(metric.details["mode"], "react_transcript_bundle")
+
     def test_alfworld_loader_evaluator_and_native_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

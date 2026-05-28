@@ -75,6 +75,7 @@ Parity notes:
 - SpreadsheetBench evaluator cung hieu prediction dang JSON artifact bundle chua `solution.py` hoac `output.xlsx`
 - SpreadsheetBench evaluator da ho tro them workspace bundle `files + commands`, gan hon voi react/tool orchestration
 - SpreadsheetBench evaluator da ho tro them structured `tool_calls` bundle (`write_file` + `bash`)
+- SpreadsheetBench evaluator da ho tro them `react transcript` bundle co assistant turns + tool_calls
 - runtime/tool parity day du con thieu chu yeu o:
   - ALFWorld simulator runtime
   - SpreadsheetBench full LLM react loop / transcript parity
