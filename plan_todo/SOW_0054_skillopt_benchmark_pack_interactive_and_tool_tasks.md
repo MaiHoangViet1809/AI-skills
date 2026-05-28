@@ -38,7 +38,8 @@ darwinSkill benchmark pack B
   - `SpreadsheetBench` evaluator da ho tro them structured `tool_calls` bundle (`write_file` + `bash`)
   - `SpreadsheetBench` evaluator da ho tro them `react transcript` bundle co assistant turns + tool calls
   - `SpreadsheetBench` evaluator da ho tro them replay bundle theo shape rollout upstream: `conversation.json` + `solution.py` artifact/file
-  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` full LLM react loop beyond replayed `conversation.json` / `solution.py`
+  - `SpreadsheetBench` da co them native react-runner surface de backend callback sinh `conversation + solution.py` bundle ngay trong Python API
+  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` provider-specific live wrappers beyond native callback surface
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

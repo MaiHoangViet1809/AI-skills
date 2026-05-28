@@ -4,12 +4,13 @@ import datetime
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import openpyxl
 
@@ -67,6 +68,74 @@ RUNNER_TEMPLATE = textwrap.dedent(
         sys.exit(2)
     """
 )
+SPREADSHEET_REACT_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "bash",
+            "description": "Run a shell command and return stdout plus stderr.",
+            "parameters": {
+                "type": "object",
+                "properties": {"cmd": {"type": "string", "description": "Shell command to execute."}},
+                "required": ["cmd"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "write_file",
+            "description": "Write a text file relative to the working directory.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "Relative file path."},
+                    "content": {"type": "string", "description": "File content."},
+                },
+                "required": ["path", "content"],
+            },
+        },
+    },
+]
+SPREADSHEET_REACT_CRITICAL_RULES = textwrap.dedent(
+    """
+    - Do not write formulas for graded cells because workbook evaluators read cached values.
+    - Re-open the saved workbook and verify concrete values after writing.
+    - Prefer `write_file` for multi-line Python scripts instead of shell redirection.
+    """
+).strip()
+SPREADSHEET_REACT_SYSTEM_TEMPLATE = textwrap.dedent(
+    """
+    You are a spreadsheet manipulation agent.
+
+    {critical_rules}
+
+    {skill_section}
+    Tools:
+    - `bash`: run shell commands inside the isolated task workspace
+    - `write_file`: write `solution.py` or helper files without shell escaping issues
+
+    Protocol:
+    1. Inspect the workbook structure if needed.
+    2. Write `solution.py` with `INPUT_PATH` and `OUTPUT_PATH` at the top.
+    3. Run `python solution.py`.
+    4. Fix errors and rerun until the output workbook is produced correctly.
+    5. Stop calling tools when the output workbook is ready.
+
+    Use only the standard library, `openpyxl`, and `pandas`.
+    """
+).strip()
+
+
+class SpreadsheetReactBackend(Protocol):
+    def respond(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        tool_choice: str = "auto",
+    ) -> dict[str, Any]:
+        ...
 
 
 def normalize_spreadsheetbench_record(record: dict[str, Any]) -> dict[str, Any]:
@@ -293,6 +362,38 @@ def _prepare_solution_script(code: str, input_path: str, output_path: str) -> st
     cleaned = _strip_path_assignments(code)
     prefix = f"INPUT_PATH = {input_path!r}\nOUTPUT_PATH = {output_path!r}\n"
     return prefix + cleaned.lstrip()
+
+
+def _write_file(path: str, content: str, work_dir: str) -> str:
+    try:
+        destination = Path(path)
+        if not destination.is_absolute():
+            destination = Path(work_dir) / destination
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(str(content), encoding="utf-8")
+        return f"File written: {destination} ({len(str(content))} chars)"
+    except Exception as exc:  # noqa: BLE001
+        return f"[write_file error: {exc}]"
+
+
+def _run_bash(command: str, work_dir: str, timeout: int = 60, max_output_chars: int = 4000) -> str:
+    try:
+        process = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            cwd=work_dir,
+        )
+    except subprocess.TimeoutExpired:
+        return f"[timeout after {timeout}s]"
+    except Exception as exc:  # noqa: BLE001
+        return f"[error: {exc}]"
+    output = (process.stdout + process.stderr).strip() or "(no output)"
+    if len(output) > max_output_chars:
+        output = output[: max_output_chars - 64] + f"\n...[truncated, {len(output)} total chars]"
+    return output
 
 
 def run_workspace_bundle(
@@ -546,6 +647,203 @@ def resolve_test_cases(metadata: dict[str, Any]) -> list[tuple[str, str, str]]:
     if task_dir.is_file():
         return []
     return _find_test_cases(task_dir)
+
+
+def build_spreadsheet_react_system(skill_content: str = "") -> str:
+    skill_section = ""
+    if skill_content.strip():
+        skill_section = f"Skill guidance:\n{skill_content.strip()}\n\n"
+    return SPREADSHEET_REACT_SYSTEM_TEMPLATE.format(
+        critical_rules=SPREADSHEET_REACT_CRITICAL_RULES,
+        skill_section=skill_section,
+    )
+
+
+def build_spreadsheet_react_user(
+    *,
+    sample: SkillSample,
+    input_path: str,
+    output_path: str,
+    diagnostic_mode: bool = False,
+    diagnostic_instruction: str = "",
+    diagnostic_trace_context: str = "",
+) -> str:
+    metadata = sample.metadata
+    parts: list[str] = []
+    if diagnostic_trace_context.strip():
+        parts.append(
+            "Previous trace context:\n"
+            f"{diagnostic_trace_context.strip()}"
+        )
+    parts.extend(
+        [
+            f"Instruction:\n{sample.prompt}",
+            f"Input file:\n{input_path}",
+            f"Output file:\n{output_path}",
+        ]
+    )
+    instruction_type = str(metadata.get("instruction_type") or "").strip()
+    answer_position = str(metadata.get("answer_position") or "").strip()
+    if instruction_type:
+        parts.append(f"Instruction type:\n{instruction_type}")
+    if answer_position:
+        parts.append(f"Answer position:\n{answer_position}")
+    if diagnostic_mode and diagnostic_instruction.strip():
+        parts.append(f"Training readout:\n{diagnostic_instruction.strip()}")
+    parts.append("Manipulate the input workbook according to the instruction and save the result to the output file.")
+    return "\n\n".join(parts)
+
+
+def _normalize_react_tool_call(raw: Any, index: int) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    function = raw.get("function") if isinstance(raw.get("function"), dict) else raw
+    name = str(function.get("name") or "").strip()
+    if not name:
+        return None
+    arguments = function.get("arguments", {})
+    if isinstance(arguments, str):
+        try:
+            parsed_arguments: dict[str, Any] = json.loads(arguments)
+        except json.JSONDecodeError:
+            parsed_arguments = {"raw": arguments}
+    elif isinstance(arguments, dict):
+        parsed_arguments = dict(arguments)
+    else:
+        parsed_arguments = {}
+    return {
+        "id": str(raw.get("id") or f"tool_{index}"),
+        "type": str(raw.get("type") or "function"),
+        "name": name,
+        "arguments": parsed_arguments,
+    }
+
+
+def _normalize_react_response(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, str):
+        return {"content": raw, "tool_calls": []}
+    if not isinstance(raw, dict):
+        raise TypeError("Spreadsheet react backend must return a string or dict response.")
+    content = str(raw.get("content") or "")
+    raw_tool_calls = raw.get("tool_calls") if isinstance(raw.get("tool_calls"), list) else []
+    tool_calls = [
+        tool_call
+        for tool_call in (_normalize_react_tool_call(item, index) for index, item in enumerate(raw_tool_calls, start=1))
+        if tool_call is not None
+    ]
+    return {"content": content, "tool_calls": tool_calls}
+
+
+def _assistant_message_for_react(content: str, tool_calls: list[dict[str, Any]]) -> dict[str, Any]:
+    message: dict[str, Any] = {"role": "assistant", "content": content}
+    if tool_calls:
+        message["tool_calls"] = [
+            {
+                "id": str(tool_call.get("id") or ""),
+                "type": str(tool_call.get("type") or "function"),
+                "function": {
+                    "name": str(tool_call.get("name") or ""),
+                    "arguments": json.dumps(tool_call.get("arguments") or {}, ensure_ascii=False),
+                },
+            }
+            for tool_call in tool_calls
+        ]
+    return message
+
+
+def run_spreadsheet_react_session(
+    *,
+    backend: SpreadsheetReactBackend,
+    sample: SkillSample,
+    skill_content: str = "",
+    max_turns: int = 30,
+    diagnostic_mode: bool = False,
+    diagnostic_instruction: str = "",
+    diagnostic_trace_context: str = "",
+) -> dict[str, Any]:
+    cases = resolve_test_cases(sample.metadata)
+    if not cases:
+        raise ValueError("SpreadsheetBench react session requires resolvable test cases.")
+
+    first_case_no, first_input_path, _ = cases[0]
+    with tempfile.TemporaryDirectory(prefix="darwinSkill_spreadsheet_react_") as temp_dir:
+        work_dir = Path(temp_dir)
+        work_input_path = work_dir / Path(first_input_path).name
+        shutil.copy2(first_input_path, work_input_path)
+        work_output_path = work_dir / f"{first_case_no}_pred.xlsx"
+
+        system_prompt = build_spreadsheet_react_system(skill_content=skill_content)
+        user_prompt = build_spreadsheet_react_user(
+            sample=sample,
+            input_path=str(work_input_path),
+            output_path=str(work_output_path),
+            diagnostic_mode=diagnostic_mode,
+            diagnostic_instruction=diagnostic_instruction,
+            diagnostic_trace_context=diagnostic_trace_context,
+        )
+        messages: list[dict[str, Any]] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        conversation: list[dict[str, Any]] = []
+        n_turns = 0
+
+        for _ in range(max_turns):
+            response = _normalize_react_response(
+                backend.respond(messages=list(messages), tools=SPREADSHEET_REACT_TOOLS, tool_choice="auto")
+            )
+            assistant_text = str(response.get("content") or "")
+            tool_calls = response.get("tool_calls") if isinstance(response.get("tool_calls"), list) else []
+            messages.append(_assistant_message_for_react(assistant_text, tool_calls))
+
+            if not tool_calls:
+                conversation.append({"type": "message", "content": assistant_text})
+                break
+
+            for tool_call in tool_calls:
+                n_turns += 1
+                tool_name = str(tool_call.get("name") or "").strip()
+                arguments = tool_call.get("arguments") if isinstance(tool_call.get("arguments"), dict) else {}
+                if tool_name == "write_file":
+                    path = str(arguments.get("path") or "").strip()
+                    content = str(arguments.get("content") or "")
+                    observation = _write_file(path, content, str(work_dir))
+                    command = f"[write_file] {path}"
+                elif tool_name == "bash":
+                    command = str(arguments.get("cmd") or "").strip()
+                    observation = _run_bash(command, str(work_dir))
+                else:
+                    command = tool_name
+                    observation = f"[unsupported tool: {tool_name}]"
+                conversation.append({"type": "tool_call", "cmd": command, "obs": observation})
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": str(tool_call.get("id") or ""),
+                        "content": observation,
+                    }
+                )
+
+        artifacts: dict[str, str] = {}
+        solution_path = work_dir / "solution.py"
+        if solution_path.exists():
+            artifacts["solution.py"] = solution_path.read_text(encoding="utf-8")
+
+        payload = {
+            "conversation": conversation,
+            "artifacts": artifacts,
+            "predicted_answer": "",
+        }
+        return {
+            "prediction": json.dumps(payload, ensure_ascii=False),
+            "payload": payload,
+            "conversation": conversation,
+            "artifacts": artifacts,
+            "messages": messages,
+            "n_turns": n_turns,
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+        }
 
 
 def extract_answer(text: str) -> str:

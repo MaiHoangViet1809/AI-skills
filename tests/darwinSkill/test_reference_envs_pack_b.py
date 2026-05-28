@@ -12,7 +12,11 @@ from darwinSkill.contracts import SkillFeedback, TrainingConfig
 from darwinSkill.livemathematician_env import LiveMathematicianEvaluator, load_livemathematician_dataset
 from darwinSkill.native import run_reference_adapter
 from darwinSkill.reference_adapters import ALFWorldAdapter, LiveMathematicianBenchAdapter, SpreadsheetBenchAdapter
-from darwinSkill.spreadsheetbench_env import SpreadsheetBenchEvaluator, load_spreadsheetbench_dataset
+from darwinSkill.spreadsheetbench_env import (
+    SpreadsheetBenchEvaluator,
+    load_spreadsheetbench_dataset,
+    run_spreadsheet_react_session,
+)
 
 
 class PackBBackend:
@@ -26,6 +30,55 @@ class PackBBackend:
 
     def improve_skill(self, skill_text: str, feedback: list[SkillFeedback]) -> str:
         return skill_text
+
+
+class ScriptedSpreadsheetReactBackend:
+    def __init__(self) -> None:
+        self.turn = 0
+
+    def respond(self, *, messages, tools, tool_choice="auto"):  # type: ignore[no-untyped-def]
+        _ = (messages, tools, tool_choice)
+        self.turn += 1
+        if self.turn == 1:
+            return {
+                "content": "I will write and execute solution.py.",
+                "tool_calls": [
+                    {
+                        "id": "write-1",
+                        "name": "write_file",
+                        "arguments": {
+                            "path": "solution.py",
+                            "content": (
+                                "import openpyxl\n"
+                                "wb = openpyxl.load_workbook(INPUT_PATH)\n"
+                                "ws = wb['Sheet1']\n"
+                                "ws['G7'] = 2024\n"
+                                "wb.save(OUTPUT_PATH)\n"
+                            ),
+                        },
+                    },
+                    {
+                        "id": "bash-1",
+                        "name": "bash",
+                        "arguments": {"cmd": "python solution.py"},
+                    },
+                ],
+            }
+        return {"content": "Finished."}
+
+
+class SpreadsheetReactPredictionBackend:
+    def improve_skill(self, skill_text: str, feedback: list[SkillFeedback]) -> str:
+        return skill_text
+
+    def predict(self, skill_text, sample):  # type: ignore[no-untyped-def]
+        backend = ScriptedSpreadsheetReactBackend()
+        session = run_spreadsheet_react_session(
+            backend=backend,
+            sample=sample,
+            skill_content=skill_text,
+        )
+        return str(session["prediction"])
 
 
 class ReferencePackBEnvTest(unittest.TestCase):
@@ -451,6 +504,93 @@ wb.save(OUTPUT_PATH)
             metric = SpreadsheetBenchEvaluator().evaluate(prediction, adapter.train_samples[0])
             self.assertTrue(metric.passed)
             self.assertEqual(metric.details["mode"], "react_conversation_bundle")
+
+    def test_spreadsheet_react_session_builds_prediction_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-7"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "initial.xlsx"
+            gold_path = task_dir / "golden.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["G7"] = 12
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["G7"] = 2024
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-7",
+                        "instruction": "Set G7 to 2024",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!G7",
+                        "spreadsheet_path": "spreadsheet/task-7",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            session = run_spreadsheet_react_session(
+                backend=ScriptedSpreadsheetReactBackend(),
+                sample=adapter.train_samples[0],
+                skill_content="Always verify the workbook after saving.",
+            )
+            self.assertIn("solution.py", session["artifacts"])
+            self.assertGreaterEqual(int(session["n_turns"]), 2)
+
+            metric = SpreadsheetBenchEvaluator().evaluate(str(session["prediction"]), adapter.train_samples[0])
+            self.assertTrue(metric.passed)
+            self.assertEqual(metric.details["mode"], "react_conversation_bundle")
+
+    def test_spreadsheet_react_prediction_backend_runs_with_native_adapter_flow(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-8"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "initial.xlsx"
+            gold_path = task_dir / "golden.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["G7"] = 12
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["G7"] = 2024
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-8",
+                        "instruction": "Set G7 to 2024",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!G7",
+                        "spreadsheet_path": "spreadsheet/task-8",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            artifacts = run_reference_adapter(
+                backend=SpreadsheetReactPredictionBackend(),
+                adapter=adapter,
+                config=TrainingConfig(
+                    num_epochs=1,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=root / "outputs",
+                    run_name="spreadsheet-react-pack-b",
+                ),
+            )
+            self.assertEqual(artifacts.mean_score, 1.0)
 
     def test_alfworld_loader_evaluator_and_native_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

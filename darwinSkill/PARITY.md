@@ -29,6 +29,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
   - `SpreadsheetBench` evaluator co them structured `tool_calls` bundle (`write_file` + `bash`)
   - `SpreadsheetBench` evaluator co them `react transcript` bundle co assistant turns + tool calls
   - `SpreadsheetBench` evaluator co them upstream-style `conversation.json` replay path khi prediction bundle kem `solution.py` artifact/file
+  - `SpreadsheetBench` co native react-runner helper de backend callback co the sinh `conversation + solution.py` prediction bundle
 - native benchmark helpers:
   - `run_reference_benchmark(...)`
   - `run_reference_adapter(...)`
@@ -47,7 +48,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
 - provider/runtime compatibility hien o muc routing + injection contracts, chua gom client/runtime wrappers day du cho tung provider
 - prompt/runtime behavior parity voi upstream rollout modules van con mot khoang cach o cac env tool-heavy:
   - `ALFWorld` simulator runtime
-  - `SpreadsheetBench` full LLM react loop beyond replayable `conversation.json` + `solution.py` artifacts
+  - `SpreadsheetBench` provider-specific live react wrappers beyond native backend callback surface
 - artifact semantics hien da du cho native Python runs, nhung chua mirror tat ca trajectory formats upstream
 
 ## Khac biet co y
