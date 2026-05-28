@@ -1,0 +1,84 @@
+- **Status**: draft
+- **Approval**: pending
+- **Task**: Xây extraction pipeline trong `darwinSkill` để biến canonical raw evidence thành trainable skill-improvement examples, với bias nghiêng về LLM-assisted interpretation thay vì chỉ heuristic conditions.
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/plan_todo/`
+- **Why**: Raw schema một mình chưa đủ để train. Nếu muốn cải thiện skill từ dữ liệu task thực chiến, cần một lớp extraction để chuyển raw evidence thành task-bounded, gap-aware, skill-oriented examples. Những judgment như shallow fix, wrong approach, hay scope miss thường quá giàu ngữ nghĩa để chỉ dựa vào conditions cứng, nên nên để LLM đọc evidence với deterministic scaffolding bao quanh.
+- **As-Is Diagram (ASCII)**:
+```text
+canonical raw evidence
+  -> rich provider-agnostic event stream exists
+  -> no work-unit extraction
+  -> no trainable skill example pipeline
+  -> no stable path from operational logs to optimization-ready data
+```
+- **To-Be Diagram (ASCII)**:
+```text
+canonical raw evidence
+  -> work-unit segmentation
+     -> boundary confidence
+     -> mixed-context handling
+     -> continuation links
+  -> extraction pipeline
+     -> deterministic evidence packaging
+     -> LLM-assisted interpretation
+     -> trainable skill example generation
+        -> raw evidence refs
+        -> task summary
+        -> gap type
+        -> repair history
+        -> accepted resolution or failure endpoint
+        -> label / confidence / severity
+        -> abstain / needs_review when evidence is too weak
+  -> train/val/test or equivalent downstream split
+```
+- **Deliverables**:
+  - add a `darwinSkill` extraction module that consumes canonical raw evidence
+  - define typed contracts for:
+    - work units
+    - extracted task outcomes
+    - trainable skill examples
+    - label / subtype / severity / confidence
+    - abstain / insufficient_evidence / needs_review style outcomes
+  - support work-unit segmentation features including:
+    - boundary markers
+    - boundary confidence
+    - mixed-context flag
+    - continuation links across interrupted tasks
+  - implement deterministic evidence packaging around an LLM-assisted interpretation step
+  - require output contracts to keep raw evidence references separate from derived judgments
+  - support at least these extracted outcome classes:
+    - accepted_done
+    - accepted_with_repair_history
+    - not_done
+    - blocked
+    - shallow_or_incomplete_solution
+    - scope_miss_or_wrong_approach
+    - insufficient_evidence
+  - generate trainable examples that preserve:
+    - raw evidence references
+    - failure evidence
+    - repair actions
+    - accepted final resolution when present
+    - skill-relevant correction signal
+    - derived reasoning summary separate from raw evidence
+  - add tests that prove:
+    - work-unit extraction handles simple and mixed-context cases
+    - LLM-assisted extraction can be mocked behind deterministic contracts
+    - low-confidence or mixed-context cases can abstain instead of forcing a label
+    - output examples preserve enough information for later train/eval splitting
+- **Done Criteria**:
+  - `darwinSkill` can transform canonical raw evidence into trainable skill-improvement examples
+  - extraction does not depend on Codex-only assumptions beyond the upstream raw schema adapter
+  - the extraction layer can abstain when evidence is mixed or boundary confidence is too low
+  - the output format is suitable as the source input for later optimization runs and split-aware evaluation
+- **Out-of-Scope**:
+  - canonical raw schema itself
+  - auto-training or auto-publishing skills
+  - final reward-model quality design beyond the first practical extraction pipeline
+- **Proposed-By**: Codex GPT-5
+- **plan**: `~/Projects/AISkills/plan_todo/codex_skill_improvement_data_plan.md`
+- **Cautions / Risks**:
+  - nếu để LLM interpret quá tự do, extracted labels sẽ drift và noisy
+  - nếu chỉ dùng conditions cứng, subtle failure modes như shallow fix hoặc wrong approach sẽ bị miss
+  - cần giữ balance: deterministic evidence scaffolding + constrained interpretation layer
+  - nếu trộn raw evidence với derived judgment trong cùng một field quá sớm, downstream review và split discipline sẽ yếu

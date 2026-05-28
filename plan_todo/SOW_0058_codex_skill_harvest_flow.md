@@ -1,0 +1,70 @@
+- **Status**: draft
+- **Approval**: pending
+- **Task**: Xây một harvest flow trong `darwinSkill` để đọc raw conversation/tool logs trước hết từ Codex, normalize chúng vào canonical raw schema, và giữ nguyên evidence cho các provider khác như Claude hoặc OpenCode về sau.
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`, `~/Projects/AISkills/plan_todo/`
+- **Why**: Nếu muốn nối `darwinSkill` vào agent improvement loop, trước hết phải có một lớp harvest ổn định cho raw execution evidence. Trước khi nói tới labeling hay severity, cần khóa canonical schema để các provider khác nhau có thể merge về cùng một nền dữ liệu.
+- **As-Is Diagram (ASCII)**:
+```text
+provider task/session logs
+  -> Codex JSONL exists
+  -> other providers will have different schemas
+  -> no darwinSkill-native canonical raw schema
+  -> no stable raw evidence layer for later training extraction
+```
+- **To-Be Diagram (ASCII)**:
+```text
+provider-native logs / hooks
+  -> provider adapter
+     -> raw envelope normalization
+     -> raw turn / tool / task event parsing
+  -> darwinSkill canonical raw schema
+     -> session
+     -> turn
+     -> message
+     -> tool call / tool result
+     -> patch event
+     -> task event
+     -> artifact references
+  -> downstream extraction pipeline
+```
+- **Deliverables**:
+  - add a `darwinSkill` module for raw log harvesting and canonical schema normalization
+  - define typed raw-event contracts that are provider-agnostic, including:
+    - provider identity and source format version
+    - session identity
+    - turn identity
+    - message role/content
+    - tool call / tool result
+    - patch apply events
+    - task started / task complete markers
+    - timestamps
+    - cwd / repo context when available
+    - artifact or transcript references
+  - add a Codex-specific parser/adapter that maps current `~/.codex/sessions/*.jsonl` structures into the canonical schema
+  - make historical session logs the default source for v1 harvesting
+  - treat hook-based capture as an optional enrichment path, not a dependency for the first usable version
+  - preserve provider-specific details in extensible metadata instead of discarding them
+  - preserve raw evidence references without collapsing them into outcome labels or judgments
+  - add a script or helper entrypoint that can ingest provider-native payloads and emit canonical raw artifacts
+  - add tests for:
+    - Codex raw events parsing into the canonical schema
+    - missing optional fields degrading cleanly
+    - provider-specific metadata preservation without polluting core contracts
+- **Done Criteria**:
+  - repo has a native `darwinSkill` harvest flow that can convert current Codex logs into a canonical raw schema
+  - the schema does not depend directly on Codex-only class names
+  - v1 harvesting works from existing historical Codex session logs without requiring custom hook registration
+  - the resulting raw artifact format is stable enough to become the upstream input for later extraction and labeling work
+- **Out-of-Scope**:
+  - work-unit segmentation
+  - positive/negative outcome labeling
+  - severity scoring
+  - mandatory hook wiring before historical-log ingestion works
+  - automatic publishing updated skills into `~/.codex/skills`
+  - fully automatic self-training inline inside active Codex task execution
+- **Proposed-By**: Codex GPT-5
+- **plan**: `~/Projects/AISkills/plan_todo/codex_skill_improvement_data_plan.md`
+- **Cautions / Risks**:
+  - nếu raw schema quá Codex-shaped, Claude/OpenCode extension sau này sẽ bị gượng ép
+  - nếu abstract quá sớm mà mất raw evidence, downstream extraction sẽ yếu
+  - cần giữ harvest layer là evidence-preserving normalization, không biến nó thành auto-judge quá sớm
