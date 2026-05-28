@@ -58,6 +58,7 @@ Benchmark-native surfaces:
 - `darwinSkill.livemathematician_env`
 - `run_reference_benchmark(...)` tu auto chon evaluator benchmark-specific cho SearchQA, DocVQA, OfficeQA
 - `darwinSkill.alfworld_env.run_alfworld_episode(...)` cho native Python episode/runtime loop cua ALFWorld
+- `darwinSkill.alfworld_env.build_live_alfworld_environment_factory(...)` cho optional live simulator bridge cua ALFWorld
 - `darwinSkill.spreadsheetbench_env.run_spreadsheet_react_session(...)` cho native Python react/tool loop cua SpreadsheetBench
 
 Adapter-aware behavior:
@@ -91,6 +92,7 @@ Parity notes:
 - SpreadsheetBench evaluator da ho tro them upstream-style `conversation` bundle khi `conversation.json` di kem `solution.py` artifact/file
 - SpreadsheetBench da co them native react runner surface de backend co the sinh `conversation + solution.py` bundle bang Python API
 - ALFWorld da co them native episode runner surface de backend callback + env shim sinh runtime bundle co trajectory
+- ALFWorld da co them optional live environment factory de bridge vao reference vendor simulator khi local runtime co san
 - `darwinSkill.backends` da co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de `BackendRouter` goi interactive runtime qua native Python callback
 - `darwinSkill.backends` da co them provider-compat wrappers de normalize OpenAI/Claude/Qwen/Codex-style tool-call payloads vao interactive runners
 - `darwinSkill.backends` da co them family-aware bootstrap helper de di tu benchmark + provider family -> interactive router gan nhu turnkey

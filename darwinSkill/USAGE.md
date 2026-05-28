@@ -105,6 +105,17 @@ router = build_interactive_router_for_benchmark(
 )
 ```
 
+Voi `ALFWorld`, neu local runtime co du dependency/reference snapshot, co the de router tu dung live environment factory mac dinh:
+
+```python
+router = build_interactive_router_for_benchmark(
+    benchmark_name="alfworld",
+    target_family="claude_chat",
+    target_invoke=my_provider_callback,
+    optimizer_backend=my_optimizer_backend,
+)
+```
+
 ## 3. Artifact inspection
 
 ```python

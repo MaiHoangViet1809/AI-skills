@@ -40,10 +40,11 @@ darwinSkill benchmark pack B
   - `SpreadsheetBench` evaluator da ho tro them replay bundle theo shape rollout upstream: `conversation.json` + `solution.py` artifact/file
   - `SpreadsheetBench` da co them native react-runner surface de backend callback sinh `conversation + solution.py` bundle ngay trong Python API
   - `ALFWorld` da co them native episode-runner surface de backend callback + env shim sinh runtime bundle co trajectory
+  - `ALFWorld` da co them optional live environment factory de bridge vao reference vendor simulator neu local dependencies co san
   - `BackendRouter` da co them target-role wrapper helpers cho `SpreadsheetBench` va `ALFWorld`, gan hon voi dual-role execution semantics cua upstream
   - da co them provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads de cap native runners bang format gan upstream hon
   - da co them family-aware bootstrap helper de di tu benchmark + provider family -> interactive router
-  - full simulator/react/runtime parity con lai chu yeu nam o production client construction/auth bootstrap quanh provider clients va `ALFWorld` live simulator integration that still sits outside framework core
+  - full simulator/react/runtime parity con lai chu yeu nam o production client construction/auth bootstrap quanh provider clients va production-grade dependency setup cho live runtime
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

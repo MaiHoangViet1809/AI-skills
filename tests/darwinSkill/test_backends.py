@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import openpyxl
 
@@ -375,14 +376,23 @@ class BackendsTest(unittest.TestCase):
             payload = json.loads(router.predict("", sample))
             self.assertIn("conversation", payload)
 
-    def test_build_interactive_router_for_alfworld_requires_environment_factory(self) -> None:
-        with self.assertRaises(ValueError):
-            build_interactive_router_for_benchmark(
+    def test_build_interactive_router_for_alfworld_uses_default_live_factory_when_missing(self) -> None:
+        with mock.patch("darwinSkill.backends.build_live_alfworld_environment_factory") as factory_builder:
+            factory_builder.return_value = lambda sample: FakeALFWorldEnvironment()
+            router = build_interactive_router_for_benchmark(
                 benchmark_name="alfworld",
                 target_family="claude_chat",
-                target_invoke=lambda **kwargs: {"content": "noop"},
+                target_invoke=lambda **kwargs: {"content": "<think>finish</think><action>put apple in sink</action>"},
                 optimizer_backend=OptimizerStub(),
             )
+            sample = SkillSample(
+                prompt="put apple in sink",
+                expected_answer="success",
+                metadata={"gamefile": "/tmp/valid_seen/pick_and_place/task.json"},
+            )
+            payload = json.loads(router.predict("", sample))
+            self.assertIn("conversation", payload)
+            factory_builder.assert_called_once()
 
     def test_build_interactive_router_for_alfworld_uses_provider_family(self) -> None:
         router = build_interactive_router_for_benchmark(

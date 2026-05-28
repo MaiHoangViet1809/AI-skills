@@ -5,7 +5,12 @@ import inspect
 import json
 from typing import Any, Callable, Protocol
 
-from darwinSkill.alfworld_env import ALFWorldAgentBackend, ALFWorldEpisodeEnvironment, run_alfworld_episode
+from darwinSkill.alfworld_env import (
+    ALFWorldAgentBackend,
+    ALFWorldEpisodeEnvironment,
+    build_live_alfworld_environment_factory,
+    run_alfworld_episode,
+)
 from darwinSkill.benchmarks import get_benchmark_spec
 from darwinSkill.contracts import SkillBackend, SkillFeedback, SkillSample
 from darwinSkill.spreadsheetbench_env import SpreadsheetReactBackend, run_spreadsheet_react_session
@@ -338,7 +343,7 @@ def build_interactive_router_for_benchmark(
         )
     if spec.name == "alfworld":
         if environment_factory is None:
-            raise ValueError("ALFWorld interactive router requires an environment_factory.")
+            environment_factory = build_live_alfworld_environment_factory()
         return build_alfworld_router(
             target_backend=compat_backend,
             optimizer_backend=optimizer_backend,

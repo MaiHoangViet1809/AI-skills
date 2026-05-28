@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+from functools import partial
+import importlib
 import json
+import os
 import re
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
 from darwinSkill.contracts import MetricResult, SkillEvaluator, SkillSample
-from darwinSkill.reference_assets import is_split_dir
+from darwinSkill.reference_assets import REPO_ROOT, is_split_dir
 
 ALFWORLD_TASKS = [
     "pick_and_place",
@@ -35,6 +40,9 @@ class ALFWorldEpisodeEnvironment(Protocol):
         ...
 
     def step(self, action: str) -> dict[str, Any]:
+        ...
+
+    def close(self) -> None:
         ...
 
 
@@ -67,6 +75,127 @@ def _infer_task_type_from_gamefile(gamefile: str) -> str:
         if task in gamefile:
             return task
     return "alfworld"
+
+
+def _extract_task_description(observation: str) -> str:
+    anchor = str(observation or "")
+    marker = "Your task is to: "
+    if marker in anchor:
+        return anchor.split(marker, 1)[1].strip()
+    return anchor.strip()
+
+
+def _ensure_skillopt_reference_importable() -> None:
+    reference_root = str(REPO_ROOT / "references" / "SkillOpt")
+    if reference_root not in sys.path:
+        sys.path.insert(0, reference_root)
+
+
+def build_live_alfworld_env_manager(
+    *,
+    env_num: int = 1,
+    eval_dataset: str = "eval_out_of_distribution",
+    seed: int = 42,
+    is_train: bool = False,
+    specific_gamefiles: list[str] | None = None,
+) -> Any:
+    _ensure_skillopt_reference_importable()
+    try:
+        from omegaconf import OmegaConf
+    except ImportError as exc:  # pragma: no cover - optional dependency path
+        raise RuntimeError("Live ALFWorld bridge requires `omegaconf` to be installed.") from exc
+
+    try:
+        build_envs = importlib.import_module("skillopt.envs.alfworld.vendor.alfworld_envs")
+        projection_module = importlib.import_module("skillopt.envs.alfworld.vendor.alfworld_projection")
+        env_manager_module = importlib.import_module("skillopt.envs.alfworld.vendor.env_manager")
+    except ImportError as exc:  # pragma: no cover - optional dependency path
+        raise RuntimeError(
+            "Live ALFWorld bridge requires the reference SkillOpt vendor modules and their runtime dependencies."
+        ) from exc
+
+    vendor_dir = REPO_ROOT / "references" / "SkillOpt" / "skillopt" / "envs" / "alfworld" / "vendor"
+    alf_config_path = vendor_dir / "config_tw.yaml"
+    envs = build_envs.build_alfworld_envs(  # type: ignore[attr-defined]
+        str(alf_config_path),
+        seed=seed,
+        env_num=env_num,
+        group_n=1,
+        is_train=is_train,
+        env_kwargs={"eval_dataset": eval_dataset},
+        resources_per_worker=None,
+        gamefiles=specific_gamefiles,
+    )
+    config = OmegaConf.create(
+        {
+            "env": {
+                "history_length": 2,
+                "env_name": "alfworld/AlfredTWEnv",
+            }
+        }
+    )
+    projection_f = partial(projection_module.alfworld_projection)  # type: ignore[attr-defined]
+    manager_class = env_manager_module.AlfWorldEnvironmentManager  # type: ignore[attr-defined]
+    return manager_class(envs, projection_f, config)
+
+
+@dataclass(slots=True)
+class ALFWorldManagerEpisodeEnvironment:
+    manager: Any
+
+    def reset(self) -> dict[str, Any]:
+        observations, infos = self.manager.reset({})
+        info = infos[0] if infos else {}
+        anchor = observations.get("anchor", [""])[0] if isinstance(observations, dict) else ""
+        gamefile = str(info.get("extra.gamefile", "") or "")
+        return {
+            "observation": anchor,
+            "gamefile": gamefile,
+            "task_type": _infer_task_type_from_gamefile(gamefile),
+            "task_description": _extract_task_description(anchor),
+        }
+
+    def step(self, action: str) -> dict[str, Any]:
+        observations, rewards, dones, infos = self.manager.step([action])
+        info = infos[0] if infos else {}
+        anchor = observations.get("anchor", [""])[0] if isinstance(observations, dict) else ""
+        return {
+            "observation": anchor,
+            "reward": float(rewards[0]) if rewards else 0.0,
+            "done": bool(dones[0]) if dones else False,
+            "won": bool(info.get("won", False)),
+        }
+
+    def close(self) -> None:
+        close = getattr(self.manager, "close", None)
+        if callable(close):
+            close()
+
+
+def build_live_alfworld_environment_factory(
+    *,
+    seed: int = 42,
+    is_train: bool = False,
+    env_manager_builder: Any | None = None,
+) -> Any:
+    builder = env_manager_builder or build_live_alfworld_env_manager
+
+    def _factory(sample: SkillSample) -> ALFWorldManagerEpisodeEnvironment:
+        metadata = sample.metadata
+        gamefile = str(metadata.get("gamefile") or "").strip()
+        if not gamefile:
+            raise ValueError("ALFWorld live environment factory requires sample.metadata['gamefile'].")
+        eval_dataset = str(metadata.get("eval_dataset") or _infer_eval_dataset(gamefile))
+        manager = builder(
+            env_num=1,
+            eval_dataset=eval_dataset,
+            seed=seed,
+            is_train=is_train,
+            specific_gamefiles=[gamefile],
+        )
+        return ALFWorldManagerEpisodeEnvironment(manager=manager)
+
+    return _factory
 
 
 def normalize_alfworld_record(record: dict[str, Any]) -> dict[str, Any]:
@@ -194,80 +323,85 @@ def run_alfworld_episode(
     max_steps: int = 50,
     diagnostic_instruction: str = "",
 ) -> dict[str, Any]:
-    initial = environment.reset()
-    observation = str(initial.get("observation") or initial.get("text") or "").strip()
-    gamefile = str(initial.get("gamefile") or "").strip()
-    task_type = str(initial.get("task_type") or _infer_task_type_from_gamefile(gamefile))
-    task_description = str(initial.get("task_description") or initial.get("goal") or observation).strip()
-    messages: list[dict[str, Any]] = []
-    trajectory: list[dict[str, Any]] = []
-    won = False
-    last_observation = observation
+    try:
+        initial = environment.reset()
+        observation = str(initial.get("observation") or initial.get("text") or "").strip()
+        gamefile = str(initial.get("gamefile") or "").strip()
+        task_type = str(initial.get("task_type") or _infer_task_type_from_gamefile(gamefile))
+        task_description = str(initial.get("task_description") or initial.get("goal") or observation).strip()
+        messages: list[dict[str, Any]] = []
+        trajectory: list[dict[str, Any]] = []
+        won = False
+        last_observation = observation
 
-    for step_idx in range(max_steps):
-        user_prompt = build_alfworld_user_prompt(
-            observation=last_observation,
-            skill_content=skill_content,
-            diagnostic_instruction=diagnostic_instruction,
-        )
-        messages.append({"role": "user", "content": user_prompt})
-        raw_response = backend.respond(
-            system=ALFWORLD_SYSTEM_PROMPT,
-            user=user_prompt,
-            messages=list(messages),
-        )
-        response = _normalize_agent_response(raw_response)
-        if not response:
-            response = _default_fallback_response("empty model response")
-        action = extract_action(response)
-        if not action:
-            response = _default_fallback_response("missing action tag")
-            action = "look"
-        reasoning = extract_think(response) or ""
-        messages.append({"role": "assistant", "content": response})
+        for step_idx in range(max_steps):
+            user_prompt = build_alfworld_user_prompt(
+                observation=last_observation,
+                skill_content=skill_content,
+                diagnostic_instruction=diagnostic_instruction,
+            )
+            messages.append({"role": "user", "content": user_prompt})
+            raw_response = backend.respond(
+                system=ALFWORLD_SYSTEM_PROMPT,
+                user=user_prompt,
+                messages=list(messages),
+            )
+            response = _normalize_agent_response(raw_response)
+            if not response:
+                response = _default_fallback_response("empty model response")
+            action = extract_action(response)
+            if not action:
+                response = _default_fallback_response("missing action tag")
+                action = "look"
+            reasoning = extract_think(response) or ""
+            messages.append({"role": "assistant", "content": response})
 
-        step_result = environment.step(action)
-        last_observation = str(step_result.get("observation") or step_result.get("text") or "").strip()
-        reward = float(step_result.get("reward") or 0.0)
-        done = bool(step_result.get("done", False))
-        won = bool(step_result.get("won", False))
-        trajectory.append(
-            {
-                "step": step_idx,
-                "action": action,
-                "reasoning": reasoning,
-                "model_response": response,
-                "env_feedback": last_observation,
-                "reward": reward,
-                "done": done,
-            }
-        )
-        if done:
-            break
+            step_result = environment.step(action)
+            last_observation = str(step_result.get("observation") or step_result.get("text") or "").strip()
+            reward = float(step_result.get("reward") or 0.0)
+            done = bool(step_result.get("done", False))
+            won = bool(step_result.get("won", False))
+            trajectory.append(
+                {
+                    "step": step_idx,
+                    "action": action,
+                    "reasoning": reasoning,
+                    "model_response": response,
+                    "env_feedback": last_observation,
+                    "reward": reward,
+                    "done": done,
+                }
+            )
+            if done:
+                break
 
-    completed = bool(trajectory and trajectory[-1].get("done"))
-    fail_reason = ""
-    if not won:
-        fail_reason = "Episode ended without completing the task" if completed else f"Timeout after {max_steps} steps"
-    payload = {
-        "predicted_answer": "<answer>success</answer>" if won else "<answer>fail</answer>",
-        "hard": 1 if won else 0,
-        "soft": 1.0 if won else 0.0,
-        "n_turns": len(trajectory),
-        "fail_reason": fail_reason,
-        "agent_ok": True,
-        "task_type": task_type,
-        "gamefile": gamefile,
-        "task_description": task_description,
-        "instruction_type": task_type,
-        "conversation": trajectory,
-    }
-    return {
-        "prediction": json.dumps(payload, ensure_ascii=False),
-        "payload": payload,
-        "conversation": trajectory,
-        "messages": messages,
-    }
+        completed = bool(trajectory and trajectory[-1].get("done"))
+        fail_reason = ""
+        if not won:
+            fail_reason = "Episode ended without completing the task" if completed else f"Timeout after {max_steps} steps"
+        payload = {
+            "predicted_answer": "<answer>success</answer>" if won else "<answer>fail</answer>",
+            "hard": 1 if won else 0,
+            "soft": 1.0 if won else 0.0,
+            "n_turns": len(trajectory),
+            "fail_reason": fail_reason,
+            "agent_ok": True,
+            "task_type": task_type,
+            "gamefile": gamefile,
+            "task_description": task_description,
+            "instruction_type": task_type,
+            "conversation": trajectory,
+        }
+        return {
+            "prediction": json.dumps(payload, ensure_ascii=False),
+            "payload": payload,
+            "conversation": trajectory,
+            "messages": messages,
+        }
+    finally:
+        close = getattr(environment, "close", None)
+        if callable(close):
+            close()
 
 
 def parse_success(prediction: str) -> bool:

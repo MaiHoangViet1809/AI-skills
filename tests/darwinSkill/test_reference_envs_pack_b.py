@@ -7,7 +7,12 @@ from pathlib import Path
 
 import openpyxl
 
-from darwinSkill.alfworld_env import ALFWorldEvaluator, load_alfworld_dataset, run_alfworld_episode
+from darwinSkill.alfworld_env import (
+    ALFWorldEvaluator,
+    build_live_alfworld_environment_factory,
+    load_alfworld_dataset,
+    run_alfworld_episode,
+)
 from darwinSkill.contracts import SkillFeedback, TrainingConfig
 from darwinSkill.livemathematician_env import LiveMathematicianEvaluator, load_livemathematician_dataset
 from darwinSkill.native import run_reference_adapter
@@ -96,6 +101,7 @@ class ScriptedALFWorldBackend:
 class FakeALFWorldEnvironment:
     def __init__(self) -> None:
         self.turn = 0
+        self.closed = False
 
     def reset(self):  # type: ignore[no-untyped-def]
         self.turn = 0
@@ -121,6 +127,9 @@ class FakeALFWorldEnvironment:
             "done": True,
             "won": True,
         }
+
+    def close(self) -> None:
+        self.closed = True
 
 
 class ALFWorldRuntimePredictionBackend:
@@ -728,6 +737,58 @@ wb.save(OUTPUT_PATH)
                 ),
             )
             self.assertEqual(artifacts.mean_score, 1.0)
+
+    def test_live_alfworld_environment_factory_wraps_manager_shape(self) -> None:
+        class FakeManager:
+            def __init__(self) -> None:
+                self.closed = False
+
+            def reset(self, kwargs):  # type: ignore[no-untyped-def]
+                _ = kwargs
+                return (
+                    {"anchor": ["You are in a kitchen. Your task is to: put apple in sink."]},
+                    [{"extra.gamefile": "/tmp/valid_seen/pick_and_place/task.json"}],
+                )
+
+            def step(self, actions):  # type: ignore[no-untyped-def]
+                action = actions[0]
+                return (
+                    {"anchor": [f"Observed after {action}: done."]},
+                    [1.0],
+                    [True],
+                    [{"won": True, "extra.gamefile": "/tmp/valid_seen/pick_and_place/task.json"}],
+                )
+
+            def close(self) -> None:
+                self.closed = True
+
+        managers: list[FakeManager] = []
+
+        def fake_builder(**kwargs):  # type: ignore[no-untyped-def]
+            self.assertEqual(kwargs["specific_gamefiles"], ["/tmp/valid_seen/pick_and_place/task.json"])
+            manager = FakeManager()
+            managers.append(manager)
+            return manager
+
+        sample = ALFWorldAdapter.from_records(
+            [
+                {
+                    "id": "live-episode-1",
+                    "gamefile": "/tmp/valid_seen/pick_and_place/task.json",
+                    "task_description": "put apple in sink",
+                    "task_type": "pick_and_place",
+                }
+            ]
+        ).train_samples[0]
+        env_factory = build_live_alfworld_environment_factory(env_manager_builder=fake_builder)
+        episode = run_alfworld_episode(
+            backend=ScriptedALFWorldBackend(),
+            environment=env_factory(sample),
+            skill_content="Inspect before acting.",
+        )
+        metric = ALFWorldEvaluator().evaluate(str(episode["prediction"]), sample)
+        self.assertTrue(metric.passed)
+        self.assertTrue(managers[0].closed)
 
 
 if __name__ == "__main__":
