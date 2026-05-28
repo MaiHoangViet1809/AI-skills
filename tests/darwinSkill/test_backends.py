@@ -11,6 +11,10 @@ from darwinSkill.backends import (
     ALFWorldEpisodeTargetBackend,
     BackendRouter,
     BackendRuntimeConfig,
+    build_claude_compat_backend,
+    build_codex_compat_backend,
+    build_openai_compat_backend,
+    build_qwen_compat_backend,
     SpreadsheetReactTargetBackend,
     build_alfworld_router,
     build_spreadsheetbench_router,
@@ -211,6 +215,86 @@ class BackendsTest(unittest.TestCase):
         prediction = router.predict("", sample)
         payload = json.loads(prediction)
         self.assertEqual(payload["hard"], 1)
+
+    def test_openai_compat_backend_normalizes_chat_completion_payload(self) -> None:
+        backend = build_openai_compat_backend(
+            lambda **kwargs: {
+                "choices": [
+                    {
+                        "message": {
+                            "content": "I will use tools.",
+                            "tool_calls": [
+                                {
+                                    "id": "call-1",
+                                    "type": "function",
+                                    "function": {
+                                        "name": "bash",
+                                        "arguments": "{\"cmd\": \"python solution.py\"}",
+                                    },
+                                }
+                            ],
+                        }
+                    }
+                ]
+            }
+        )
+        response = backend.respond(messages=[], tools=[], tool_choice="auto", system="", user="")
+        self.assertEqual(response["content"], "I will use tools.")
+        self.assertEqual(response["tool_calls"][0]["name"], "bash")
+        self.assertEqual(response["tool_calls"][0]["arguments"]["cmd"], "python solution.py")
+
+    def test_claude_compat_backend_normalizes_content_blocks(self) -> None:
+        backend = build_claude_compat_backend(
+            lambda **kwargs: {
+                "content": [
+                    {"type": "text", "text": "Writing file."},
+                    {
+                        "type": "tool_use",
+                        "id": "toolu_1",
+                        "name": "write_file",
+                        "input": {"path": "solution.py", "content": "print('ok')"},
+                    },
+                ]
+            }
+        )
+        response = backend.respond(messages=[], tools=[], tool_choice="auto", system="", user="")
+        self.assertEqual(response["content"], "Writing file.")
+        self.assertEqual(response["tool_calls"][0]["name"], "write_file")
+        self.assertEqual(response["tool_calls"][0]["arguments"]["path"], "solution.py")
+
+    def test_qwen_and_codex_compat_backends_normalize_provider_payloads(self) -> None:
+        qwen_backend = build_qwen_compat_backend(
+            lambda **kwargs: {
+                "choices": [
+                    {
+                        "message": {
+                            "content": "Done.",
+                            "tool_calls": [
+                                {"name": "bash", "arguments": "{\"cmd\": \"echo hi\"}"}
+                            ],
+                        }
+                    }
+                ]
+            }
+        )
+        codex_backend = build_codex_compat_backend(
+            lambda **kwargs: {
+                "result": {
+                    "content": "Done.",
+                    "tool_calls": [
+                        {"name": "bash", "arguments": "{\"cmd\": \"echo hi\"}"}
+                    ],
+                }
+            }
+        )
+        self.assertEqual(
+            qwen_backend.respond(messages=[], tools=[], tool_choice="auto", system="", user="")["tool_calls"][0]["arguments"]["cmd"],
+            "echo hi",
+        )
+        self.assertEqual(
+            codex_backend.respond(messages=[], tools=[], tool_choice="auto", system="", user="")["tool_calls"][0]["arguments"]["cmd"],
+            "echo hi",
+        )
 
 
 if __name__ == "__main__":

@@ -84,6 +84,14 @@ adapter = build_reference_adapter_from_config(
 )
 ```
 
+Neu target backend tra ve OpenAI/Claude/Qwen/Codex-style payload, co the normalize bang compat wrapper:
+
+```python
+from darwinSkill.backends import build_openai_compat_backend
+
+target_backend = build_openai_compat_backend(my_provider_callback)
+```
+
 ## 3. Artifact inspection
 
 ```python

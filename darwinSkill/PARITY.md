@@ -14,6 +14,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
   - tach target role va optimizer role qua `BackendRouter`
   - co compatibility mapping cho cac family chinh trong reference snapshot
   - co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de route interactive native runtime qua `BackendRouter`
+  - co them provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads
 - benchmark pack A:
   - `SearchQA`
   - `DocVQA`
@@ -51,7 +52,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
 - provider/runtime compatibility hien o muc routing + injection contracts, chua gom client/runtime wrappers day du cho tung provider
 - prompt/runtime behavior parity voi upstream rollout modules van con mot khoang cach o cac env tool-heavy:
   - `ALFWorld` provider-specific live simulator wrappers beyond native env shim
-  - `SpreadsheetBench` provider-specific live react wrappers beyond native backend callback surface
+  - production API/process bootstrap quanh provider clients van de caller hoac integration layer tu wiring
 - artifact semantics hien da du cho native Python runs, nhung chua mirror tat ca trajectory formats upstream
 
 ## Khac biet co y

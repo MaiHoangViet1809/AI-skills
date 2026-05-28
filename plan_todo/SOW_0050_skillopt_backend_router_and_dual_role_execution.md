@@ -37,7 +37,8 @@ BackendRouter
 - **Progress Notes**:
   - `BackendRouter`, `RoutingConfig`, va `BackendRuntimeConfig` da ton tai cho role split + family mapping
   - da co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de interactive runtimes di qua `BackendRouter`
-  - compatibility gap con lai chu yeu la provider-specific live wrappers, khong con o layer role split co ban
+  - da co them provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads
+  - compatibility gap con lai chu yeu la production API/process bootstrap quanh provider clients, khong con o layer role split + payload normalization
 - **Out-of-Scope**:
   - migrating every benchmark adapter
   - UI integration

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import inspect
+import json
 from typing import Any, Callable, Protocol
 
 from darwinSkill.alfworld_env import ALFWorldAgentBackend, ALFWorldEpisodeEnvironment, run_alfworld_episode
@@ -26,6 +28,142 @@ class TargetBackend(Protocol):
 class OptimizerBackend(Protocol):
     def improve_skill(self, skill_text: str, feedback: list[SkillFeedback]) -> str:
         ...
+
+
+def _parse_tool_arguments(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return dict(value)
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {"raw": value}
+        return parsed if isinstance(parsed, dict) else {"raw": value}
+    return {}
+
+
+def _normalize_tool_call_payload(raw: Any, index: int) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    function = raw.get("function") if isinstance(raw.get("function"), dict) else raw
+    name = str(function.get("name") or raw.get("name") or "").strip()
+    if not name:
+        return None
+    arguments = function.get("arguments", raw.get("arguments", {}))
+    return {
+        "id": str(raw.get("id") or f"tool_{index}"),
+        "type": str(raw.get("type") or "function"),
+        "name": name,
+        "arguments": _parse_tool_arguments(arguments),
+    }
+
+
+def normalize_openai_chat_payload(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, str):
+        return {"content": raw, "tool_calls": []}
+    if not isinstance(raw, dict):
+        raise TypeError("OpenAI-compatible payload must be a dict or string.")
+    message = raw
+    if isinstance(raw.get("choices"), list) and raw["choices"]:
+        message = raw["choices"][0].get("message") or {}
+    content = message.get("content") or ""
+    if isinstance(content, list):
+        text_parts: list[str] = []
+        for item in content:
+            if isinstance(item, dict) and item.get("type") in {"text", "output_text"}:
+                text_parts.append(str(item.get("text") or ""))
+        content = "".join(text_parts)
+    tool_calls = [
+        item
+        for item in (_normalize_tool_call_payload(tool_call, index) for index, tool_call in enumerate(message.get("tool_calls") or [], start=1))
+        if item is not None
+    ]
+    return {"content": str(content or ""), "tool_calls": tool_calls}
+
+
+def normalize_claude_chat_payload(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, str):
+        return {"content": raw, "tool_calls": []}
+    if not isinstance(raw, dict):
+        raise TypeError("Claude-compatible payload must be a dict or string.")
+    payload = raw.get("result", raw)
+    if isinstance(payload, dict) and isinstance(payload.get("tool_calls"), list):
+        content = str(payload.get("content") or "")
+        tool_calls = [
+            item
+            for item in (_normalize_tool_call_payload(tool_call, index) for index, tool_call in enumerate(payload.get("tool_calls") or [], start=1))
+            if item is not None
+        ]
+        return {"content": content, "tool_calls": tool_calls}
+
+    content_blocks = payload.get("content") if isinstance(payload, dict) else None
+    if not isinstance(content_blocks, list):
+        return {"content": str(payload or ""), "tool_calls": []}
+    text_parts: list[str] = []
+    tool_calls: list[dict[str, Any]] = []
+    for index, block in enumerate(content_blocks, start=1):
+        if not isinstance(block, dict):
+            continue
+        block_type = str(block.get("type") or "")
+        if block_type == "text":
+            text_parts.append(str(block.get("text") or ""))
+            continue
+        if block_type == "tool_use":
+            tool_calls.append(
+                {
+                    "id": str(block.get("id") or f"tool_{index}"),
+                    "type": "function",
+                    "name": str(block.get("name") or ""),
+                    "arguments": dict(block.get("input") or {}),
+                }
+            )
+    return {"content": "".join(text_parts), "tool_calls": tool_calls}
+
+
+def normalize_qwen_chat_payload(raw: Any) -> dict[str, Any]:
+    return normalize_openai_chat_payload(raw)
+
+
+def normalize_codex_chat_payload(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, dict) and "result" in raw and isinstance(raw.get("result"), dict):
+        raw = raw["result"]
+    return normalize_openai_chat_payload(raw)
+
+
+def _invoke_with_supported_kwargs(callback: Callable[..., Any], **kwargs: Any) -> Any:
+    signature = inspect.signature(callback)
+    if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()):
+        return callback(**kwargs)
+    accepted: dict[str, Any] = {}
+    for name, parameter in signature.parameters.items():
+        if parameter.kind in {inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY} and name in kwargs:
+            accepted[name] = kwargs[name]
+    return callback(**accepted)
+
+
+@dataclass(slots=True)
+class ProviderChatBackendAdapter:
+    invoke: Callable[..., Any]
+    normalizer: Callable[[Any], dict[str, Any]]
+
+    def respond(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        tool_choice: str = "auto",
+        system: str = "",
+        user: str = "",
+    ) -> dict[str, Any]:
+        raw = _invoke_with_supported_kwargs(
+            self.invoke,
+            messages=messages,
+            tools=tools,
+            tool_choice=tool_choice,
+            system=system,
+            user=user,
+        )
+        return self.normalizer(raw)
 
 
 @dataclass(slots=True)
@@ -114,6 +252,22 @@ def build_spreadsheetbench_router(
         optimizer_backend=optimizer_backend,
         routing=routing,
     )
+
+
+def build_openai_compat_backend(invoke: Callable[..., Any]) -> ProviderChatBackendAdapter:
+    return ProviderChatBackendAdapter(invoke=invoke, normalizer=normalize_openai_chat_payload)
+
+
+def build_claude_compat_backend(invoke: Callable[..., Any]) -> ProviderChatBackendAdapter:
+    return ProviderChatBackendAdapter(invoke=invoke, normalizer=normalize_claude_chat_payload)
+
+
+def build_qwen_compat_backend(invoke: Callable[..., Any]) -> ProviderChatBackendAdapter:
+    return ProviderChatBackendAdapter(invoke=invoke, normalizer=normalize_qwen_chat_payload)
+
+
+def build_codex_compat_backend(invoke: Callable[..., Any]) -> ProviderChatBackendAdapter:
+    return ProviderChatBackendAdapter(invoke=invoke, normalizer=normalize_codex_chat_payload)
 
 
 def build_alfworld_router(
