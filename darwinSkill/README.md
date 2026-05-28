@@ -45,6 +45,8 @@ Native helpers:
 - `darwinSkill.backends.build_claude_compat_backend(...)`
 - `darwinSkill.backends.build_qwen_compat_backend(...)`
 - `darwinSkill.backends.build_codex_compat_backend(...)`
+- `darwinSkill.backends.build_provider_compat_backend_for_family(...)`
+- `darwinSkill.backends.build_interactive_router_for_benchmark(...)`
 
 Benchmark-native surfaces:
 
@@ -91,10 +93,11 @@ Parity notes:
 - ALFWorld da co them native episode runner surface de backend callback + env shim sinh runtime bundle co trajectory
 - `darwinSkill.backends` da co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de `BackendRouter` goi interactive runtime qua native Python callback
 - `darwinSkill.backends` da co them provider-compat wrappers de normalize OpenAI/Claude/Qwen/Codex-style tool-call payloads vao interactive runners
+- `darwinSkill.backends` da co them family-aware bootstrap helper de di tu benchmark + provider family -> interactive router gan nhu turnkey
 - `darwinSkill.reference_adapters` da co registry builder de resolve benchmark aliases va dataset-backed adapters tu Python/config layer
 - runtime/tool parity day du con thieu chu yeu o:
   - ALFWorld provider-bound live simulator wrappers beyond native env shim
-  - SpreadsheetBench/ALFWorld production API wiring cho provider clients that still require network/process bootstrap outside framework core
+  - production client construction va external runtime authentication/bootstrap van nam o integration layer
 
 Run demos:
 

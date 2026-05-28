@@ -6,6 +6,7 @@ import json
 from typing import Any, Callable, Protocol
 
 from darwinSkill.alfworld_env import ALFWorldAgentBackend, ALFWorldEpisodeEnvironment, run_alfworld_episode
+from darwinSkill.benchmarks import get_benchmark_spec
 from darwinSkill.contracts import SkillBackend, SkillFeedback, SkillSample
 from darwinSkill.spreadsheetbench_env import SpreadsheetReactBackend, run_spreadsheet_react_session
 
@@ -150,7 +151,7 @@ class ProviderChatBackendAdapter:
         self,
         *,
         messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
         tool_choice: str = "auto",
         system: str = "",
         user: str = "",
@@ -270,6 +271,28 @@ def build_codex_compat_backend(invoke: Callable[..., Any]) -> ProviderChatBacken
     return ProviderChatBackendAdapter(invoke=invoke, normalizer=normalize_codex_chat_payload)
 
 
+def _runtime_config_from_family(value: str | BackendRuntimeConfig) -> BackendRuntimeConfig:
+    if isinstance(value, BackendRuntimeConfig):
+        return value
+    return BackendRuntimeConfig(family=str(value))
+
+
+def build_provider_compat_backend_for_family(
+    family: str | BackendRuntimeConfig,
+    invoke: Callable[..., Any],
+) -> ProviderChatBackendAdapter:
+    runtime = _runtime_config_from_family(family)
+    if runtime.family in {"azure_openai", "openai_chat"}:
+        return build_openai_compat_backend(invoke)
+    if runtime.family in {"claude_chat", "claude_code_exec"}:
+        return build_claude_compat_backend(invoke)
+    if runtime.family == "qwen_chat":
+        return build_qwen_compat_backend(invoke)
+    if runtime.family == "codex_exec":
+        return build_codex_compat_backend(invoke)
+    raise ValueError(f"Unsupported provider compat family: {runtime.family}")
+
+
 def build_alfworld_router(
     *,
     target_backend: ALFWorldAgentBackend,
@@ -289,6 +312,42 @@ def build_alfworld_router(
         optimizer_backend=optimizer_backend,
         routing=routing,
     )
+
+
+def build_interactive_router_for_benchmark(
+    *,
+    benchmark_name: str,
+    target_family: str | BackendRuntimeConfig,
+    target_invoke: Callable[..., Any],
+    optimizer_backend: OptimizerBackend,
+    routing: RoutingConfig | None = None,
+    environment_factory: Callable[[SkillSample], ALFWorldEpisodeEnvironment] | None = None,
+    max_turns: int = 30,
+    max_steps: int = 50,
+    diagnostic_instruction: str = "",
+) -> BackendRouter:
+    spec = get_benchmark_spec(benchmark_name)
+    compat_backend = build_provider_compat_backend_for_family(target_family, target_invoke)
+    if spec.name == "spreadsheetbench":
+        return build_spreadsheetbench_router(
+            target_backend=compat_backend,
+            optimizer_backend=optimizer_backend,
+            routing=routing,
+            max_turns=max_turns,
+            diagnostic_instruction=diagnostic_instruction,
+        )
+    if spec.name == "alfworld":
+        if environment_factory is None:
+            raise ValueError("ALFWorld interactive router requires an environment_factory.")
+        return build_alfworld_router(
+            target_backend=compat_backend,
+            optimizer_backend=optimizer_backend,
+            environment_factory=environment_factory,
+            routing=routing,
+            max_steps=max_steps,
+            diagnostic_instruction=diagnostic_instruction,
+        )
+    raise ValueError(f"Interactive router helper does not support benchmark: {benchmark_name}")
 
 
 def default_routing_for_family(family: str) -> RoutingConfig:

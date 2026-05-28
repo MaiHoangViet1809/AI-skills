@@ -92,6 +92,19 @@ from darwinSkill.backends import build_openai_compat_backend
 target_backend = build_openai_compat_backend(my_provider_callback)
 ```
 
+Hoac di thang tu benchmark + provider family:
+
+```python
+from darwinSkill.backends import build_interactive_router_for_benchmark
+
+router = build_interactive_router_for_benchmark(
+    benchmark_name="spreadsheet_bench",
+    target_family="openai_chat",
+    target_invoke=my_provider_callback,
+    optimizer_backend=my_optimizer_backend,
+)
+```
+
 ## 3. Artifact inspection
 
 ```python

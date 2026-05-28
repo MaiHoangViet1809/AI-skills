@@ -42,7 +42,8 @@ darwinSkill benchmark pack B
   - `ALFWorld` da co them native episode-runner surface de backend callback + env shim sinh runtime bundle co trajectory
   - `BackendRouter` da co them target-role wrapper helpers cho `SpreadsheetBench` va `ALFWorld`, gan hon voi dual-role execution semantics cua upstream
   - da co them provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads de cap native runners bang format gan upstream hon
-  - full simulator/react/runtime parity con lai chu yeu nam o production API/process bootstrap quanh provider clients va `ALFWorld` live simulator integration that still sits outside framework core
+  - da co them family-aware bootstrap helper de di tu benchmark + provider family -> interactive router
+  - full simulator/react/runtime parity con lai chu yeu nam o production client construction/auth bootstrap quanh provider clients va `ALFWorld` live simulator integration that still sits outside framework core
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

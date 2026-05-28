@@ -13,7 +13,9 @@ from darwinSkill.backends import (
     BackendRuntimeConfig,
     build_claude_compat_backend,
     build_codex_compat_backend,
+    build_interactive_router_for_benchmark,
     build_openai_compat_backend,
+    build_provider_compat_backend_for_family,
     build_qwen_compat_backend,
     SpreadsheetReactTargetBackend,
     build_alfworld_router,
@@ -295,6 +297,108 @@ class BackendsTest(unittest.TestCase):
             codex_backend.respond(messages=[], tools=[], tool_choice="auto", system="", user="")["tool_calls"][0]["arguments"]["cmd"],
             "echo hi",
         )
+
+    def test_build_provider_compat_backend_for_family_uses_runtime_mapping(self) -> None:
+        backend = build_provider_compat_backend_for_family(
+            BackendRuntimeConfig(family="claude_chat"),
+            lambda **kwargs: {
+                "content": [
+                    {"type": "text", "text": "ok"},
+                    {"type": "tool_use", "name": "bash", "input": {"cmd": "echo hi"}},
+                ]
+            },
+        )
+        response = backend.respond(messages=[], tools=[], tool_choice="auto", system="", user="")
+        self.assertEqual(response["tool_calls"][0]["arguments"]["cmd"], "echo hi")
+
+    def test_build_interactive_router_for_spreadsheetbench_uses_provider_family(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-2"
+            task_dir.mkdir(parents=True)
+            for path in (task_dir / "initial.xlsx", task_dir / "golden.xlsx"):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["A1"] = 1
+                workbook.save(path)
+                workbook.close()
+            router = build_interactive_router_for_benchmark(
+                benchmark_name="spreadsheet_bench",
+                target_family="openai_chat",
+                target_invoke=lambda **kwargs: {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": "Write and run.",
+                                "tool_calls": [
+                                    {
+                                        "function": {
+                                            "name": "write_file",
+                                            "arguments": json.dumps(
+                                                {
+                                                    "path": "solution.py",
+                                                    "content": (
+                                                        "import openpyxl\n"
+                                                        "wb = openpyxl.load_workbook(INPUT_PATH)\n"
+                                                        "ws = wb['Sheet1']\n"
+                                                        "ws['A1'] = 77\n"
+                                                        "wb.save(OUTPUT_PATH)\n"
+                                                    ),
+                                                }
+                                            ),
+                                        }
+                                    },
+                                    {
+                                        "function": {
+                                            "name": "bash",
+                                            "arguments": json.dumps({"cmd": "python solution.py"}),
+                                        }
+                                    },
+                                ],
+                            }
+                        }
+                    ]
+                },
+                optimizer_backend=OptimizerStub(),
+            )
+            sample = SkillSample(
+                prompt="Set A1 to 77",
+                expected_answer="",
+                metadata={
+                    "instruction_type": "cell update",
+                    "answer_position": "Sheet1!A1",
+                    "spreadsheet_path": "spreadsheet/task-2",
+                    "data_root": str(root),
+                },
+            )
+            payload = json.loads(router.predict("", sample))
+            self.assertIn("conversation", payload)
+
+    def test_build_interactive_router_for_alfworld_requires_environment_factory(self) -> None:
+        with self.assertRaises(ValueError):
+            build_interactive_router_for_benchmark(
+                benchmark_name="alfworld",
+                target_family="claude_chat",
+                target_invoke=lambda **kwargs: {"content": "noop"},
+                optimizer_backend=OptimizerStub(),
+            )
+
+    def test_build_interactive_router_for_alfworld_uses_provider_family(self) -> None:
+        router = build_interactive_router_for_benchmark(
+            benchmark_name="alfworld",
+            target_family="claude_chat",
+            target_invoke=lambda **kwargs: {"content": "<think>finish</think><action>put apple in sink</action>"},
+            optimizer_backend=OptimizerStub(),
+            environment_factory=lambda sample: FakeALFWorldEnvironment(),
+        )
+        sample = SkillSample(
+            prompt="put apple in sink",
+            expected_answer="success",
+            metadata={"gamefile": "/tmp/valid_seen/pick_and_place/task.json"},
+        )
+        payload = json.loads(router.predict("", sample))
+        self.assertIn("conversation", payload)
 
 
 if __name__ == "__main__":
