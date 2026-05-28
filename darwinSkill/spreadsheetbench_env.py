@@ -169,6 +169,7 @@ def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
 
     artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
     files = payload.get("files") if isinstance(payload.get("files"), dict) else {}
+    commands = payload.get("commands") if isinstance(payload.get("commands"), list) else []
     code = (
         payload.get("code")
         or payload.get("solution.py")
@@ -188,6 +189,12 @@ def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
         "predicted_answer": str(payload.get("predicted_answer") or extract_answer(prediction)),
         "code": str(code or ""),
         "output_path": str(output_path or ""),
+        "commands": [str(command) for command in commands if str(command).strip()],
+        "files": {
+            str(path): str(content)
+            for path, content in files.items()
+            if isinstance(content, (str, int, float))
+        },
         "payload": payload,
     }
 
@@ -227,6 +234,59 @@ def run_generated_code(code: str, input_path: str, output_path: str, timeout: in
             os.unlink(script_path)
         except OSError:
             pass
+
+
+def _prepare_solution_script(code: str, input_path: str, output_path: str) -> str:
+    cleaned = _strip_path_assignments(code)
+    prefix = f"INPUT_PATH = {input_path!r}\nOUTPUT_PATH = {output_path!r}\n"
+    return prefix + cleaned.lstrip()
+
+
+def run_workspace_bundle(
+    *,
+    files: dict[str, str],
+    commands: list[str],
+    input_path: str,
+    output_path: str,
+    timeout: int = 120,
+) -> tuple[bool, str]:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        work_dir = Path(temp_dir)
+        for relative_path, content in files.items():
+            destination = work_dir / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if destination.name == "solution.py":
+                destination.write_text(
+                    _prepare_solution_script(str(content), input_path=input_path, output_path=output_path),
+                    encoding="utf-8",
+                )
+            else:
+                destination.write_text(str(content), encoding="utf-8")
+
+        planned_commands = [command for command in commands if command.strip()]
+        if not planned_commands and "solution.py" in files:
+            planned_commands = ["python solution.py"]
+
+        last_output = ""
+        for command in planned_commands:
+            try:
+                process = subprocess.run(
+                    command,
+                    shell=True,
+                    cwd=work_dir,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                )
+            except subprocess.TimeoutExpired:
+                return False, f"timeout after {timeout}s while running {command!r}"
+            last_output = (process.stdout + "\n" + process.stderr).strip()
+            if process.returncode != 0:
+                return False, last_output or f"command failed: {command}"
+
+        if not os.path.exists(output_path):
+            return False, last_output or "output file was not created"
+        return True, last_output
 
 
 def _datetime_to_float(value: datetime.datetime) -> float:
@@ -404,6 +464,56 @@ class SpreadsheetBenchEvaluator(SkillEvaluator):
             )
 
         cases = resolve_test_cases(sample.metadata)
+        files = bundle.get("files") if isinstance(bundle.get("files"), dict) else {}
+        commands = bundle.get("commands") if isinstance(bundle.get("commands"), list) else []
+        if cases and answer_position and files:
+            case_results: list[dict[str, Any]] = []
+            passed_cases = 0
+            with tempfile.TemporaryDirectory() as temp_dir:
+                for case_no, input_path, gold_path in cases:
+                    output_path = str(Path(temp_dir) / f"{case_no}_react_pred.xlsx")
+                    exec_ok, exec_reason = run_workspace_bundle(
+                        files=files,
+                        commands=[str(command) for command in commands],
+                        input_path=input_path,
+                        output_path=output_path,
+                    )
+                    compare_ok = False
+                    compare_reason = exec_reason
+                    if exec_ok:
+                        compare_ok, compare_reason = compare_workbooks(gold_path, output_path, answer_position)
+                    if exec_ok and compare_ok:
+                        passed_cases += 1
+                    case_results.append(
+                        {
+                            "case_no": case_no,
+                            "input_path": input_path,
+                            "gold_path": gold_path,
+                            "output_path": output_path,
+                            "exec_ok": exec_ok,
+                            "ok": exec_ok and compare_ok,
+                            "reason": compare_reason,
+                        }
+                    )
+            soft = passed_cases / len(cases)
+            hard = int(passed_cases == len(cases))
+            return MetricResult(
+                score=soft,
+                passed=bool(hard),
+                details={
+                    "ok": bool(hard),
+                    "hard": hard,
+                    "soft": soft,
+                    "n_cases": len(cases),
+                    "n_pass": passed_cases,
+                    "case_results": case_results,
+                    "predicted_answer": predicted_answer,
+                    "instruction_type": sample.metadata.get("instruction_type", ""),
+                    "task_type": sample.metadata.get("task_type", ""),
+                    "mode": "workspace_bundle",
+                },
+            )
+
         code = str(bundle.get("code") or "")
         if cases and answer_position and code:
             case_results: list[dict[str, Any]] = []

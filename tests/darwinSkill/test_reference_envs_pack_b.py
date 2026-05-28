@@ -211,6 +211,55 @@ wb.save(OUTPUT_PATH)
             self.assertTrue(metric.passed)
             self.assertEqual(metric.details["mode"], "generated_code_bundle")
 
+    def test_spreadsheet_evaluator_accepts_workspace_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-3"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "initial.xlsx"
+            gold_path = task_dir / "golden.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["C3"] = 7
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["C3"] = 123
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-3",
+                        "instruction": "Set C3 to 123",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!C3",
+                        "spreadsheet_path": "spreadsheet/task-3",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            prediction = json.dumps(
+                {
+                    "files": {
+                        "solution.py": (
+                            "import openpyxl\n"
+                            "wb = openpyxl.load_workbook(INPUT_PATH)\n"
+                            "ws = wb['Sheet1']\n"
+                            "ws['C3'] = 123\n"
+                            "wb.save(OUTPUT_PATH)\n"
+                        )
+                    },
+                    "commands": ["python solution.py"],
+                }
+            )
+            metric = SpreadsheetBenchEvaluator().evaluate(prediction, adapter.train_samples[0])
+            self.assertTrue(metric.passed)
+            self.assertEqual(metric.details["mode"], "workspace_bundle")
+
     def test_alfworld_loader_evaluator_and_native_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

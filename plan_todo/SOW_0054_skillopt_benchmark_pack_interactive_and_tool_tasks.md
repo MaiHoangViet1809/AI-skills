@@ -34,7 +34,8 @@ darwinSkill benchmark pack B
   - `openpyxl` duoc add lam optional-runtime dependency thuc te cho SpreadsheetBench evaluator path
   - `SpreadsheetBench` evaluator da ho tro execute prediction dang Python code block de sinh workbook output va cham theo answer range
   - `SpreadsheetBench` evaluator da ho tro them structured JSON artifact bundle path cho `solution.py` / `output.xlsx`
-  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` react/full orchestration path
+  - `SpreadsheetBench` evaluator da ho tro them workspace bundle `files + commands`, phu hop hon voi react-like orchestration
+  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` full LLM react loop / transcript parity
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

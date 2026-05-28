@@ -73,9 +73,10 @@ Parity notes:
 - ALFWorld, SpreadsheetBench, LiveMathematicianBench da co benchmark-native loader/evaluator/adapter path
 - SpreadsheetBench evaluator da co the chay prediction dang Python code block de sinh workbook output
 - SpreadsheetBench evaluator cung hieu prediction dang JSON artifact bundle chua `solution.py` hoac `output.xlsx`
+- SpreadsheetBench evaluator da ho tro them workspace bundle `files + commands`, gan hon voi react/tool orchestration
 - runtime/tool parity day du con thieu chu yeu o:
   - ALFWorld simulator runtime
-  - SpreadsheetBench react path va full upstream orchestration
+  - SpreadsheetBench full LLM react loop / transcript parity
 
 Run demos:
 
