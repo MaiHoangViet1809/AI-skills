@@ -391,6 +391,67 @@ wb.save(OUTPUT_PATH)
             self.assertTrue(metric.passed)
             self.assertEqual(metric.details["mode"], "react_transcript_bundle")
 
+    def test_spreadsheet_evaluator_accepts_upstream_conversation_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            task_dir = root / "spreadsheet" / "task-6"
+            task_dir.mkdir(parents=True)
+            input_path = task_dir / "initial.xlsx"
+            gold_path = task_dir / "golden.xlsx"
+            for path in (input_path, gold_path):
+                workbook = openpyxl.Workbook()
+                sheet = workbook.active
+                sheet.title = "Sheet1"
+                sheet["F6"] = 31
+                workbook.save(path)
+                workbook.close()
+            golden = openpyxl.load_workbook(gold_path)
+            golden["Sheet1"]["F6"] = 909
+            golden.save(gold_path)
+            golden.close()
+
+            adapter = SpreadsheetBenchAdapter.from_records(
+                [
+                    {
+                        "id": "task-6",
+                        "instruction": "Set F6 to 909",
+                        "instruction_type": "cell update",
+                        "answer_position": "Sheet1!F6",
+                        "spreadsheet_path": "spreadsheet/task-6",
+                        "data_root": str(root),
+                    }
+                ]
+            )
+            prediction = json.dumps(
+                {
+                    "conversation": [
+                        {"role": "assistant", "content": "I will write solution.py and run it."},
+                        {
+                            "type": "tool_call",
+                            "cmd": "[write_file] solution.py",
+                            "obs": "File written: /tmp/solution.py (99 chars)",
+                        },
+                        {
+                            "type": "tool_call",
+                            "cmd": "python solution.py",
+                            "obs": "Execution completed.",
+                        },
+                    ],
+                    "artifacts": {
+                        "solution.py": (
+                            "import openpyxl\n"
+                            "wb = openpyxl.load_workbook(INPUT_PATH)\n"
+                            "ws = wb['Sheet1']\n"
+                            "ws['F6'] = 909\n"
+                            "wb.save(OUTPUT_PATH)\n"
+                        )
+                    },
+                }
+            )
+            metric = SpreadsheetBenchEvaluator().evaluate(prediction, adapter.train_samples[0])
+            self.assertTrue(metric.passed)
+            self.assertEqual(metric.details["mode"], "react_conversation_bundle")
+
     def test_alfworld_loader_evaluator_and_native_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

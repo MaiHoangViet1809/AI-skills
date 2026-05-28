@@ -76,9 +76,10 @@ Parity notes:
 - SpreadsheetBench evaluator da ho tro them workspace bundle `files + commands`, gan hon voi react/tool orchestration
 - SpreadsheetBench evaluator da ho tro them structured `tool_calls` bundle (`write_file` + `bash`)
 - SpreadsheetBench evaluator da ho tro them `react transcript` bundle co assistant turns + tool_calls
+- SpreadsheetBench evaluator da ho tro them upstream-style `conversation` bundle khi `conversation.json` di kem `solution.py` artifact/file
 - runtime/tool parity day du con thieu chu yeu o:
   - ALFWorld simulator runtime
-  - SpreadsheetBench full LLM react loop / transcript parity
+  - SpreadsheetBench full LLM react loop beyond replayed `conversation.json` / `solution.py` artifacts
 
 Run demos:
 

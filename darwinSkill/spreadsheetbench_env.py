@@ -194,6 +194,17 @@ def _normalize_transcript_item(raw: Any) -> dict[str, Any] | None:
     return item
 
 
+def _normalize_bundle_files(files: dict[str, Any]) -> dict[str, str]:
+    collected: dict[str, str] = {}
+    for path, content in files.items():
+        normalized_path = str(path).strip()
+        if not normalized_path or normalized_path == "output.xlsx":
+            continue
+        if isinstance(content, (str, int, float)):
+            collected[normalized_path] = str(content)
+    return collected
+
+
 def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
     payload = _load_json_payload(prediction)
     if payload is None:
@@ -208,6 +219,10 @@ def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
     commands = payload.get("commands") if isinstance(payload.get("commands"), list) else []
     raw_tool_calls = payload.get("tool_calls") if isinstance(payload.get("tool_calls"), list) else []
     raw_transcript = payload.get("transcript") if isinstance(payload.get("transcript"), list) else []
+    transcript_source = "transcript"
+    if not raw_transcript and isinstance(payload.get("conversation"), list):
+        raw_transcript = payload.get("conversation")
+        transcript_source = "conversation"
     code = (
         payload.get("code")
         or payload.get("solution.py")
@@ -228,13 +243,11 @@ def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
         "code": str(code or ""),
         "output_path": str(output_path or ""),
         "commands": [str(command) for command in commands if str(command).strip()],
-        "files": {
-            str(path): str(content)
-            for path, content in files.items()
-            if isinstance(content, (str, int, float))
-        },
+        "files": _normalize_bundle_files(files),
+        "replay_files": _normalize_bundle_files({**artifacts, **files}),
         "tool_calls": [item for item in (_normalize_tool_call(raw) for raw in raw_tool_calls) if item is not None],
         "transcript": [item for item in (_normalize_transcript_item(raw) for raw in raw_transcript) if item is not None],
+        "transcript_source": transcript_source if raw_transcript else "",
         "payload": payload,
     }
 
@@ -377,6 +390,18 @@ def extract_tool_calls_from_transcript(transcript: list[dict[str, Any]]) -> list
             if cmd:
                 tool_calls.append({"name": "bash", "arguments": {"cmd": cmd}})
     return tool_calls
+
+
+def extract_commands_from_tool_calls(tool_calls: list[dict[str, Any]]) -> list[str]:
+    commands: list[str] = []
+    for tool_call in tool_calls:
+        if str(tool_call.get("name") or "").strip() != "bash":
+            continue
+        arguments = tool_call.get("arguments") if isinstance(tool_call.get("arguments"), dict) else {}
+        command = str(arguments.get("cmd") or "").strip()
+        if command:
+            commands.append(command)
+    return commands
 
 
 def _datetime_to_float(value: datetime.datetime) -> float:
@@ -555,22 +580,33 @@ class SpreadsheetBenchEvaluator(SkillEvaluator):
 
         cases = resolve_test_cases(sample.metadata)
         files = bundle.get("files") if isinstance(bundle.get("files"), dict) else {}
+        replay_files = bundle.get("replay_files") if isinstance(bundle.get("replay_files"), dict) else files
         commands = bundle.get("commands") if isinstance(bundle.get("commands"), list) else []
         tool_calls = bundle.get("tool_calls") if isinstance(bundle.get("tool_calls"), list) else []
         transcript = bundle.get("transcript") if isinstance(bundle.get("transcript"), list) else []
+        transcript_source = str(bundle.get("transcript_source") or "transcript")
         if cases and answer_position and transcript:
             transcript_tool_calls = extract_tool_calls_from_transcript(transcript)
-            if transcript_tool_calls:
+            transcript_commands = extract_commands_from_tool_calls(transcript_tool_calls)
+            if transcript_tool_calls or replay_files:
                 case_results: list[dict[str, Any]] = []
                 passed_cases = 0
                 with tempfile.TemporaryDirectory() as temp_dir:
                     for case_no, input_path, gold_path in cases:
                         output_path = str(Path(temp_dir) / f"{case_no}_transcript_pred.xlsx")
-                        exec_ok, exec_reason = run_tool_call_bundle(
-                            tool_calls=transcript_tool_calls,
-                            input_path=input_path,
-                            output_path=output_path,
-                        )
+                        if replay_files:
+                            exec_ok, exec_reason = run_workspace_bundle(
+                                files=replay_files,
+                                commands=transcript_commands,
+                                input_path=input_path,
+                                output_path=output_path,
+                            )
+                        else:
+                            exec_ok, exec_reason = run_tool_call_bundle(
+                                tool_calls=transcript_tool_calls,
+                                input_path=input_path,
+                                output_path=output_path,
+                            )
                         compare_ok = False
                         compare_reason = exec_reason
                         if exec_ok:
@@ -603,7 +639,11 @@ class SpreadsheetBenchEvaluator(SkillEvaluator):
                         "predicted_answer": predicted_answer,
                         "instruction_type": sample.metadata.get("instruction_type", ""),
                         "task_type": sample.metadata.get("task_type", ""),
-                        "mode": "react_transcript_bundle",
+                        "mode": (
+                            "react_conversation_bundle"
+                            if transcript_source == "conversation"
+                            else "react_transcript_bundle"
+                        ),
                     },
                 )
 

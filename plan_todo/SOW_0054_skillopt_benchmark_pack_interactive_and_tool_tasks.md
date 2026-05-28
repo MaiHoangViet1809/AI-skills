@@ -37,7 +37,8 @@ darwinSkill benchmark pack B
   - `SpreadsheetBench` evaluator da ho tro them workspace bundle `files + commands`, phu hop hon voi react-like orchestration
   - `SpreadsheetBench` evaluator da ho tro them structured `tool_calls` bundle (`write_file` + `bash`)
   - `SpreadsheetBench` evaluator da ho tro them `react transcript` bundle co assistant turns + tool calls
-  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` full LLM react loop / transcript parity
+  - `SpreadsheetBench` evaluator da ho tro them replay bundle theo shape rollout upstream: `conversation.json` + `solution.py` artifact/file
+  - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` full LLM react loop beyond replayed `conversation.json` / `solution.py`
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction
