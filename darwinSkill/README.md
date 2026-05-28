@@ -37,6 +37,8 @@ Native helpers:
 - `darwinSkill.inspection.inspect_run(...)`
 - `darwinSkill.inspection.summarize_run(...)`
 - `darwinSkill.inspection.load_step_record(...)`
+- `darwinSkill.backends.build_spreadsheetbench_router(...)`
+- `darwinSkill.backends.build_alfworld_router(...)`
 
 Benchmark-native surfaces:
 
@@ -81,6 +83,7 @@ Parity notes:
 - SpreadsheetBench evaluator da ho tro them upstream-style `conversation` bundle khi `conversation.json` di kem `solution.py` artifact/file
 - SpreadsheetBench da co them native react runner surface de backend co the sinh `conversation + solution.py` bundle bang Python API
 - ALFWorld da co them native episode runner surface de backend callback + env shim sinh runtime bundle co trajectory
+- `darwinSkill.backends` da co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de `BackendRouter` goi interactive runtime qua native Python callback
 - runtime/tool parity day du con thieu chu yeu o:
   - ALFWorld provider-bound live simulator wrappers beyond native env shim
   - SpreadsheetBench provider-bound live react loop wrappers beyond native backend callback surface

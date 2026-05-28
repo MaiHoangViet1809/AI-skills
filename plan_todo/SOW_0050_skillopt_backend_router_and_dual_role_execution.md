@@ -34,6 +34,10 @@ BackendRouter
   - trainer engine can use distinct backends for reflection/update and rollout/evaluation
   - backend routing lives behind explicit objects rather than process-global public assumptions
   - compatibility behavior is testable from native Python call sites
+- **Progress Notes**:
+  - `BackendRouter`, `RoutingConfig`, va `BackendRuntimeConfig` da ton tai cho role split + family mapping
+  - da co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de interactive runtimes di qua `BackendRouter`
+  - compatibility gap con lai chu yeu la provider-specific live wrappers, khong con o layer role split co ban
 - **Out-of-Scope**:
   - migrating every benchmark adapter
   - UI integration

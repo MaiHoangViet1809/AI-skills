@@ -60,6 +60,17 @@ Neu adapter co train/eval split rieng, `darwinSkill` se:
 - dung `train_samples` cho reflective training loop
 - dung `eval_samples` cho gate va final report
 
+Cho benchmark interactive, co the wrap target runtime callback vao `BackendRouter`:
+
+```python
+from darwinSkill.backends import build_spreadsheetbench_router
+
+router = build_spreadsheetbench_router(
+    target_backend=my_chat_backend,
+    optimizer_backend=my_optimizer_backend,
+)
+```
+
 ## 3. Artifact inspection
 
 ```python

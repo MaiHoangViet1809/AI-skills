@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Any, Callable, Protocol
 
+from darwinSkill.alfworld_env import ALFWorldAgentBackend, ALFWorldEpisodeEnvironment, run_alfworld_episode
 from darwinSkill.contracts import SkillBackend, SkillFeedback, SkillSample
+from darwinSkill.spreadsheetbench_env import SpreadsheetReactBackend, run_spreadsheet_react_session
 
 
 SUPPORTED_BACKEND_FAMILIES = {
@@ -24,6 +26,41 @@ class TargetBackend(Protocol):
 class OptimizerBackend(Protocol):
     def improve_skill(self, skill_text: str, feedback: list[SkillFeedback]) -> str:
         ...
+
+
+@dataclass(slots=True)
+class SpreadsheetReactTargetBackend(TargetBackend):
+    backend: SpreadsheetReactBackend
+    max_turns: int = 30
+    diagnostic_instruction: str = ""
+
+    def predict(self, skill_text: str, sample: SkillSample) -> str:
+        session = run_spreadsheet_react_session(
+            backend=self.backend,
+            sample=sample,
+            skill_content=skill_text,
+            max_turns=self.max_turns,
+            diagnostic_instruction=self.diagnostic_instruction,
+        )
+        return str(session["prediction"])
+
+
+@dataclass(slots=True)
+class ALFWorldEpisodeTargetBackend(TargetBackend):
+    backend: ALFWorldAgentBackend
+    environment_factory: Callable[[SkillSample], ALFWorldEpisodeEnvironment]
+    max_steps: int = 50
+    diagnostic_instruction: str = ""
+
+    def predict(self, skill_text: str, sample: SkillSample) -> str:
+        episode = run_alfworld_episode(
+            backend=self.backend,
+            environment=self.environment_factory(sample),
+            skill_content=skill_text,
+            max_steps=self.max_steps,
+            diagnostic_instruction=self.diagnostic_instruction,
+        )
+        return str(episode["prediction"])
 
 
 @dataclass(slots=True, frozen=True)
@@ -58,6 +95,46 @@ class BackendRouter(SkillBackend):
 
 def single_backend_router(backend: SkillBackend) -> BackendRouter:
     return BackendRouter(target_backend=backend, optimizer_backend=backend)
+
+
+def build_spreadsheetbench_router(
+    *,
+    target_backend: SpreadsheetReactBackend,
+    optimizer_backend: OptimizerBackend,
+    routing: RoutingConfig | None = None,
+    max_turns: int = 30,
+    diagnostic_instruction: str = "",
+) -> BackendRouter:
+    return BackendRouter(
+        target_backend=SpreadsheetReactTargetBackend(
+            backend=target_backend,
+            max_turns=max_turns,
+            diagnostic_instruction=diagnostic_instruction,
+        ),
+        optimizer_backend=optimizer_backend,
+        routing=routing,
+    )
+
+
+def build_alfworld_router(
+    *,
+    target_backend: ALFWorldAgentBackend,
+    optimizer_backend: OptimizerBackend,
+    environment_factory: Callable[[SkillSample], ALFWorldEpisodeEnvironment],
+    routing: RoutingConfig | None = None,
+    max_steps: int = 50,
+    diagnostic_instruction: str = "",
+) -> BackendRouter:
+    return BackendRouter(
+        target_backend=ALFWorldEpisodeTargetBackend(
+            backend=target_backend,
+            environment_factory=environment_factory,
+            max_steps=max_steps,
+            diagnostic_instruction=diagnostic_instruction,
+        ),
+        optimizer_backend=optimizer_backend,
+        routing=routing,
+    )
 
 
 def default_routing_for_family(family: str) -> RoutingConfig:

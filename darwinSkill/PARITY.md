@@ -13,6 +13,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
 - backend routing abstraction:
   - tach target role va optimizer role qua `BackendRouter`
   - co compatibility mapping cho cac family chinh trong reference snapshot
+  - co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de route interactive native runtime qua `BackendRouter`
 - benchmark pack A:
   - `SearchQA`
   - `DocVQA`
