@@ -13,6 +13,8 @@ It provides:
 - benchmark adapters and evaluators
 - backend routing for optimizer-role vs target-role execution
 - native Python entry points for training and evaluation
+- provider-log harvesting into a canonical raw schema
+- work-unit extraction into trainable skill-improvement examples
 
 It does not provide:
 
@@ -46,6 +48,18 @@ Short rule:
 - lowest-level control: `SkillTrainer`
 - linear staged orchestration: `SkillPipeline`
 - fastest usable API: `darwinSkill.native`
+
+Use `darwinSkill.provider_logs` when:
+
+- you need to harvest provider-native transcripts into a stable raw schema
+- you want Codex historical session logs as input evidence
+- you need a provider-agnostic artifact before any task judgment
+
+Use `darwinSkill.extraction` when:
+
+- you already have canonical raw evidence
+- you need task-bounded work units
+- you want trainable examples for later skill optimization
 
 ## Minimum Input Contract
 
@@ -142,6 +156,12 @@ from darwinSkill.inspection import inspect_run, summarize_run, load_step_record
 
 to inspect run artifacts programmatically.
 
+For skill-improvement data runs, the important outputs are:
+
+- canonical raw session artifacts written by `write_provider_session(...)`
+- `WorkUnit` records from `segment_session_into_work_units(...)`
+- `TrainableSkillExample` records from `build_trainable_examples(...)`
+
 ## Integration Boundary
 
 `darwinSkill` covers framework behavior, not full production integration.
@@ -162,6 +182,7 @@ Caller-owned or integration-layer-owned:
 - network/process bootstrap
 - production runtime environment setup
 - service/job orchestration around the framework
+- any LLM-backed interpretation policy layered on top of the extraction contracts
 
 For tool-heavy benchmarks such as `ALFWorld` and `SpreadsheetBench`, assume the framework gives you the execution surface, but your project may still need to wire runtime dependencies.
 
@@ -214,13 +235,34 @@ router = build_interactive_router_for_benchmark(
 
 Use this when the target runtime is interactive or tool-driven.
 
+### 4. Skill Improvement Data Extraction
+
+```python
+from pathlib import Path
+
+from darwinSkill.extraction import CallbackEvidenceInterpreter, build_trainable_examples
+from darwinSkill.provider_logs import load_codex_session
+
+session = load_codex_session(Path("/abs/path/to/codex-session.jsonl"))
+examples = build_trainable_examples(session, skill_name="task-execution-flow")
+
+llm_interpreter = CallbackEvidenceInterpreter(my_judge_callback)
+judged_examples = build_trainable_examples(
+    session,
+    skill_name="task-execution-flow",
+    interpreter=llm_interpreter,
+)
+```
+
+Use the default path first. Add an LLM-backed interpreter only when you need subtler judgments than the heuristic baseline can support.
+
 ## Recommended Operating Pattern
 
 1. Start with `darwinSkill.native.run_*` unless you need lower-level control.
 2. Use benchmark helpers when your task already matches an existing benchmark surface.
 3. Drop to `SkillTrainer` when you need custom evaluator or backend behavior.
 4. Use `SkillPipeline` only when a linear stage sequence is the right abstraction.
-5. Inspect artifacts after every meaningful training run before assuming the run is good.
+5. Inspect artifacts after every meaningful training or extraction run before assuming the output is good.
 
 ## Common Mistakes
 

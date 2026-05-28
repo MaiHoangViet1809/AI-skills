@@ -4,6 +4,11 @@
 
 Build a provider-agnostic data pipeline in `darwinSkill` that can turn real agent work logs into trainable skill-improvement examples.
 
+## Status
+
+- completed: `SOW_0058_codex_skill_harvest_flow.md`
+- completed: `SOW_0059_trainable_example_extraction_pipeline.md`
+
 This plan is not about direct online self-modification. It is about:
 
 - harvesting raw execution evidence from agent platforms

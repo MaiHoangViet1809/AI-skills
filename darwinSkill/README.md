@@ -14,6 +14,8 @@ from darwinSkill.contracts import SkillSample, TrainingConfig, EvaluationConfig,
 from darwinSkill.evaluators import ExactMatchEvaluator
 from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
 from darwinSkill.reference_adapters import SearchQAAdapter, DocVQAAdapter, OfficeQAAdapter
+from darwinSkill.provider_logs import load_codex_session, read_provider_session, write_provider_session
+from darwinSkill.extraction import build_trainable_examples, segment_session_into_work_units
 ```
 
 ## Main Docs
@@ -40,6 +42,33 @@ from darwinSkill.reference_adapters import SearchQAAdapter, DocVQAAdapter, Offic
 - `darwinSkill.inspection.inspect_run(...)`
 - `darwinSkill.inspection.summarize_run(...)`
 - `darwinSkill.inspection.load_step_record(...)`
+
+## Skill Improvement Data Pipeline
+
+`darwinSkill` also includes a provider-agnostic evidence pipeline for skill improvement:
+
+```text
+provider-native logs
+  -> canonical raw schema
+  -> work-unit extraction
+  -> trainable skill examples
+```
+
+Main modules:
+
+- `darwinSkill.provider_logs`
+- `darwinSkill.extraction`
+
+Main scripts:
+
+- `PYTHONPATH=. uv run python scripts/darwinSkill/harvest_provider_logs.py --provider codex --input /abs/path/to/session.jsonl --output /abs/path/to/canonical.json`
+- `PYTHONPATH=. uv run python scripts/darwinSkill/extract_skill_examples.py --input /abs/path/to/canonical.json --output /abs/path/to/examples.json --skill-name task-execution-flow`
+
+Default behavior:
+
+- harvesting is deterministic and evidence-preserving
+- extraction is deterministic around the evidence bundle
+- interpretation defaults to heuristics, but callers can inject an LLM-backed interpreter through `CallbackEvidenceInterpreter`
 
 ## Backend And Integration Helpers
 

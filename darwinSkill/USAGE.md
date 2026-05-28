@@ -147,3 +147,68 @@ Still left to project-side integration:
 
 - `ALFWorld` provider-specific live simulator wrappers
 - `SpreadsheetBench` provider-specific live wrappers
+
+## 6. Provider Log Harvesting
+
+Use this when you want to turn provider-native logs into a canonical raw artifact:
+
+```python
+from pathlib import Path
+
+from darwinSkill.provider_logs import load_codex_session, write_provider_session
+
+session = load_codex_session(Path("/abs/path/to/codex-session.jsonl"))
+write_provider_session(Path("/abs/path/to/canonical-session.json"), session)
+```
+
+Command form:
+
+```bash
+PYTHONPATH=. uv run python scripts/darwinSkill/harvest_provider_logs.py \
+  --provider codex \
+  --input /abs/path/to/codex-session.jsonl \
+  --output /abs/path/to/canonical-session.json
+```
+
+Current v1 behavior:
+
+- historical Codex session JSONL is the default source
+- provider-specific details are preserved in metadata
+- raw evidence stays separate from later judgments
+
+## 7. Trainable Example Extraction
+
+Use this when you already have canonical raw evidence and want task-bounded skill-improvement examples:
+
+```python
+from pathlib import Path
+
+from darwinSkill.extraction import CallbackEvidenceInterpreter, build_trainable_examples
+from darwinSkill.provider_logs import read_provider_session
+
+session = read_provider_session(Path("/abs/path/to/canonical-session.json"))
+examples = build_trainable_examples(session, skill_name="task-execution-flow")
+
+llm_interpreter = CallbackEvidenceInterpreter(my_judge_callback)
+judged_examples = build_trainable_examples(
+    session,
+    skill_name="task-execution-flow",
+    interpreter=llm_interpreter,
+)
+```
+
+Command form:
+
+```bash
+PYTHONPATH=. uv run python scripts/darwinSkill/extract_skill_examples.py \
+  --input /abs/path/to/canonical-session.json \
+  --output /abs/path/to/examples.json \
+  --skill-name task-execution-flow
+```
+
+Output characteristics:
+
+- work-unit segmentation includes boundary confidence, mixed-context flags, and continuation links
+- examples preserve raw evidence references separately from derived reasoning
+- low-confidence or mixed-context work units can abstain instead of forcing a label
+- callers can swap in an LLM-backed interpreter without changing the canonical evidence layer
