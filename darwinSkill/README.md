@@ -18,6 +18,7 @@ from darwinSkill.reference_adapters import SearchQAAdapter, DocVQAAdapter, Offic
 
 ## Main Docs
 
+- [AGENT_GUIDE.md](/Users/maihoangviet/Projects/AISkills/darwinSkill/AGENT_GUIDE.md)
 - [USAGE.md](/Users/maihoangviet/Projects/AISkills/darwinSkill/USAGE.md)
 - [PARITY.md](/Users/maihoangviet/Projects/AISkills/darwinSkill/PARITY.md)
 
