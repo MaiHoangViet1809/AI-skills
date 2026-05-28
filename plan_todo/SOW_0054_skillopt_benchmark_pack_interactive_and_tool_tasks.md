@@ -35,6 +35,7 @@ darwinSkill benchmark pack B
   - `SpreadsheetBench` evaluator da ho tro execute prediction dang Python code block de sinh workbook output va cham theo answer range
   - `SpreadsheetBench` evaluator da ho tro them structured JSON artifact bundle path cho `solution.py` / `output.xlsx`
   - `SpreadsheetBench` evaluator da ho tro them workspace bundle `files + commands`, phu hop hon voi react-like orchestration
+  - `SpreadsheetBench` evaluator da ho tro them structured `tool_calls` bundle (`write_file` + `bash`)
   - full simulator/react/runtime parity con lai chu yeu nam o `ALFWorld` simulator va `SpreadsheetBench` full LLM react loop / transcript parity
 - **Out-of-Scope**:
   - UI parity

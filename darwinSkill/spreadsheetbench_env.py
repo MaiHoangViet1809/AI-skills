@@ -158,6 +158,24 @@ def _load_json_payload(text: str) -> dict[str, Any] | None:
     return parsed if isinstance(parsed, dict) else None
 
 
+def _normalize_tool_call(raw: Any) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    function = raw.get("function") if isinstance(raw.get("function"), dict) else raw
+    name = str(function.get("name") or "").strip()
+    if not name:
+        return None
+    arguments = function.get("arguments", {})
+    if isinstance(arguments, str):
+        try:
+            arguments = json.loads(arguments)
+        except json.JSONDecodeError:
+            arguments = {"raw": arguments}
+    if not isinstance(arguments, dict):
+        arguments = {}
+    return {"name": name, "arguments": arguments}
+
+
 def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
     payload = _load_json_payload(prediction)
     if payload is None:
@@ -170,6 +188,7 @@ def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
     artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
     files = payload.get("files") if isinstance(payload.get("files"), dict) else {}
     commands = payload.get("commands") if isinstance(payload.get("commands"), list) else []
+    raw_tool_calls = payload.get("tool_calls") if isinstance(payload.get("tool_calls"), list) else []
     code = (
         payload.get("code")
         or payload.get("solution.py")
@@ -195,6 +214,7 @@ def resolve_prediction_bundle(prediction: str) -> dict[str, Any]:
             for path, content in files.items()
             if isinstance(content, (str, int, float))
         },
+        "tool_calls": [item for item in (_normalize_tool_call(raw) for raw in raw_tool_calls) if item is not None],
         "payload": payload,
     }
 
@@ -287,6 +307,38 @@ def run_workspace_bundle(
         if not os.path.exists(output_path):
             return False, last_output or "output file was not created"
         return True, last_output
+
+
+def run_tool_call_bundle(
+    *,
+    tool_calls: list[dict[str, Any]],
+    input_path: str,
+    output_path: str,
+    timeout: int = 120,
+) -> tuple[bool, str]:
+    files: dict[str, str] = {}
+    commands: list[str] = []
+    for tool_call in tool_calls:
+        name = str(tool_call.get("name") or "").strip()
+        arguments = tool_call.get("arguments") if isinstance(tool_call.get("arguments"), dict) else {}
+        if name == "write_file":
+            path = str(arguments.get("path") or "").strip()
+            content = str(arguments.get("content") or "")
+            if path:
+                files[path] = content
+        elif name == "bash":
+            command = str(arguments.get("cmd") or "").strip()
+            if command:
+                commands.append(command)
+    if not files and not commands:
+        return False, "no executable tool calls found"
+    return run_workspace_bundle(
+        files=files,
+        commands=commands,
+        input_path=input_path,
+        output_path=output_path,
+        timeout=timeout,
+    )
 
 
 def _datetime_to_float(value: datetime.datetime) -> float:
@@ -466,6 +518,54 @@ class SpreadsheetBenchEvaluator(SkillEvaluator):
         cases = resolve_test_cases(sample.metadata)
         files = bundle.get("files") if isinstance(bundle.get("files"), dict) else {}
         commands = bundle.get("commands") if isinstance(bundle.get("commands"), list) else []
+        tool_calls = bundle.get("tool_calls") if isinstance(bundle.get("tool_calls"), list) else []
+        if cases and answer_position and tool_calls:
+            case_results: list[dict[str, Any]] = []
+            passed_cases = 0
+            with tempfile.TemporaryDirectory() as temp_dir:
+                for case_no, input_path, gold_path in cases:
+                    output_path = str(Path(temp_dir) / f"{case_no}_tool_pred.xlsx")
+                    exec_ok, exec_reason = run_tool_call_bundle(
+                        tool_calls=tool_calls,
+                        input_path=input_path,
+                        output_path=output_path,
+                    )
+                    compare_ok = False
+                    compare_reason = exec_reason
+                    if exec_ok:
+                        compare_ok, compare_reason = compare_workbooks(gold_path, output_path, answer_position)
+                    if exec_ok and compare_ok:
+                        passed_cases += 1
+                    case_results.append(
+                        {
+                            "case_no": case_no,
+                            "input_path": input_path,
+                            "gold_path": gold_path,
+                            "output_path": output_path,
+                            "exec_ok": exec_ok,
+                            "ok": exec_ok and compare_ok,
+                            "reason": compare_reason,
+                        }
+                    )
+            soft = passed_cases / len(cases)
+            hard = int(passed_cases == len(cases))
+            return MetricResult(
+                score=soft,
+                passed=bool(hard),
+                details={
+                    "ok": bool(hard),
+                    "hard": hard,
+                    "soft": soft,
+                    "n_cases": len(cases),
+                    "n_pass": passed_cases,
+                    "case_results": case_results,
+                    "predicted_answer": predicted_answer,
+                    "instruction_type": sample.metadata.get("instruction_type", ""),
+                    "task_type": sample.metadata.get("task_type", ""),
+                    "mode": "tool_call_bundle",
+                },
+            )
+
         if cases and answer_position and files:
             case_results: list[dict[str, Any]] = []
             passed_cases = 0

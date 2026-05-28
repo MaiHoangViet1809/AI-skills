@@ -26,6 +26,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
   - `SpreadsheetBench` evaluator co the execute prediction dang Python code block de cham workbook output
   - `SpreadsheetBench` evaluator cung hieu structured JSON artifact bundle cho `solution.py` / `output.xlsx`
   - `SpreadsheetBench` evaluator co them workspace bundle path (`files + commands`) cho react-like orchestration
+  - `SpreadsheetBench` evaluator co them structured `tool_calls` bundle (`write_file` + `bash`)
 - native benchmark helpers:
   - `run_reference_benchmark(...)`
   - `run_reference_adapter(...)`
