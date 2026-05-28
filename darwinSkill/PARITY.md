@@ -23,6 +23,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
   - `SpreadsheetBench`
   - `LiveMathematicianBench`
   - da co native loader/evaluator/adapter path va acceptance tests cho benchmark surface
+  - `ALFWorld` co them native episode-runner helper de backend callback + env shim sinh runtime prediction bundle
   - `SpreadsheetBench` evaluator co the execute prediction dang Python code block de cham workbook output
   - `SpreadsheetBench` evaluator cung hieu structured JSON artifact bundle cho `solution.py` / `output.xlsx`
   - `SpreadsheetBench` evaluator co them workspace bundle path (`files + commands`) cho react-like orchestration
@@ -47,7 +48,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
 
 - provider/runtime compatibility hien o muc routing + injection contracts, chua gom client/runtime wrappers day du cho tung provider
 - prompt/runtime behavior parity voi upstream rollout modules van con mot khoang cach o cac env tool-heavy:
-  - `ALFWorld` simulator runtime
+  - `ALFWorld` provider-specific live simulator wrappers beyond native env shim
   - `SpreadsheetBench` provider-specific live react wrappers beyond native backend callback surface
 - artifact semantics hien da du cho native Python runs, nhung chua mirror tat ca trajectory formats upstream
 

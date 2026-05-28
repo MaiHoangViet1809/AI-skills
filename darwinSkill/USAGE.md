@@ -82,7 +82,8 @@ Helper inspection nay cho phep:
 - runtime state + resume + lineage: co
 - benchmark pack A: co
 - benchmark pack B surface: co
+- `ALFWorld` native episode/runtime helper: co
 - `SpreadsheetBench` native react/session helper: co
 - full upstream tool-heavy runtime parity:
-  - `ALFWorld` simulator: chua
+  - `ALFWorld` provider-specific live simulator wrappers: chua
   - `SpreadsheetBench` provider-specific live wrappers: chua

@@ -3,10 +3,39 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from darwinSkill.contracts import MetricResult, SkillEvaluator, SkillSample
 from darwinSkill.reference_assets import is_split_dir
+
+ALFWORLD_TASKS = [
+    "pick_and_place",
+    "pick_two_obj_and_place",
+    "look_at_obj_in_light",
+    "pick_heat_then_place_in_recep",
+    "pick_cool_then_place_in_recep",
+    "pick_clean_then_place_in_recep",
+]
+ALFWORLD_SYSTEM_PROMPT = "You are an expert agent operating in the ALFRED Embodied Environment."
+
+
+class ALFWorldAgentBackend(Protocol):
+    def respond(
+        self,
+        *,
+        system: str,
+        user: str,
+        messages: list[dict[str, Any]] | None = None,
+    ) -> str | dict[str, Any]:
+        ...
+
+
+class ALFWorldEpisodeEnvironment(Protocol):
+    def reset(self) -> dict[str, Any]:
+        ...
+
+    def step(self, action: str) -> dict[str, Any]:
+        ...
 
 
 def _load_items(path: Path) -> list[dict[str, Any]]:
@@ -33,10 +62,17 @@ def _infer_eval_dataset(gamefile: str) -> str:
     return "train"
 
 
+def _infer_task_type_from_gamefile(gamefile: str) -> str:
+    for task in ALFWORLD_TASKS:
+        if task in gamefile:
+            return task
+    return "alfworld"
+
+
 def normalize_alfworld_record(record: dict[str, Any]) -> dict[str, Any]:
     gamefile = str(record.get("gamefile") or "").strip()
     task_description = str(record.get("task_description") or record.get("task_desc") or record.get("goal") or "").strip()
-    task_type = str(record.get("task_type") or record.get("instruction_type") or "").strip() or "alfworld"
+    task_type = str(record.get("task_type") or record.get("instruction_type") or "").strip() or _infer_task_type_from_gamefile(gamefile)
     result_id = str(record.get("id") or record.get("result_id") or gamefile or "env").strip()
     eval_dataset = str(record.get("eval_dataset") or _infer_eval_dataset(gamefile))
     return {
@@ -92,7 +128,157 @@ def extract_answer(text: str) -> str:
     return lines[-1] if lines else text.strip()
 
 
+def _load_prediction_payload(prediction: str) -> dict[str, Any] | None:
+    stripped = prediction.strip()
+    if not stripped or stripped[0] not in "{[":
+        return None
+    try:
+        payload = json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def extract_action(text: str) -> str | None:
+    matches = re.findall(r"<action>(.*?)</action>", text, re.DOTALL | re.IGNORECASE)
+    if matches:
+        return matches[-1].strip()
+    return None
+
+
+def extract_think(text: str) -> str | None:
+    matches = re.findall(r"<think>(.*?)</think>", text, re.DOTALL | re.IGNORECASE)
+    if matches:
+        return matches[-1].strip()
+    return None
+
+
+def build_alfworld_user_prompt(
+    *,
+    observation: str,
+    skill_content: str = "",
+    diagnostic_instruction: str = "",
+) -> str:
+    parts: list[str] = []
+    if skill_content.strip():
+        parts.append(
+            "## Skill Knowledge\n"
+            "Use these learned strategies when choosing the next action.\n\n"
+            f"{skill_content.strip()}"
+        )
+    parts.append(observation.strip())
+    if diagnostic_instruction.strip():
+        parts.append(f"## Training Readout\n{diagnostic_instruction.strip()}")
+    return "\n\n".join(part for part in parts if part.strip())
+
+
+def _normalize_agent_response(raw: str | dict[str, Any]) -> str:
+    if isinstance(raw, str):
+        return raw.strip()
+    if isinstance(raw, dict):
+        content = raw.get("content")
+        if isinstance(content, str):
+            return content.strip()
+    return ""
+
+
+def _default_fallback_response(reason: str) -> str:
+    return f"<think>{reason}</think><action>look</action>"
+
+
+def run_alfworld_episode(
+    *,
+    backend: ALFWorldAgentBackend,
+    environment: ALFWorldEpisodeEnvironment,
+    skill_content: str = "",
+    max_steps: int = 50,
+    diagnostic_instruction: str = "",
+) -> dict[str, Any]:
+    initial = environment.reset()
+    observation = str(initial.get("observation") or initial.get("text") or "").strip()
+    gamefile = str(initial.get("gamefile") or "").strip()
+    task_type = str(initial.get("task_type") or _infer_task_type_from_gamefile(gamefile))
+    task_description = str(initial.get("task_description") or initial.get("goal") or observation).strip()
+    messages: list[dict[str, Any]] = []
+    trajectory: list[dict[str, Any]] = []
+    won = False
+    last_observation = observation
+
+    for step_idx in range(max_steps):
+        user_prompt = build_alfworld_user_prompt(
+            observation=last_observation,
+            skill_content=skill_content,
+            diagnostic_instruction=diagnostic_instruction,
+        )
+        messages.append({"role": "user", "content": user_prompt})
+        raw_response = backend.respond(
+            system=ALFWORLD_SYSTEM_PROMPT,
+            user=user_prompt,
+            messages=list(messages),
+        )
+        response = _normalize_agent_response(raw_response)
+        if not response:
+            response = _default_fallback_response("empty model response")
+        action = extract_action(response)
+        if not action:
+            response = _default_fallback_response("missing action tag")
+            action = "look"
+        reasoning = extract_think(response) or ""
+        messages.append({"role": "assistant", "content": response})
+
+        step_result = environment.step(action)
+        last_observation = str(step_result.get("observation") or step_result.get("text") or "").strip()
+        reward = float(step_result.get("reward") or 0.0)
+        done = bool(step_result.get("done", False))
+        won = bool(step_result.get("won", False))
+        trajectory.append(
+            {
+                "step": step_idx,
+                "action": action,
+                "reasoning": reasoning,
+                "model_response": response,
+                "env_feedback": last_observation,
+                "reward": reward,
+                "done": done,
+            }
+        )
+        if done:
+            break
+
+    completed = bool(trajectory and trajectory[-1].get("done"))
+    fail_reason = ""
+    if not won:
+        fail_reason = "Episode ended without completing the task" if completed else f"Timeout after {max_steps} steps"
+    payload = {
+        "predicted_answer": "<answer>success</answer>" if won else "<answer>fail</answer>",
+        "hard": 1 if won else 0,
+        "soft": 1.0 if won else 0.0,
+        "n_turns": len(trajectory),
+        "fail_reason": fail_reason,
+        "agent_ok": True,
+        "task_type": task_type,
+        "gamefile": gamefile,
+        "task_description": task_description,
+        "instruction_type": task_type,
+        "conversation": trajectory,
+    }
+    return {
+        "prediction": json.dumps(payload, ensure_ascii=False),
+        "payload": payload,
+        "conversation": trajectory,
+        "messages": messages,
+    }
+
+
 def parse_success(prediction: str) -> bool:
+    payload = _load_prediction_payload(prediction)
+    if payload is not None:
+        hard = payload.get("hard")
+        if isinstance(hard, (int, float)):
+            return bool(hard)
+        predicted_answer = str(payload.get("predicted_answer") or "")
+        if predicted_answer:
+            prediction = predicted_answer
     answer = extract_answer(prediction).strip().lower()
     if answer in {"success", "completed", "complete", "done", "won", "pass", "1", "true", "yes"}:
         return True
@@ -105,19 +291,38 @@ def parse_success(prediction: str) -> bool:
 
 class ALFWorldEvaluator(SkillEvaluator):
     def evaluate(self, prediction: str, sample: SkillSample) -> MetricResult:
+        payload = _load_prediction_payload(prediction)
         won = parse_success(prediction)
         task_type = str(sample.metadata.get("task_type") or "alfworld")
         gamefile = str(sample.metadata.get("gamefile") or "")
         task_description = str(sample.metadata.get("task_description") or sample.prompt)
+        details: dict[str, Any] = {
+            "hard": 1 if won else 0,
+            "soft": 1.0 if won else 0.0,
+            "task_type": task_type,
+            "gamefile": gamefile,
+            "task_description": task_description,
+            "predicted_answer": extract_answer(prediction),
+            "mode": "text",
+        }
+        if payload is not None:
+            details.update(
+                {
+                    "hard": int(payload.get("hard", 1 if won else 0)),
+                    "soft": float(payload.get("soft", 1.0 if won else 0.0)),
+                    "task_type": str(payload.get("task_type") or task_type),
+                    "gamefile": str(payload.get("gamefile") or gamefile),
+                    "task_description": str(payload.get("task_description") or task_description),
+                    "predicted_answer": str(payload.get("predicted_answer") or details["predicted_answer"]),
+                    "n_turns": int(payload.get("n_turns", 0)),
+                    "fail_reason": str(payload.get("fail_reason") or ""),
+                    "agent_ok": bool(payload.get("agent_ok", True)),
+                    "conversation": payload.get("conversation") if isinstance(payload.get("conversation"), list) else [],
+                    "mode": "runtime_bundle",
+                }
+            )
         return MetricResult(
             score=1.0 if won else 0.0,
             passed=won,
-            details={
-                "hard": 1 if won else 0,
-                "soft": 1.0 if won else 0.0,
-                "task_type": task_type,
-                "gamefile": gamefile,
-                "task_description": task_description,
-                "predicted_answer": extract_answer(prediction),
-            },
+            details=details,
         )

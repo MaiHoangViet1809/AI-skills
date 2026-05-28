@@ -7,7 +7,7 @@ from pathlib import Path
 
 import openpyxl
 
-from darwinSkill.alfworld_env import ALFWorldEvaluator, load_alfworld_dataset
+from darwinSkill.alfworld_env import ALFWorldEvaluator, load_alfworld_dataset, run_alfworld_episode
 from darwinSkill.contracts import SkillFeedback, TrainingConfig
 from darwinSkill.livemathematician_env import LiveMathematicianEvaluator, load_livemathematician_dataset
 from darwinSkill.native import run_reference_adapter
@@ -79,6 +79,61 @@ class SpreadsheetReactPredictionBackend:
             skill_content=skill_text,
         )
         return str(session["prediction"])
+
+
+class ScriptedALFWorldBackend:
+    def __init__(self) -> None:
+        self.turn = 0
+
+    def respond(self, *, system: str, user: str, messages=None):  # type: ignore[no-untyped-def]
+        _ = (system, user, messages)
+        self.turn += 1
+        if self.turn == 1:
+            return "<think>Need to inspect the room first.</think><action>look</action>"
+        return "<think>I can finish the task now.</think><action>put apple in sink</action>"
+
+
+class FakeALFWorldEnvironment:
+    def __init__(self) -> None:
+        self.turn = 0
+
+    def reset(self):  # type: ignore[no-untyped-def]
+        self.turn = 0
+        return {
+            "observation": "You are in a kitchen. Your task is to: put apple in sink.",
+            "gamefile": "/tmp/valid_seen/pick_and_place/task.json",
+            "task_type": "pick_and_place",
+            "task_description": "put apple in sink",
+        }
+
+    def step(self, action):  # type: ignore[no-untyped-def]
+        self.turn += 1
+        if self.turn == 1:
+            return {
+                "observation": f"Observed after {action}: you see an apple and a sink.",
+                "reward": 0.0,
+                "done": False,
+                "won": False,
+            }
+        return {
+            "observation": f"Observed after {action}: task completed.",
+            "reward": 1.0,
+            "done": True,
+            "won": True,
+        }
+
+
+class ALFWorldRuntimePredictionBackend:
+    def improve_skill(self, skill_text: str, feedback: list[SkillFeedback]) -> str:
+        return skill_text
+
+    def predict(self, skill_text, sample):  # type: ignore[no-untyped-def]
+        episode = run_alfworld_episode(
+            backend=ScriptedALFWorldBackend(),
+            environment=FakeALFWorldEnvironment(),
+            skill_content=skill_text,
+        )
+        return str(episode["prediction"])
 
 
 class ReferencePackBEnvTest(unittest.TestCase):
@@ -622,6 +677,54 @@ wb.save(OUTPUT_PATH)
                     edit_budget=1,
                     output_root=root / "outputs",
                     run_name="alfworld-pack-b",
+                ),
+            )
+            self.assertEqual(artifacts.mean_score, 1.0)
+
+    def test_alfworld_runtime_episode_bundle(self) -> None:
+        sample = ALFWorldAdapter.from_records(
+            [
+                {
+                    "id": "episode-1",
+                    "gamefile": "/tmp/valid_seen/pick_and_place/task.json",
+                    "task_description": "put apple in sink",
+                    "task_type": "pick_and_place",
+                }
+            ]
+        ).train_samples[0]
+        episode = run_alfworld_episode(
+            backend=ScriptedALFWorldBackend(),
+            environment=FakeALFWorldEnvironment(),
+            skill_content="Inspect before acting.",
+        )
+        metric = ALFWorldEvaluator().evaluate(str(episode["prediction"]), sample)
+        self.assertTrue(metric.passed)
+        self.assertEqual(metric.details["mode"], "runtime_bundle")
+        self.assertEqual(metric.details["n_turns"], 2)
+        self.assertEqual(len(metric.details["conversation"]), 2)
+
+    def test_alfworld_runtime_prediction_backend_runs_with_native_adapter_flow(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            adapter = ALFWorldAdapter.from_records(
+                [
+                    {
+                        "id": "runtime-alfworld",
+                        "gamefile": "/tmp/valid_seen/pick_and_place/task.json",
+                        "task_description": "put apple in sink",
+                        "task_type": "pick_and_place",
+                    }
+                ]
+            )
+            artifacts = run_reference_adapter(
+                backend=ALFWorldRuntimePredictionBackend(),
+                adapter=adapter,
+                config=TrainingConfig(
+                    num_epochs=1,
+                    batch_size=1,
+                    edit_budget=1,
+                    output_root=root / "outputs",
+                    run_name="alfworld-runtime-pack-b",
                 ),
             )
             self.assertEqual(artifacts.mean_score, 1.0)
