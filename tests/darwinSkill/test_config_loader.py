@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from darwinSkill.config_loader import build_samples, build_training_config, load_config
+from darwinSkill.config_loader import (
+    build_reference_adapter_from_config,
+    build_samples,
+    build_training_config,
+    load_config,
+)
 
 
 class ConfigLoaderTest(unittest.TestCase):
@@ -41,7 +47,42 @@ class ConfigLoaderTest(unittest.TestCase):
         self.assertEqual(len(samples), 2)
         self.assertEqual(samples[1].metadata["kind"], "math")
 
+    def test_build_reference_adapter_from_config_supports_inline_records(self) -> None:
+        adapter = build_reference_adapter_from_config(
+            {
+                "benchmark": {"name": "office_qa"},
+                "records": [{"question": "Capital of France?", "answer": "Paris"}],
+            }
+        )
+        self.assertEqual(len(adapter.get_train_samples()), 1)
+        self.assertEqual(adapter.benchmark.name, "officeqa")
+
+    def test_build_reference_adapter_from_config_supports_relative_dataset_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            train_dir = root / "train"
+            val_dir = root / "val"
+            test_dir = root / "test"
+            train_dir.mkdir()
+            val_dir.mkdir()
+            test_dir.mkdir()
+            train_payload = [{"question": "Capital of France?", "answers": ["Paris"]}]
+            val_payload = [{"question": "Largest planet?", "answers": ["Jupiter"]}]
+            test_payload = [{"question": "Smallest planet?", "answers": ["Mercury"]}]
+            (train_dir / "items.json").write_text(json.dumps(train_payload), encoding="utf-8")
+            (val_dir / "items.json").write_text(json.dumps(val_payload), encoding="utf-8")
+            (test_dir / "items.json").write_text(json.dumps(test_payload), encoding="utf-8")
+
+            adapter = build_reference_adapter_from_config(
+                {
+                    "env": {"name": "search_qa", "data_path": "."},
+                },
+                base_dir=root,
+            )
+            self.assertEqual(adapter.benchmark.name, "searchqa")
+            self.assertEqual(adapter.get_train_samples()[0].expected_answer, "Paris")
+            self.assertEqual(adapter.get_eval_samples()[0].expected_answer, "Jupiter")
+
 
 if __name__ == "__main__":
     unittest.main()
-

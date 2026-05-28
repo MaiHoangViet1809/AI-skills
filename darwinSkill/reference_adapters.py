@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from pathlib import Path
+from typing import Any, TypeVar
 
 from darwinSkill.adapters import InMemoryDatasetAdapter
 from darwinSkill.benchmarks import (
@@ -108,3 +109,43 @@ class LiveMathematicianBenchAdapter(ReferenceBenchmarkAdapter):
     def from_path(cls, path: str) -> "LiveMathematicianBenchAdapter":
         base = super().from_path("livemathematicianbench", path)
         return cls(train_samples=base.train_samples, eval_samples=base.eval_samples, benchmark=base.benchmark)
+
+
+ReferenceAdapterType = TypeVar("ReferenceAdapterType", bound=ReferenceBenchmarkAdapter)
+
+REFERENCE_ADAPTERS: dict[str, type[ReferenceBenchmarkAdapter]] = {
+    "searchqa": SearchQAAdapter,
+    "docvqa": DocVQAAdapter,
+    "officeqa": OfficeQAAdapter,
+    "alfworld": ALFWorldAdapter,
+    "spreadsheetbench": SpreadsheetBenchAdapter,
+    "livemathematicianbench": LiveMathematicianBenchAdapter,
+}
+
+
+def list_reference_adapters() -> list[str]:
+    return sorted(REFERENCE_ADAPTERS)
+
+
+def resolve_reference_adapter_class(name: str) -> type[ReferenceBenchmarkAdapter]:
+    spec = get_benchmark_spec(name)
+    try:
+        return REFERENCE_ADAPTERS[spec.name]
+    except KeyError as exc:
+        raise KeyError(f"No registered adapter for benchmark: {name}") from exc
+
+
+def build_reference_adapter(
+    name: str,
+    *,
+    records: list[dict[str, Any]] | None = None,
+    path: str | Path | None = None,
+) -> ReferenceBenchmarkAdapter:
+    adapter_class = resolve_reference_adapter_class(name)
+    if records is not None and path is not None:
+        raise ValueError("Provide either records or path when building a reference adapter, not both.")
+    if records is not None:
+        return adapter_class.from_records(records)
+    if path is not None:
+        return adapter_class.from_path(str(path))
+    raise ValueError("Reference adapter build requires either records or path.")

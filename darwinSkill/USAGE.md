@@ -71,6 +71,19 @@ router = build_spreadsheetbench_router(
 )
 ```
 
+Hoac build adapter thang tu config:
+
+```python
+from darwinSkill.config_loader import build_reference_adapter_from_config
+
+adapter = build_reference_adapter_from_config(
+    {
+        "benchmark": {"name": "office_qa"},
+        "records": [{"question": "Capital of France?", "answer": "Paris"}],
+    }
+)
+```
+
 ## 3. Artifact inspection
 
 ```python

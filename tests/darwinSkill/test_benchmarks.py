@@ -9,10 +9,11 @@ from darwinSkill.benchmarks import (
     build_benchmark_samples,
     get_benchmark_spec,
     load_initial_skill,
+    resolve_benchmark_name,
 )
 from darwinSkill.demo_text import DarwinMemoryBackend
 from darwinSkill.native import run_reference_adapter, run_reference_benchmark
-from darwinSkill.reference_adapters import OfficeQAAdapter
+from darwinSkill.reference_adapters import OfficeQAAdapter, build_reference_adapter, list_reference_adapters
 from darwinSkill.contracts import TrainingConfig
 
 
@@ -21,6 +22,15 @@ class BenchmarksTest(unittest.TestCase):
         spec = get_benchmark_spec("searchqa")
         self.assertTrue(spec.initial_skill_path.exists())
         self.assertTrue(load_initial_skill("searchqa"))
+
+    def test_benchmark_aliases_and_adapter_registry_are_resolved(self) -> None:
+        self.assertEqual(resolve_benchmark_name("spreadsheet_bench"), "spreadsheetbench")
+        self.assertIn("officeqa", list_reference_adapters())
+        adapter = build_reference_adapter(
+            "office_qa",
+            records=[{"question": "Capital of France?", "answer": "Paris"}],
+        )
+        self.assertEqual(adapter.benchmark.name, "officeqa")
 
     def test_build_benchmark_samples_uses_family_field_mapping(self) -> None:
         samples = build_benchmark_samples(

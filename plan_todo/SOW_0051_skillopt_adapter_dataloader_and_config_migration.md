@@ -35,6 +35,7 @@ config loader / builder
 - **Progress Notes**:
   - benchmark dataset loaders/evaluators da duoc map vao `darwinSkill.benchmarks`
   - `run_with_adapter(...)` va `run_reference_adapter(...)` da dung `eval_samples` rieng cho gate/final report thay vi collapse ve train split
+  - da co them adapter registry/builder cho benchmark aliases (`records` hoac `path`) va config-driven resolution qua `build_reference_adapter_from_config(...)`
 - **Out-of-Scope**:
   - provider execution internals
   - actual migration of each benchmark implementation

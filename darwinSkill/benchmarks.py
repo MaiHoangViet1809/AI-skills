@@ -130,9 +130,23 @@ BENCHMARKS: dict[str, BenchmarkSpec] = {
     ),
 }
 
+BENCHMARK_ALIASES: dict[str, str] = {
+    "search_qa": "searchqa",
+    "doc_vqa": "docvqa",
+    "office_qa": "officeqa",
+    "spreadsheet_bench": "spreadsheetbench",
+    "live_mathematician": "livemathematicianbench",
+    "live_mathematician_bench": "livemathematicianbench",
+}
+
+
+def resolve_benchmark_name(name: str) -> str:
+    key = name.strip().lower()
+    return BENCHMARK_ALIASES.get(key, key)
+
 
 def get_benchmark_spec(name: str) -> BenchmarkSpec:
-    key = name.strip().lower()
+    key = resolve_benchmark_name(name)
     if key not in BENCHMARKS:
         raise KeyError(f"Unknown benchmark: {name}")
     return BENCHMARKS[key]

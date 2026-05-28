@@ -40,6 +40,7 @@ Muc tieu cua `darwinSkill` la functional parity o native Python API layer, khong
 - split-aware adapter path:
   - `train_samples` dung cho reflective step loop
   - `eval_samples` dung cho gate/final report khi adapter co split rieng
+  - adapter registry + benchmark alias resolution da co the di tu config/records/path vao reference adapter objects
 - inspection helpers:
   - `inspect_run(...)`
   - `summarize_run(...)`
