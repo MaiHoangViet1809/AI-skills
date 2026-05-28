@@ -1,8 +1,10 @@
-# darwinSkill usage guide
+# darwinSkill Usage Guide
 
-`darwinSkill` la native Python framework. Surface chinh la import va goi ham trong code, khong phai CLI.
+`darwinSkill` is a native Python framework. The main surface is importing and calling it from code, not using a CLI.
 
-## 1. Trainer path
+## 1. Trainer Path
+
+Use this when you want direct control over the `SkillTrainer` object.
 
 ```python
 from darwinSkill.contracts import TrainingConfig
@@ -19,11 +21,9 @@ trainer = SkillTrainer(
 artifacts = trainer.fit(demo_samples())
 ```
 
-Dung khi ban muon giu control tren `SkillTrainer` object.
+## 2. Benchmark-Backed Run Path
 
-## 2. Benchmark-backed run path
-
-### Tu records in-memory
+### From In-Memory Records
 
 ```python
 from darwinSkill.contracts import TrainingConfig
@@ -40,7 +40,7 @@ artifacts = run_reference_benchmark(
 )
 ```
 
-### Tu dataset path
+### From A Dataset Path
 
 ```python
 from darwinSkill.contracts import TrainingConfig
@@ -55,12 +55,14 @@ artifacts = run_reference_benchmark_from_path(
 )
 ```
 
-Neu adapter co train/eval split rieng, `darwinSkill` se:
+If an adapter exposes separate train/eval splits, `darwinSkill` will:
 
-- dung `train_samples` cho reflective training loop
-- dung `eval_samples` cho gate va final report
+- use `train_samples` for the reflective training loop
+- use `eval_samples` for gate decisions and the final report
 
-Cho benchmark interactive, co the wrap target runtime callback vao `BackendRouter`:
+## 3. Interactive Benchmark Routing
+
+For interactive benchmarks, wrap the target runtime callback through `BackendRouter`.
 
 ```python
 from darwinSkill.backends import build_spreadsheetbench_router
@@ -71,7 +73,7 @@ router = build_spreadsheetbench_router(
 )
 ```
 
-Hoac build adapter thang tu config:
+You can also build an adapter directly from config:
 
 ```python
 from darwinSkill.config_loader import build_reference_adapter_from_config
@@ -84,7 +86,7 @@ adapter = build_reference_adapter_from_config(
 )
 ```
 
-Neu target backend tra ve OpenAI/Claude/Qwen/Codex-style payload, co the normalize bang compat wrapper:
+If the target backend returns OpenAI/Claude/Qwen/Codex-style payloads, normalize them with a compat wrapper:
 
 ```python
 from darwinSkill.backends import build_openai_compat_backend
@@ -92,7 +94,7 @@ from darwinSkill.backends import build_openai_compat_backend
 target_backend = build_openai_compat_backend(my_provider_callback)
 ```
 
-Hoac di thang tu benchmark + provider family:
+Or bootstrap directly from benchmark name plus provider family:
 
 ```python
 from darwinSkill.backends import build_interactive_router_for_benchmark
@@ -105,7 +107,7 @@ router = build_interactive_router_for_benchmark(
 )
 ```
 
-Voi `ALFWorld`, neu local runtime co du dependency/reference snapshot, co the de router tu dung live environment factory mac dinh:
+For `ALFWorld`, if local dependencies and the reference snapshot are available, the router can use the default live environment factory automatically:
 
 ```python
 router = build_interactive_router_for_benchmark(
@@ -116,7 +118,7 @@ router = build_interactive_router_for_benchmark(
 )
 ```
 
-## 3. Artifact inspection
+## 4. Artifact Inspection
 
 ```python
 from darwinSkill.inspection import inspect_run, load_step_record, summarize_run
@@ -126,20 +128,22 @@ summary = summarize_run(artifacts.output_dir)
 step1 = load_step_record(artifacts.output_dir, 1)
 ```
 
-Helper inspection nay cho phep:
+These helpers let you:
 
-- doc `summary.json`, `run_state.json`, `history.json`, `evaluations.json`
-- liet ke `steps/step_XXXX/`
-- liet ke `slow_update/epoch_XX/` va `meta_skill/epoch_XX/`
+- read `summary.json`, `run_state.json`, `history.json`, and `evaluations.json`
+- inspect `steps/step_XXXX/`
+- inspect `slow_update/epoch_XX/` and `meta_skill/epoch_XX/`
 
-## 4. Current acceptance snapshot
+## 5. Current Acceptance Snapshot
 
-- reflective engine core: co
-- runtime state + resume + lineage: co
-- benchmark pack A: co
-- benchmark pack B surface: co
-- `ALFWorld` native episode/runtime helper: co
-- `SpreadsheetBench` native react/session helper: co
-- full upstream tool-heavy runtime parity:
-  - `ALFWorld` provider-specific live simulator wrappers: chua
-  - `SpreadsheetBench` provider-specific live wrappers: chua
+- reflective engine core: available
+- runtime state + resume + lineage: available
+- benchmark pack A: available
+- benchmark pack B surface: available
+- `ALFWorld` native episode/runtime helper: available
+- `SpreadsheetBench` native react/session helper: available
+
+Still left to project-side integration:
+
+- `ALFWorld` provider-specific live simulator wrappers
+- `SpreadsheetBench` provider-specific live wrappers
