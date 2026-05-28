@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Dựng native Python run/eval surface cho `darwinSkill` để cung cấp train/eval orchestration tương đương original SkillOpt mà không kéo framework quay lại CLI-first.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/scripts/`
@@ -29,6 +29,11 @@ native Python eval helper
   - users can launch training and eval-only runs from native Python without hand-wiring low-level internals
   - parity run/eval flows are reachable without introducing CLI wrappers
   - eval-only path produces inspectable artifacts rather than just in-memory reports
+- **Progress Notes**:
+  - da co `run_training(...)`, `run_evaluation(...)`, `run_with_adapter(...)`, `run_reference_benchmark(...)`, `run_reference_benchmark_from_path(...)`, va `run_reference_adapter(...)`
+  - config resolution, adapter/backend wiring, va benchmark-aware evaluator resolution da di qua native Python helpers
+  - eval/train flows da persist artifact layout inspectable thay vi chi tra in-memory report
+  - README/USAGE/PARITY va smoke tests da cover native Python train/eval helper surfaces
 - **Out-of-Scope**:
   - benchmark migration completeness by itself
   - CLI wrappers

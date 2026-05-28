@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Xây adapter, dataloader, batch spec, và config migration layer cho `darwinSkill` để benchmark/runtime có thể chạy trên framework mới qua native Python API mà không quay lại CLI-first architecture.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/`, `~/Projects/AISkills/references/SkillOpt/skillopt/datasets/`, `~/Projects/AISkills/references/SkillOpt/skillopt/config.py`
@@ -35,7 +35,8 @@ config loader / builder
 - **Progress Notes**:
   - benchmark dataset loaders/evaluators da duoc map vao `darwinSkill.benchmarks`
   - `run_with_adapter(...)` va `run_reference_adapter(...)` da dung `eval_samples` rieng cho gate/final report thay vi collapse ve train split
-  - da co them adapter registry/builder cho benchmark aliases (`records` hoac `path`) va config-driven resolution qua `build_reference_adapter_from_config(...)`
+  - da co adapter registry/builder cho benchmark aliases (`records` hoac `path`) va config-driven resolution qua `build_reference_adapter_from_config(...)`
+  - typed benchmark spec, alias resolution, va adapter/config contracts da du cho benchmark-backed train/eval paths ma khong can quay lai CLI-first architecture
 - **Out-of-Scope**:
   - provider execution internals
   - actual migration of each benchmark implementation

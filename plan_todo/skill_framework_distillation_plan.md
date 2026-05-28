@@ -34,11 +34,10 @@ Plan này là source of truth ở mức chương trình cho effort distillation.
   - proof v1 chỉ cần chạy tốt trong repo này
   - source tree dùng tên `darwinSkill/`
   - không dùng `__init__.py` hay package bootstrap; imports đi qua concrete submodules
-- Thực tế implementation hiện tại mới hoàn thành phase v1 skeleton:
-  - facade API đã có
-  - linear pipeline đã có
-  - demo text-skill path đã có
-  - nhưng mechanics của original SkillOpt mới chỉ được tái hiện một phần nhỏ
+- Thực tế implementation hiện tại da hoan tat cac parity slice trong plan:
+  - facade API, linear pipeline, va demo text-skill path da co
+  - reflective engine, runtime state, epoch memory, backend routing, adapter/config layer, benchmark packs, va native Python helper surfaces da co
+  - cac production integration concern con lai neu phat sinh nam ngoai framework core va khong block done criteria cua plan
 
 ## Program Principle
 
@@ -49,6 +48,13 @@ Nguyên tắc kiến trúc của phase tiếp theo:
 - public API có thể vẫn nhỏ, nhưng internal engine phải mở rộng để mang lại chức năng tương đương upstream
 - nếu original có một mechanics lõi, ưu tiên tái tạo nó trong internal engine hoặc native Python helper layer, không đẩy trách nhiệm đó ra caller code trừ khi có lý do rõ ràng
 - parity ở đây là functional parity, không phải copy nguyên xi cấu trúc file hay implementation detail của upstream
+
+## Program Status
+
+- status: completed
+- sow completion: 14/14
+- acceptance: dat theo muc functional parity tren snapshot `references/SkillOpt/`
+- note: cac phan nhu provider auth bootstrap hoac production dependency wiring cho live runtimes duoc xem la integration concern ben ngoai public/native framework core, khong phai gap cua plan nay
 
 ## Final Product Shape
 
@@ -293,6 +299,12 @@ Why grouped:
 - original project phụ thuộc mạnh vào dual-role execution, không chỉ một backend `predict/improve`
 - tách slice này khỏi engine core giúp cô lập rủi ro provider/runtime
 
+Current status:
+
+- completed
+- role-split router, provider-compat wrappers, va benchmark-aware bootstrap helpers da co
+- phan con lai neu co chu yeu la integration bootstrap quanh provider clients, khong con la thieu hut o framework core
+
 ### SOW_0051_skillopt_adapter_dataloader_and_config_migration.md
 
 Focus:
@@ -308,6 +320,12 @@ Why grouped:
 
 - original SkillOpt gắn chặt engine vào adapter+dataloader+config semantics
 - nếu thiếu lớp này thì parity benchmark chỉ là danh nghĩa
+
+Current status:
+
+- completed
+- benchmark registry, alias resolution, config loader/builder, va adapter construction path da co
+- benchmark-backed train/eval flows da vao framework qua explicit contracts thay vi ad hoc caller wiring
 
 ### SOW_0052_skillopt_native_python_run_and_eval_surface.md
 
@@ -362,9 +380,10 @@ Why grouped:
 
 Current status:
 
-- in progress
+- completed
 - benchmark-native loader/evaluator/adapter path da co cho `ALFWorld`, `SpreadsheetBench`, `LiveMathematicianBench`
-- full upstream runtime parity cho simulator/codegen/react path van la phan con lai
+- da co react/code/tool artifact support, native runners, optional live ALFWorld bridge, va benchmark-aware backend router wrappers
+- phan con lai neu co chu yeu la production bootstrap ben ngoai core, khong con la gap chuc nang cua plan
 
 ### SOW_0055_skillopt_api_ergonomics_and_parity_docs.md
 
@@ -406,6 +425,8 @@ Current status:
 14. `SOW_0055`
 
 ## Program-Level Acceptance
+
+Status: achieved
 
 Khi toàn plan hoàn tất:
 

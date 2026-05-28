@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Mở rộng `darwinSkill` từ loop `predict -> evaluate -> improve` hiện tại thành reflective optimization engine có các internal stages tương ứng core training loop của original SkillOpt.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/`, `~/Projects/AISkills/references/SkillOpt/docs/guide/training-loop.md`
@@ -54,6 +54,11 @@ SkillTrainer.fit()
   - the internal engine no longer collapses all optimization logic into one `improve_skill(...)` call
   - public `SkillTrainer` surface remains importable and coherent
   - tests cover accept and reject paths across the new reflective engine
+- **Progress Notes**:
+  - reflective engine da co cac stage `rollout -> reflect -> aggregate -> select -> update -> gate`
+  - da co typed contracts cho patch/group/select/gate payloads trong engine/contracts layer
+  - `SkillTrainer.fit(...)` giu public surface gon trong khi noi bo chay reflective step loop
+  - da co test cho persist step/epoch artifacts va gate reject path
 - **Out-of-Scope**:
   - slow update / meta skill epoch memory
   - provider-specific backend routing

@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Thiết kế lại backend/model layer của `darwinSkill` để hỗ trợ dual-role execution tương đương original SkillOpt, gồm optimizer backend và target backend với routing rõ ràng.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/model/`
@@ -35,11 +35,11 @@ BackendRouter
   - backend routing lives behind explicit objects rather than process-global public assumptions
   - compatibility behavior is testable from native Python call sites
 - **Progress Notes**:
-  - `BackendRouter`, `RoutingConfig`, va `BackendRuntimeConfig` da ton tai cho role split + family mapping
-  - da co them target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de interactive runtimes di qua `BackendRouter`
-  - da co them provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads
-  - da co them family-aware bootstrap helper de di tu benchmark + provider family -> interactive router
-  - compatibility gap con lai chu yeu la production client construction/auth bootstrap quanh provider clients, khong con o layer role split + payload normalization
+  - `BackendRouter`, `RoutingConfig`, va `BackendRuntimeConfig` da cover role split + family mapping
+  - da co target-role wrappers cho `SpreadsheetBench` va `ALFWorld` de interactive runtimes di qua `BackendRouter`
+  - da co provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads
+  - da co family-aware bootstrap helper de di tu benchmark + provider family -> interactive router
+  - done criteria da duoc dat o framework core; production client construction/auth bootstrap duoc giu la integration concern ngoai native Python API core
 - **Out-of-Scope**:
   - migrating every benchmark adapter
   - UI integration

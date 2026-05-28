@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Xây runtime-state, artifact lineage, và resume model theo step/epoch để `darwinSkill` có persistence depth tương đương original SkillOpt thay vì chỉ final-run persistence.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/trainer.py`
@@ -46,6 +46,11 @@ run start
   - best/current skill lineage is recoverable from persisted state
   - trainer can resume from a saved runtime state or fail loudly with a clear contract violation
   - artifact persistence matches the richer engine added by the parity phase
+- **Progress Notes**:
+  - da co `run_state.json`, `best_skill.md`, `skills/skill_vXXXX.md`, va `steps/step_XXXX/`
+  - storage/contracts layer da persist current skill, best skill, epoch/step counters, lineage pointers, va final summaries
+  - trainer da ho tro resume tu saved runtime state qua `resume_from`
+  - inspection helpers va tests da cover state readback, best-skill persistence, va resume flow
 - **Out-of-Scope**:
   - slow update / meta skill logic itself
   - benchmark-specific rollout data formats beyond what core persistence needs

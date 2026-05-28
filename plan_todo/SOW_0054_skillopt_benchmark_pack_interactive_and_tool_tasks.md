@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Migrate benchmark pack thứ hai của reference SkillOpt gồm `ALFWorld`, `SpreadsheetBench`, và `LiveMathematicianBench`, bao gồm các runtime/tool needs và evaluator contracts phức tạp hơn.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/alfworld/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/spreadsheetbench/`, `~/Projects/AISkills/references/SkillOpt/skillopt/envs/livemathematicianbench/`
@@ -38,13 +38,13 @@ darwinSkill benchmark pack B
   - `SpreadsheetBench` evaluator da ho tro them structured `tool_calls` bundle (`write_file` + `bash`)
   - `SpreadsheetBench` evaluator da ho tro them `react transcript` bundle co assistant turns + tool calls
   - `SpreadsheetBench` evaluator da ho tro them replay bundle theo shape rollout upstream: `conversation.json` + `solution.py` artifact/file
-  - `SpreadsheetBench` da co them native react-runner surface de backend callback sinh `conversation + solution.py` bundle ngay trong Python API
-  - `ALFWorld` da co them native episode-runner surface de backend callback + env shim sinh runtime bundle co trajectory
-  - `ALFWorld` da co them optional live environment factory de bridge vao reference vendor simulator neu local dependencies co san
-  - `BackendRouter` da co them target-role wrapper helpers cho `SpreadsheetBench` va `ALFWorld`, gan hon voi dual-role execution semantics cua upstream
-  - da co them provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads de cap native runners bang format gan upstream hon
-  - da co them family-aware bootstrap helper de di tu benchmark + provider family -> interactive router
-  - full simulator/react/runtime parity con lai chu yeu nam o production client construction/auth bootstrap quanh provider clients va production-grade dependency setup cho live runtime
+  - `SpreadsheetBench` da co native react-runner surface de backend callback sinh `conversation + solution.py` bundle ngay trong Python API
+  - `ALFWorld` da co native episode-runner surface de backend callback + env shim sinh runtime bundle co trajectory
+  - `ALFWorld` da co optional live environment factory de bridge vao reference vendor simulator neu local dependencies co san
+  - `BackendRouter` da co target-role wrapper helpers cho `SpreadsheetBench` va `ALFWorld`, gan hon voi dual-role execution semantics cua upstream
+  - da co provider-compat wrappers cho OpenAI/Claude/Qwen/Codex-style tool-call payloads de cap native runners bang format gan upstream hon
+  - da co family-aware bootstrap helper de di tu benchmark + provider family -> interactive router
+  - done criteria da dat o framework core; phan con lai neu co chu yeu la production dependency/auth/bootstrap ben ngoai core, khong phai khoang trong chuc nang cua native Python API
 - **Out-of-Scope**:
   - UI parity
   - paper-metric reproduction

@@ -1,4 +1,4 @@
-- **Status**: in_progress
+- **Status**: completed
 - **Approval**: approved
 - **Task**: Tái tạo các mechanics cuối epoch của SkillOpt gồm `slow update`, longitudinal comparison, và `meta skill` memory trong `darwinSkill`.
 - **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/references/SkillOpt/skillopt/optimizer/`, `~/Projects/AISkills/references/SkillOpt/skillopt/engine/trainer.py`
@@ -38,6 +38,11 @@ epoch N
   - slow update and meta skill artifacts are persisted and inspectable
   - trainer can carry strategy memory from prior epochs into later reflective steps
   - tests prove non-trivial epoch-to-epoch behavior rather than single-epoch only
+- **Progress Notes**:
+  - da co comparison-pair categorization cho `improved`, `regressed`, `persistent_fail`, va `stable_success`
+  - da co `slow_update` guidance generation/injection va `meta_skill` memory generation theo epoch
+  - artifacts duoc persist duoi `slow_update/epoch_XX/` va `meta_skill/epoch_XX/`
+  - tests va inspection helpers da cover epoch artifacts va memory reuse path
 - **Out-of-Scope**:
   - provider-specific prompting quality
   - full benchmark migration
