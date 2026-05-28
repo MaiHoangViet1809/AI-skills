@@ -1,0 +1,4 @@
+interface:
+  display_name: "TaskExecutionFlow"
+  short_description: "Execute scoped work with repair loops, gap-finding, and disciplined closeout"
+  default_prompt: "Use TaskExecutionFlow to execute an already-scoped task through mini-task loops, verification, double-check gap finding, and final closeout."

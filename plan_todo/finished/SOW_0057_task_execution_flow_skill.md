@@ -1,0 +1,113 @@
+- **Status**: done
+- **Approval**: approved
+- **Task**: Tạo skill nội bộ mô tả execution flow chuẩn của repo này cho một nhiệm vụ đã được chốt scope, tách biệt với task routing và progress reporting.
+- **Location**: `~/Projects/AISkills/skills/task-execution-flow/`, `~/Projects/AISkills/plan_todo/`
+- **Why**: Workflow hiện tại đã có skill để phân loại nhiệm vụ qua SOW và skill để báo cáo tiến độ, nhưng vẫn thiếu skill mô tả cách thực thi một nhiệm vụ từ lúc scope đã rõ đến lúc verify, closeout, và commit. Đây là phần “cách xử lý vấn đề” đang được dùng ngầm nhiều hơn là được ghi thành skill.
+- **As-Is Diagram (ASCII)**:
+```text
+request
+  -> task-router-flow
+  -> approved SOW
+  -> execution style lives mostly in agent prompt + habits
+  -> progress-reporting-flow
+```
+- **To-Be Diagram (ASCII)**:
+```text
+request
+  -> task-router-flow
+  -> approved SOW
+  -> task-execution-flow
+     -> read rules + scope
+     -> gather context
+     -> sharpen success criteria
+     -> widen adjacent coverage
+     -> break into mini-tasks
+     -> mini-task loop
+        -> pick next smallest meaningful mini-task
+        -> implement smallest meaningful slice
+        -> micro-check during implementation
+        -> verify slice
+           -> prove the slice works as intended
+        -> assess slice result
+           -> pass
+              -> next mini-task
+           -> fail
+              -> diagnose earliest broken stage
+              -> re-enter at cheapest correct stage:
+                 -> context gap -> gather context
+                 -> coverage gap -> widen adjacent coverage
+                 -> implementation gap -> implement slice
+                 -> validation gap -> verify slice
+           -> unclear
+              -> ask user or narrow scope explicitly
+     -> task-level verify
+        -> confirm whole task works against agreed success criteria
+     -> double-check / gap-finding pass
+        -> challenge implementation and execution quality
+        -> look for:
+           -> shallow implementation
+           -> incomplete coverage
+           -> wrong or weak approach
+           -> adjacent surfaces left inconsistent
+           -> output that technically passes but does not really solve the problem
+        -> if gap found:
+           -> convert gap into repair mini-task
+           -> re-enter at cheapest correct stage
+        -> if clean:
+           -> continue
+     -> final quality check
+        -> rerun relevant checks
+        -> review scope fit
+        -> review changed files / worktree
+        -> confirm no open repair loop remains
+     -> escalate only when all 3 signals are present:
+        -> same failure mode repeats
+        -> no meaningful progress is being made
+        -> missing information or authority needed to continue
+     -> closeout + commit
+  -> progress-reporting-flow
+```
+- **Deliverables**:
+  - create `skills/task-execution-flow/SKILL.md`
+  - add `skills/task-execution-flow/agents/openai.yaml`
+  - encode the repo's execution pattern, including:
+    - start from approved SOW or clearly allowed docs-only scope
+    - read local rules before editing
+    - inspect codebase/problem first, avoid assumption-led edits
+    - sharpen task success criteria before broad implementation
+    - identify adjacent or analogous scope that should be handled in the same pass
+    - break work into mini-tasks or smallest meaningful slices before broad execution
+    - use micro-checks during implementation where useful
+    - verify at slice level, then at task level
+    - run a second double-check pass aimed at finding gaps in the implementation or execution quality, not at criticizing the verify step itself
+    - when a gap is found, re-enter at the cheapest correct stage instead of restarting blindly
+    - escalate only when all 3 signals are present:
+      - same failure mode repeats
+      - no meaningful progress is being made
+      - missing information or authority needed to continue
+    - close out with scoped commit unless user deferred commits
+    - keep reporting separate by pointing progress style to `progress-reporting-flow`
+  - define how this skill composes with existing repo skills:
+    - `task-router-flow` before execution when branch/scope is unclear
+    - `code-context-search-policy` when choosing how to inspect code
+    - `sow-delegate-flow` only when the task is delegated
+    - `progress-reporting-flow` for status updates
+- **Done Criteria**:
+  - repo has a dedicated execution-flow skill under `skills/`
+  - skill body is specific enough to reproduce the repo's normal execution discipline with low drift, including mini-task loop, repair loop, and double-check gap-finding pass
+  - the new skill is clearly distinguished from routing, delegation, and progress-reporting skills
+- **Progress Notes**:
+  - da tao `skills/task-execution-flow/SKILL.md`
+  - da them `skills/task-execution-flow/agents/openai.yaml`
+  - skill body da encode mini-task loop, micro-checks, slice-level verify, task-level verify, double-check gap-finding pass, cheapest correct re-entry, va 3-signal escalation rule
+- **Out-of-Scope**:
+  - syncing the skill into `~/.codex/skills`
+  - changing execution semantics of existing skills unless a direct cross-reference is needed
+  - adding scripts or automation unless a deterministic helper becomes clearly necessary
+- **Proposed-By**: Codex GPT-5
+- **plan**: `~/Projects/AISkills/plan_todo/finished/SOW_0057_task_execution_flow_skill.md`
+- **Cautions / Risks**:
+  - nếu viết quá generic, skill sẽ chỉ lặp lại system prompt và không thêm giá trị
+  - nếu viết quá procedural, skill sẽ chồng chéo với `sow-delegate-flow`
+  - cần giữ ranh giới rõ giữa execution discipline và progress/reporting discipline
+  - cần mô tả `double-check` là gap-finding against implementation/execution, không mô tả lệch thành verify-review
