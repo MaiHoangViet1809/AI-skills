@@ -210,6 +210,45 @@ class ProviderLogsTest(unittest.TestCase):
             self.assertEqual(restored.turns[0].messages[0].content, "Hello")
             self.assertEqual(restored.provider_metadata["artifact_refs"][0]["path"], str(transcript))
 
+    def test_load_codex_session_recovers_tool_name_from_call_id_on_function_call_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            transcript = Path(temp_dir) / "tool-output.jsonl"
+            _write_jsonl(
+                transcript,
+                [
+                    {
+                        "timestamp": "2026-05-29T10:00:00Z",
+                        "type": "turn_context",
+                        "payload": {"turn_id": "turn-1"},
+                    },
+                    {
+                        "timestamp": "2026-05-29T10:00:01Z",
+                        "type": "response_item",
+                        "payload": {
+                            "type": "function_call",
+                            "turn_id": "turn-1",
+                            "call_id": "call-1",
+                            "name": "functions.exec_command",
+                            "arguments": "{\"cmd\":\"pwd\"}",
+                        },
+                    },
+                    {
+                        "timestamp": "2026-05-29T10:00:02Z",
+                        "type": "response_item",
+                        "payload": {
+                            "type": "function_call_output",
+                            "turn_id": "turn-1",
+                            "call_id": "call-1",
+                            "output": "ok",
+                        },
+                    },
+                ],
+            )
+
+            session = load_codex_session(transcript)
+
+            self.assertEqual(session.turns[0].tool_results[0].tool_name, "functions.exec_command")
+
 
 if __name__ == "__main__":
     unittest.main()

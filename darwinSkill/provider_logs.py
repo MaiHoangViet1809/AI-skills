@@ -310,6 +310,7 @@ def load_codex_session(path: Path | str) -> ProviderSession:
     transcript_path = Path(path)
     turns: dict[str, ProviderTurn] = {}
     ordered_turn_ids: list[str] = []
+    call_id_to_tool_name: dict[str, str] = {}
     session_id = ""
     session_meta: dict[str, Any] = {}
     session_cwd = ""
@@ -377,13 +378,16 @@ def load_codex_session(path: Path | str) -> ProviderSession:
                 continue
 
             if item_type == "response_item" and payload_type in {"function_call", "custom_tool_call"}:
+                call_id = str(payload.get("call_id") or event_id)
+                tool_name = str(payload.get("name") or payload_type)
+                call_id_to_tool_name[call_id] = tool_name
                 turn.tool_calls.append(
                     ProviderToolCall(
                         event_id=event_id,
-                        call_id=str(payload.get("call_id") or event_id),
+                        call_id=call_id,
                         turn_id=turn_id,
                         timestamp=timestamp,
-                        tool_name=str(payload.get("name") or payload_type),
+                        tool_name=tool_name,
                         source_type=f"response_item.{payload_type}",
                         arguments=_parse_jsonish(payload.get("arguments")),
                         metadata={key: value for key, value in payload.items() if key not in {"type", "call_id", "name", "arguments"}},
@@ -392,13 +396,14 @@ def load_codex_session(path: Path | str) -> ProviderSession:
                 continue
 
             if item_type == "response_item" and payload_type in {"function_call_output", "custom_tool_call_output"}:
+                call_id = str(payload.get("call_id") or event_id)
                 turn.tool_results.append(
                     ProviderToolResult(
                         event_id=event_id,
-                        call_id=str(payload.get("call_id") or event_id),
+                        call_id=call_id,
                         turn_id=turn_id,
                         timestamp=timestamp,
-                        tool_name=str(payload.get("tool_name") or payload_type),
+                        tool_name=str(payload.get("tool_name") or call_id_to_tool_name.get(call_id) or payload_type),
                         source_type=f"response_item.{payload_type}",
                         output=str(payload.get("output") or ""),
                         metadata={key: value for key, value in payload.items() if key not in {"type", "call_id", "tool_name", "output"}},
@@ -425,10 +430,12 @@ def load_codex_session(path: Path | str) -> ProviderSession:
 
             if item_type == "event_msg" and payload_type.endswith("_call"):
                 tool_name = payload_type.removesuffix("_call")
+                call_id = str(payload.get("call_id") or event_id)
+                call_id_to_tool_name[call_id] = tool_name
                 turn.tool_calls.append(
                     ProviderToolCall(
                         event_id=event_id,
-                        call_id=str(payload.get("call_id") or event_id),
+                        call_id=call_id,
                         turn_id=turn_id,
                         timestamp=timestamp,
                         tool_name=tool_name,
@@ -442,7 +449,11 @@ def load_codex_session(path: Path | str) -> ProviderSession:
                 tool_name = (
                     "exec_command"
                     if payload_type == "exec_command_end"
-                    else str(payload.get("tool_name") or payload_type.removesuffix("_end"))
+                    else str(
+                        payload.get("tool_name")
+                        or call_id_to_tool_name.get(str(payload.get("call_id") or ""))
+                        or payload_type.removesuffix("_end")
+                    )
                 )
                 output = str(payload.get("aggregated_output") or payload.get("formatted_output") or payload.get("stdout") or "")
                 success: bool | None = None

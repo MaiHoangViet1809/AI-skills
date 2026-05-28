@@ -333,14 +333,34 @@ def segment_session_into_work_units(session: ProviderSession) -> list[WorkUnit]:
                     files_touched.append(change.path)
         for task_event in task_events:
             raw_evidence_refs.append(task_event.event_id)
-        continuation_of = ""
-        if previous_work_unit is not None and _is_continuation_prompt(prompt) and not scope_anchor:
-            continuation_of = previous_work_unit.work_unit_id
+        is_continuation = previous_work_unit is not None and _is_continuation_prompt(prompt) and not scope_anchor
+        if is_continuation:
             scope_anchor = previous_work_unit.scope_anchor
-        task_family = scope_anchor or _truncate(
-            prompt or (assistant_messages[0] if assistant_messages else f"turn-{index}"),
-            120,
-        )
+        task_family = scope_anchor or _truncate(prompt or (assistant_messages[0] if assistant_messages else f"turn-{index}"), 120)
+        if is_continuation and previous_work_unit is not None:
+            previous_work_unit.turn_ids.append(turn.turn_id)
+            previous_work_unit.end_timestamp = turn.timestamp or previous_work_unit.end_timestamp
+            previous_work_unit.boundary_confidence = max(previous_work_unit.boundary_confidence, boundary_confidence)
+            previous_work_unit.mixed_context = previous_work_unit.mixed_context or mixed_context
+            for ref in raw_evidence_refs:
+                if ref not in previous_work_unit.raw_evidence_refs:
+                    previous_work_unit.raw_evidence_refs.append(ref)
+            for path in files_touched:
+                if path not in previous_work_unit.files_touched:
+                    previous_work_unit.files_touched.append(path)
+            for artifact in (asdict(item) for item in turn.artifact_refs):
+                if artifact not in previous_work_unit.artifact_refs:
+                    previous_work_unit.artifact_refs.append(artifact)
+            followup_prompts = list(previous_work_unit.metadata.get("followup_prompts") or [])
+            if prompt:
+                followup_prompts.append(prompt)
+            previous_work_unit.metadata["followup_prompts"] = followup_prompts
+            turn_ids = list(previous_work_unit.metadata.get("merged_turn_ids") or [])
+            turn_ids.append(turn.turn_id)
+            previous_work_unit.metadata["merged_turn_ids"] = turn_ids
+            previous_work_unit.metadata["turn_metadata"] = dict(previous_work_unit.metadata.get("turn_metadata") or {})
+            continue
+
         work_unit = WorkUnit(
             work_unit_id=f"{session.session_id}:wu:{index:04d}",
             provider=session.provider,
@@ -353,11 +373,11 @@ def segment_session_into_work_units(session: ProviderSession) -> list[WorkUnit]:
             scope_anchor=scope_anchor,
             boundary_confidence=boundary_confidence,
             mixed_context=mixed_context,
-            continuation_of_work_unit_id=continuation_of,
+            continuation_of_work_unit_id="",
             raw_evidence_refs=raw_evidence_refs,
             files_touched=files_touched,
             artifact_refs=[asdict(item) for item in turn.artifact_refs],
-            metadata={"cwd": turn.cwd, "turn_metadata": dict(turn.metadata)},
+            metadata={"cwd": turn.cwd, "turn_metadata": dict(turn.metadata), "followup_prompts": [], "merged_turn_ids": [turn.turn_id]},
         )
         work_units.append(work_unit)
         previous_work_unit = work_unit
@@ -448,10 +468,13 @@ def build_trainable_examples(
                 derived_reasoning_summary=outcome.derived_reasoning_summary,
                 metadata={
                     "needs_review": outcome.needs_review,
+                    "turn_ids": list(work_unit.turn_ids),
                     "files_touched": list(work_unit.files_touched),
                     "boundary_confidence": work_unit.boundary_confidence,
                     "mixed_context": work_unit.mixed_context,
                     "continuation_of_work_unit_id": work_unit.continuation_of_work_unit_id,
+                    "followup_prompts": list(work_unit.metadata.get("followup_prompts") or []),
+                    "merged_turn_ids": list(work_unit.metadata.get("merged_turn_ids") or work_unit.turn_ids),
                     "artifact_refs": list(work_unit.artifact_refs),
                     **dict(outcome.metadata),
                 },

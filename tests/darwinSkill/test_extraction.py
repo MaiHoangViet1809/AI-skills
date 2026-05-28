@@ -60,11 +60,12 @@ class ExtractionTest(unittest.TestCase):
 
         work_units = segment_session_into_work_units(_session_with_turns(turn1, turn2))
 
-        self.assertEqual(len(work_units), 2)
+        self.assertEqual(len(work_units), 1)
         self.assertEqual(work_units[0].scope_anchor, "SOW_0058")
-        self.assertEqual(work_units[1].scope_anchor, "SOW_0058")
-        self.assertEqual(work_units[1].continuation_of_work_unit_id, work_units[0].work_unit_id)
-        self.assertEqual(work_units[1].task_family, "SOW_0058")
+        self.assertEqual(work_units[0].turn_ids, ["turn-1", "turn-2"])
+        self.assertEqual(work_units[0].task_family, "SOW_0058")
+        self.assertEqual(work_units[0].metadata["followup_prompts"], ["tiếp tục"])
+        self.assertEqual(work_units[0].metadata["merged_turn_ids"], ["turn-1", "turn-2"])
 
     def test_build_trainable_examples_abstains_on_mixed_context(self) -> None:
         turn = ProviderTurn(
@@ -140,6 +141,8 @@ class ExtractionTest(unittest.TestCase):
         self.assertEqual(example.gap_type, "resolved")
         self.assertIn("p1", example.raw_evidence_refs)
         self.assertEqual(example.metadata["files_touched"], ["darwinSkill/provider_logs.py"])
+        self.assertEqual(example.metadata["turn_ids"], ["turn-1"])
+        self.assertEqual(example.metadata["merged_turn_ids"], ["turn-1"])
         self.assertIn("patch success=True", example.repair_actions)
 
     def test_build_trainable_examples_marks_shallow_or_incomplete_solution(self) -> None:
