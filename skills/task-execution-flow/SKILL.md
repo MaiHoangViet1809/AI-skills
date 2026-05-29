@@ -157,5 +157,6 @@ Commit with a scoped message unless the user explicitly deferred commits.
 
 - Use `task-router-flow` when branch or scope is unclear.
 - Use `code-context-search-policy` when deciding how to inspect the codebase.
-- Use `progress-reporting-flow` for status updates.
+- If `progress-reporting-flow` is present for this task, invoke it only once in the final task summary at the last closeout step.
+- Do not invoke `progress-reporting-flow` repeatedly during normal execution unless the user explicitly asks for additional structured progress reports.
 - Use `sow-delegate-flow` only when the task is being delegated to Claude.
