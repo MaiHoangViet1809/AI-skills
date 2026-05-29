@@ -72,6 +72,10 @@ read rules + scope
    -> review changed files / worktree
    -> confirm no open repair loop remains
 
+-> final summary
+   -> if `progress-reporting-flow` is present for this task, invoke it once here
+   -> do not invoke it repeatedly during normal execution unless the user explicitly asks for additional structured progress reports
+
 -> commit
 
 -> escalate only when all 3 signals are present
@@ -157,6 +161,4 @@ Commit with a scoped message unless the user explicitly deferred commits.
 
 - Use `task-router-flow` when branch or scope is unclear.
 - Use `code-context-search-policy` when deciding how to inspect the codebase.
-- If `progress-reporting-flow` is present for this task, invoke it only once in the final task summary at the last closeout step.
-- Do not invoke `progress-reporting-flow` repeatedly during normal execution unless the user explicitly asks for additional structured progress reports.
 - Use `sow-delegate-flow` only when the task is being delegated to Claude.
