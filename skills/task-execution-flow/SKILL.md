@@ -77,6 +77,10 @@ read rules + scope
    -> do not invoke it repeatedly during normal execution unless the user explicitly asks for additional structured progress reports
 
 -> commit
+   -> verify the worktree only contains changes covered by the approved scope
+   -> stage only the relevant files with `git add`
+   -> commit with a descriptive summary message using `git commit -m "<summary>"`
+   -> if the user explicitly deferred commits, skip the commit and note that in the final response
 
 -> escalate only when all 3 signals are present
    -> same failure mode repeats
@@ -155,7 +159,12 @@ Only close out when all of these are true:
 - final quality check passed
 - the worktree still matches the approved scope
 
-Commit with a scoped message unless the user explicitly deferred commits.
+Commit discipline:
+
+- verify the worktree only contains changes covered by the approved scope
+- stage only the relevant files with `git add`
+- commit with a descriptive summary message using `git commit -m "<summary>"`
+- if the user explicitly deferred commits, skip the commit and note that in the final response
 
 ## Composition With Other Skills
 
