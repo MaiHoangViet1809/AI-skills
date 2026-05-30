@@ -1,11 +1,11 @@
 ---
 name: task-review-investigate-compare
-description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes in the codebase or from internet sources; or compare implementation approaches before deciding whether to write back to planning docs, route to SOW changes, or start execution.
+description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes in the codebase or from internet sources; or compare implementation approaches before deciding whether to write back to planning docs, route to SOW changes, or hand off for later human-in-the-loop or execution follow-up.
 ---
 
 # Task Review Investigate Compare
 
-Use this skill before execution when the main job is to understand, challenge, compare, or recommend.
+Use this skill when the main job is to understand, challenge, compare, or recommend before any later human or execution handoff.
 
 This skill is for review and decision support. It is not an execution skill.
 
@@ -16,6 +16,7 @@ This skill is for review and decision support. It is not an execution skill.
 - the user wants feasibility, fit, tradeoff, or impact analysis before implementation
 - the user wants investigation first, with code changes only as a possible later outcome
 - the user wants findings mapped back into existing planning docs without treating every update as a new approval gate
+- the user wants a review-only pass that stops before implementation
 
 ## Do Not Use This Skill When
 
@@ -25,7 +26,7 @@ This skill is for review and decision support. It is not an execution skill.
 
 Use `task-router-flow` when the job is mainly branch selection for implementation work.
 
-Use `task-execution-flow` when scope is already clear and the remaining job is to implement.
+Execution belongs to a later skill or human-in-the-loop step after this review is complete.
 
 ## Operating Modes
 
@@ -145,7 +146,7 @@ Structure the result around these sections:
 - `no writeback`
 - `write back to existing plan/SOW`
 - `route as scope change`
-- `ready for execution`
+- `ready for HITL handoff`
 
 ## Writeback Decision Rule
 
@@ -167,6 +168,7 @@ Escalate to `task-router-flow` when the findings would materially change scope r
 - do not treat internet evidence as repo fit by default; map it back to local constraints
 - do not keep the task in brainstorm mode once the user clearly asked for writeback or routing
 - do not ask for approval solely because a low-ambiguity planning writeback is possible
+- do not execute the proposed work from this skill; stop at recommendation, writeback, or routing
 
 ## Closeout
 
@@ -178,4 +180,6 @@ End with:
 
 If writeback occurred, summarize what was updated.
 
-If a scope change is required, hand off cleanly to `task-router-flow` instead of mixing routing with implementation.
+If a scope change is required, hand off cleanly to `task-router-flow`.
+
+If the review concludes the work should proceed, stop at `ready for HITL handoff` rather than executing from this skill.
