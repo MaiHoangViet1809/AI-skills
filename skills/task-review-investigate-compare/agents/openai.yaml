@@ -1,0 +1,4 @@
+interface:
+  display_name: "TaskReviewInvestigateCompare"
+  short_description: "Review plans and ideas, investigate evidence, and compare approaches before routing or execution"
+  default_prompt: "Use TaskReviewInvestigateCompare to review a plan, SOW, request, or idea; investigate codebase or internet evidence; and recommend whether to write back, route a scope change, or proceed toward execution."
