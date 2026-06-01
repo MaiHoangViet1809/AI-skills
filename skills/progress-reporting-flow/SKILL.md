@@ -16,7 +16,7 @@ Keep progress reporting lightweight. The goal is to improve visibility, not to n
 - Default to one summary-style progress update near the end of the current block of work.
 - If the task is plan or SOW driven, show a compact table.
 - In the table, show only SOW items that are still open or still being verified.
-- Do not keep already-done SOWs in the table after they have been double-checked.
+- Do not keep already-done SOWs in the table after they have passed the final gap-finding pass.
 - Always include one overall row in the form `overall x/y`.
 - If a SOW is complete, validated, and no follow-up remains, remove it from the table and only reflect it in the overall row.
 - Keep commentary below the table short and only include non-table context that matters.
@@ -82,7 +82,7 @@ Keep it brief. Do not turn the note section into a changelog.
 A SOW counts as done for reporting only after:
 
 - implementation is finished
-- you performed the intended double check
+- you performed the intended gap-finding pass
 - no immediate repair loop remains open
 
 If any of those are still open, keep the SOW in the table.
@@ -101,7 +101,7 @@ If any of those are still open, keep the SOW in the table.
 | plan name | SOW | %Complete | current task short desc | progress |
 | --- | --- | --- | --- | --- |
 | `skill_framework_distillation_plan` | `overall 13/14` | `98%` |  |  |
-| `skill_framework_distillation_plan` | `SOW_0054` | `99%` | `final runtime verification` | `double-checking remaining parity edges` |
+| `skill_framework_distillation_plan` | `SOW_0054` | `99%` | `final gap-finding pass` | `checking remaining parity edges` |
 
 Notes:
 - `SOW_0054` is the only open item left after the other SOWs passed verification.
