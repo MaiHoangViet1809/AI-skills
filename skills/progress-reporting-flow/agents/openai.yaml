@@ -1,4 +1,0 @@
-interface:
-  display_name: "ProgressReportingFlow"
-  short_description: "Report plan and SOW progress with a compact low-noise table"
-  default_prompt: "Use ProgressReportingFlow to summarize execution progress with one overall row and only still-open SOW rows."

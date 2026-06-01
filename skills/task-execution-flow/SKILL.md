@@ -79,7 +79,7 @@ Phase 5: closeout
 -> review changed files and worktree
 -> confirm no repair loop remains open
 -> produce the final summary
-   -> if `progress-reporting-flow` is present for this task, invoke it once here and not earlier by default
+   -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
 -> commit
    -> verify the worktree only contains changes covered by the approved scope
    -> stage only the relevant files with `git add`

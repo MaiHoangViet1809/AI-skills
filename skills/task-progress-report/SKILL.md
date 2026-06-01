@@ -1,9 +1,9 @@
 ---
-name: progress-reporting-flow
+name: task-progress-report
 description: Use when you need to report execution progress in a stable, low-noise format for plan or SOW-driven work. Prefer a short summary after a completed block, with a progress table that shows only still-open SOW items plus one overall completion row such as `overall 4/5`.
 ---
 
-# Progress Reporting Flow
+# Task Progress Report
 
 Use this skill when the work is active and the user wants disciplined progress reporting instead of ad hoc status chatter.
 

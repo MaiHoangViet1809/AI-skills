@@ -1,0 +1,4 @@
+interface:
+  display_name: "TaskProgressReport"
+  short_description: "Report task, plan, and SOW progress with a compact low-noise table"
+  default_prompt: "Use TaskProgressReport to summarize execution progress with one overall row and only still-open SOW rows."
