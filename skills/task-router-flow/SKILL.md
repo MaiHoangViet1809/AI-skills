@@ -57,6 +57,7 @@ Flow:
 - Show a concrete edit plan.
 - Wait for approval.
 - Edit the docs or planning files directly.
+- If the edit makes a SOW or plan complete, move that completed file into `plan_todo/finished/` before closeout.
 
 ## SOW Extension Limit
 
@@ -70,6 +71,7 @@ Flow:
 
 After any branch finishes:
 - run a final check
+- if a SOW or plan became complete during this branch, move it into the repo's `finished/` planning directory before commit
 - summarize the outcome
 - commit with a clear message unless the user defers commits
 - report the result to the user

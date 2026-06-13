@@ -31,6 +31,7 @@ Rules:
 - Every active SOW should show both `Status` and `Approval`.
 - Before code changes begin, `Approval` must be `approved`.
 - When work is finished and the SOW is moved to `finished/`, set `Status` to a completed state such as `done`.
+- When a plan document reaches its terminal completed state and is moved to `finished/`, make that completed state explicit in the plan file.
 
 ## Indexing
 
@@ -54,6 +55,8 @@ Choose the next available index by scanning the repository's planning area, incl
 - A replacement SOW should reference the prior SOW and carry forward only the still-relevant context, risks, and dependencies.
 - When the work is complete, move the SOW into the repo's finished-plans location.
 - In this repo, completed SOWs move to a `finished/` directory under the planning area.
+- If a plan document becomes complete and no longer has active scoped work under it, move that completed plan into the same `finished/` directory under the planning area.
+- Do not leave a completed plan in the active planning area once its owned work is complete.
 
 ## Branch Rule
 

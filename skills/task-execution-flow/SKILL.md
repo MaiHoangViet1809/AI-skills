@@ -78,6 +78,8 @@ Phase 5: closeout
 -> review scope fit
 -> review changed files and worktree
 -> confirm no repair loop remains open
+-> if this task makes a SOW or plan complete:
+   -> move that completed planning file into the repo's `finished/` planning directory before commit
 -> produce the final summary
    -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
 -> commit
@@ -230,6 +232,7 @@ Only close out when all of these are true:
 - gap-finding found no unresolved gap
 - final quality check passed
 - the worktree still matches the approved scope
+- any SOW or plan completed by this task has been moved into the repo's `finished/` planning directory
 
 Commit discipline:
 

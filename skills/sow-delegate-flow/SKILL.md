@@ -55,8 +55,9 @@ For execution-time progress updates, follow [brief-execution.md](../../rules/bri
 10. If Claude returns done, review files and validate.
 11. If validation fails, send feedback and continue in the current or a refreshed session.
 12. Once the workflow reaches a terminal outcome, finish the telemetry run before closeout or commit.
-13. If validation passes, close the SOW.
-14. Drop the session from active state when the plan has no active SOW left.
+13. If validation passes, close the SOW and move it to the repo's `finished/` planning directory when it is complete.
+14. If the owning plan has no active SOW left and the plan itself is complete, move that completed plan to the same `finished/` planning directory.
+15. Drop the session from active state when the plan has no active SOW left.
 
 ## Coordinator Loop
 
