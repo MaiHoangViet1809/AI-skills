@@ -69,6 +69,7 @@ Phase 4: gap-finding pass
 -> if any answer is uncertain:
    -> do one more targeted inspection or runtime check
 -> if a gap is found:
+   -> report the actionable findings in a `Severity | Finding | Impact | Solution` table before choosing the next action
    -> convert it into a repair mini-task
    -> re-enter at the cheapest correct stage
 
@@ -142,6 +143,25 @@ After implementation, answer this checklist:
 - logging and observability still sane?
 
 If any answer is uncertain, do one more targeted inspection or runtime check before closing.
+
+## Findings Output Standard
+
+If the post-implementation gap check, double-check, regression analysis, or risk review finds actionable issues, prefer a compact table with these columns:
+
+| Severity | Finding | Impact | Solution |
+| --- | --- | --- | --- |
+
+Use this table before deciding whether to:
+
+- patch immediately
+- open or extend a SOW
+- leave the issue as an explicit residual risk
+
+Do not force the table when there are no findings or when the result is just a short status update.
+
+If there are no actionable findings, say directly:
+
+> No actionable findings found.
 
 ## Syntax vs Implementation Verification
 

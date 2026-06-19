@@ -21,6 +21,7 @@ Keep progress reporting lightweight. The goal is to improve visibility, not to n
 - If a SOW is complete, validated, and no follow-up remains, remove it from the table and only reflect it in the overall row.
 - Keep commentary below the table short and only include non-table context that matters.
 - Do not repeat the same progress statement across multiple turns.
+- This skill is progress-oriented, not findings-oriented; only use a `Severity | Finding | Impact | Solution` table when the progress report includes actionable blockers or risks.
 
 ## Table Format
 

@@ -139,6 +139,31 @@ Structure the result around these sections:
 
 `Findings` should be concrete, not generic observations.
 
+When reporting actionable findings, prefer a compact table with these columns:
+
+| Severity | Finding | Impact | Solution |
+| --- | --- | --- | --- |
+
+Use this table for review findings, regressions, root-cause findings, architecture drift, actionable risk notes, and issue-shaped as-is vs desired gaps.
+
+Do not force the table when:
+
+- there are no findings
+- the user asked for prose only
+- the answer is a simple status or yes/no
+- the content is not issue-shaped
+
+If there are no actionable findings, say directly:
+
+> No actionable findings found.
+
+Keep each finding row concise but complete:
+
+- `Severity`: `Critical`, `High`, `Medium`, `Low`, or `Info`
+- `Finding`: the concrete issue
+- `Impact`: why it matters in user, product, or technical terms
+- `Solution`: the proposed fix or next investigation step
+
 `Recommendation` should say what to do, not just what was observed.
 
 `Next action` must be one of:
