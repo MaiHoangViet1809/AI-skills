@@ -1,0 +1,65 @@
+- **Status**: draft
+- **Approval**: pending
+- **Task**: Mở rộng `create-agents-md` để hỗ trợ tạo instruction file đúng theo từng agent/tool thay vì chỉ tạo `AGENTS.md`.
+- **Location**: `skills/create-agents-md/SKILL.md`, `skills/create-agents-md/agents/openai.yaml`, `plan_todo/skill_design_decisions.md`, `plan_todo/SOW_0061_agent_instruction_file_targets.md`
+- **Why**: Skill hiện tại mặc định mọi agent đều dùng `AGENTS.md`, nhưng thực tế Codex/OpenCode dùng `AGENTS.md`, Claude Code dùng `CLAUDE.md`, và một số tool khác có thể cần tên file riêng. Skill cần cho phép chọn target agent/tool, tạo đúng file entrypoint, và vẫn dùng template chung để tránh drift policy.
+- **As-Is Diagram (ASCII)**:
+```text
+user asks to create agent instructions
+  -> create-agents-md
+     -> if no AGENTS.md
+        -> copy TEMPLATE_AGENTS.md to AGENTS.md
+     -> if AGENTS.md exists
+        -> skip / offer review
+```
+- **To-Be Diagram (ASCII)**:
+```text
+user asks to create agent instructions
+  -> create-agents-md
+     -> resolve target tool
+        -> codex/opencode: AGENTS.md
+        -> claude: CLAUDE.md entrypoint
+        -> all/shared: AGENTS.md + tool entrypoint files
+        -> custom: explicit filename only when user requests it
+     -> preserve TEMPLATE_AGENTS.md as shared policy source
+     -> do not overwrite existing files without approval
+     -> record dated change log / design note
+```
+- **Deliverables**:
+  - Update `skills/create-agents-md/SKILL.md` so the skill supports target file selection by agent/tool:
+    - Codex: `AGENTS.md`
+    - OpenCode: `AGENTS.md`
+    - Claude Code: `CLAUDE.md` entrypoint; when a shared `AGENTS.md` is created or already intended as canonical, `CLAUDE.md` must import or point to that shared policy instead of duplicating the full template
+    - all/shared: create the shared `AGENTS.md` plus tool-specific entrypoint files requested by the user
+    - custom: allow explicit filename only when the user requests it, with a warning that unknown filenames may not be auto-loaded by any tool
+  - Rename wording in the skill from AGENTS-only behavior to agent-instruction-file behavior while keeping the existing skill folder name unless a separate rename is explicitly approved.
+  - Update `skills/create-agents-md/agents/openai.yaml` UI metadata if the current wording is too AGENTS-only after the skill body changes.
+  - Add a dated change log / design note to `plan_todo/skill_design_decisions.md` documenting:
+    - why `AGENTS.md` remains the shared canonical template,
+    - why Claude needs `CLAUDE.md`,
+    - why custom filenames are allowed only when explicitly requested,
+    - why this skill remains repo-local and is not synced into `~/.codex/skills` in this SOW.
+  - During implementation, verify any tool-specific filename claims against current official docs or clearly mark them as user-provided assumptions in the change note.
+  - Preserve the no-sync constraint: do not run `scripts/skills/install_skills.py` and do not write this skill into `~/.codex/skills`.
+- **Done Criteria**:
+  - `skills/create-agents-md/SKILL.md` clearly describes supported targets and output filenames.
+  - The skill explicitly prevents overwriting existing `AGENTS.md`, `CLAUDE.md`, or custom instruction files without user approval.
+  - The skill keeps `TEMPLATE_AGENTS.md` as the shared source for policy content.
+  - Claude target behavior is deterministic: shared/cross-tool mode creates or preserves `AGENTS.md` as canonical policy and uses `CLAUDE.md` only as the Claude entrypoint; Claude-only mode may create `CLAUDE.md` directly from the template when the user does not want a shared `AGENTS.md`.
+  - The skill says docs-only instruction-file creation does not require a SOW, unless the request also changes code or approved implementation scope.
+  - `plan_todo/skill_design_decisions.md` contains a dated change log / design note for this change.
+  - `uv run python /Users/maihoangviet/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/create-agents-md` passes.
+  - `git status --short` shows only files covered by this SOW before staging/commit.
+- **Out-of-Scope**:
+  - Syncing `create-agents-md` into `~/.codex/skills`.
+  - Renaming the skill folder from `create-agents-md`.
+  - Generating or modifying instruction files in other projects.
+  - Changing `TEMPLATE_AGENTS.md` policy content unless a narrow wording fix is required to support tool-specific entrypoints.
+  - Adding support for every possible coding agent filename without explicit source or user request.
+- **Proposed-By**: Codex GPT-5
+- **plan**: `N/A`
+- **Cautions / Risks**:
+  - If the skill creates only a custom filename that the target tool does not auto-load, users may think policy is active when it is not.
+  - If Claude support duplicates the full template instead of using a shared entrypoint/import pattern, Codex/OpenCode/Claude policy can drift.
+  - If the skill overwrites an existing `CLAUDE.md` or `AGENTS.md`, it can destroy project-specific guardrails.
+  - If the changelog is stored inside `SKILL.md`, it can add non-operational context to the skill; prefer `plan_todo/skill_design_decisions.md` for durable change history.
