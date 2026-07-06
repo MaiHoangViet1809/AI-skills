@@ -1,0 +1,58 @@
+- **Status**: draft
+- **Approval**: pending
+- **Task**: Finalize cross-agent skill sync documentation, migration guidance, and deterministic verification for the full agent/OS matrix.
+- **Location**: `scripts/skills/README.md`, optional design note in `plan_todo/skill_design_decisions.md` or `plan_todo/agent_skill_sync_refine_plan.md`, focused tests or verification scripts under `tests/` or `scripts/skills/`, `plan_todo/agent_skill_sync_refine_plan.md`, and this SOW.
+- **Depends-On**: `plan_todo/SOW_0062_core_codex_skill_sync.md`, `plan_todo/SOW_0063_claude_skill_sync.md`, and `plan_todo/SOW_0064_opencode_other_skill_sync.md`
+- **Why**: After the entrypoints exist, users need a concise, reliable guide for syncing exactly one selected agent environment at a time on macOS and Windows 10/11.
+- **As-Is Diagram (ASCII)**:
+```text
+README
+  -> Codex local sync only
+  -> no complete agent/OS examples
+  -> no final verification matrix
+```
+- **To-Be Diagram (ASCII)**:
+```text
+README
+  -> Codex repo/user/legacy-user examples
+  -> Claude repo/user examples
+  -> OpenCode explicit-target example
+  -> Other explicit-target example
+  -> Windows path examples
+  -> migration note from old commands
+  -> clear boundary: sync skills only, init skill owns policy files
+```
+- **Deliverables**:
+  - Update `scripts/skills/README.md` with one-command examples for:
+    - Codex repo-scope sync into `<project>/.agents/skills`.
+    - Codex user-scope sync into `$HOME/.agents/skills`.
+    - Codex legacy user-scope sync into `$HOME/.codex/skills`.
+    - Claude repo-scope sync into `<project>/.claude/skills`.
+    - Claude user-scope sync into `$HOME/.claude/skills`.
+    - OpenCode guarded sync with explicit `--target-root`.
+    - Other-agent guarded sync with explicit `--target-root`.
+  - Add Windows 10/11 examples using explicit `--target-project` or `--target-root`.
+  - Document migration from `install_skills.py` and `sync_environment.py` to the new agent-specific commands.
+  - Document that normal skill sync uses `--profile skills` and does not mutate hooks/config.
+  - Document that `codex-hooks` is Codex-only and explicit, if retained.
+  - Document that project-specific `AGENTS.md`, `CLAUDE.md`, `.agents/rules`, and related policy files belong to a separate init skill.
+  - Add or update a deterministic verification command set that runs against temporary directories and does not require a real Windows machine.
+  - Record the final target matrix in the plan or design decisions file.
+- **Done Criteria**:
+  - README has a clear path for a fresh cloned `AISkills` repo on macOS.
+  - README has a clear path for a fresh cloned `AISkills` repo on Windows 10/11.
+  - Verification covers Codex repo/user/legacy-user, Claude repo/user, OpenCode explicit target-root, and other-agent explicit target-root.
+  - Verification covers invalid combinations: Claude legacy-user, non-Codex `codex-hooks`, missing repo `--target-project`, missing explicit target-root for guarded entrypoints.
+  - Documentation does not imply hybrid multi-agent sync in one command.
+  - Documentation does not imply sync scripts create project policy/rule files.
+- **Out-of-Scope**:
+  - Adding new sync destinations beyond the implemented entrypoints.
+  - Creating or modifying project policy files.
+  - Installing agent CLIs or plugins.
+  - Verifying on a physical Windows machine; explicit path tests are sufficient for this SOW.
+- **Proposed-By**: Codex GPT-5
+- **plan**: `plan_todo/agent_skill_sync_refine_plan.md`
+- **Cautions / Risks**:
+  - Too much matrix documentation can obscure the key rule: run one agent-specific command for the one agent that needs the skills.
+  - Migration notes must not hide that `~/.codex/skills` is legacy compatibility, not the preferred Codex user path.
+  - Keep examples copy-pasteable without making assumptions about a user's global environment.

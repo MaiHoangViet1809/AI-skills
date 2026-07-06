@@ -5,7 +5,11 @@
 - **Status**: draft
 - **Owner**: Codex GPT-5
 - **Created**: 2026-07-07
-- **Related SOW**: `plan_todo/SOW_0062_cross_agent_skill_sync.md`
+- **Related SOWs**:
+  - `plan_todo/SOW_0062_core_codex_skill_sync.md`
+  - `plan_todo/SOW_0063_claude_skill_sync.md`
+  - `plan_todo/SOW_0064_opencode_other_skill_sync.md`
+  - `plan_todo/SOW_0065_skill_sync_docs_verification.md`
 
 ## Problem
 
@@ -71,8 +75,8 @@ AISkills/
 | Codex | legacy-user | `$HOME/.codex/skills/<skill-name>/` |
 | Claude Code | repo | `<target-project>/.claude/skills/<skill-name>/` |
 | Claude Code | user | `$HOME/.claude/skills/<skill-name>/` |
-| OpenCode | repo/user | TBD only after confirmed docs or explicit `--target-root` |
-| Other agents | repo/user | explicit `--target-root` only |
+| OpenCode | explicit target | explicit `--target-root` only until skill destinations are confirmed |
+| Other agents | explicit target | explicit `--target-root` only |
 
 `legacy-user` exists only to support current local Codex setups that still depend on `~/.codex/skills`.
 
@@ -86,7 +90,7 @@ Preferred files:
 | --- | --- |
 | `scripts/skills/sync_env_codex.py` | Codex destinations only |
 | `scripts/skills/sync_env_claude.py` | Claude Code destinations only |
-| `scripts/skills/sync_env_opencode.py` | OpenCode destinations only, after target semantics are confirmed |
+| `scripts/skills/sync_env_opencode.py` | OpenCode sync with explicit `--target-root` only until target semantics are confirmed |
 | `scripts/skills/sync_env_others.py` | Explicit custom target roots for unsupported agents |
 
 Shared copy/path helpers may live in a small internal module under `scripts/skills/` if it removes real duplication. The public commands remain separate by agent.
@@ -101,8 +105,8 @@ Shared copy/path helpers may live in a small internal module under `scripts/skil
 | `sync_env_claude.py` | `repo` | yes | requires `--target-project` unless `--target-root` is supplied |
 | `sync_env_claude.py` | `user` | yes | defaults to `$HOME/.claude/skills` |
 | `sync_env_claude.py` | `legacy-user` | no | fail clearly; Claude does not use Codex legacy skills |
-| `sync_env_opencode.py` | any | pending | do not ship default destinations until confirmed |
-| `sync_env_others.py` | custom | yes | requires explicit `--target-root` |
+| `sync_env_opencode.py` | explicit target | yes | requires explicit `--target-root`; do not ship default destinations until confirmed |
+| `sync_env_others.py` | explicit target | yes | requires explicit `--target-root` |
 
 ### Sync Profiles
 
@@ -114,7 +118,7 @@ Default behavior must be skill-sync-only:
   -> no hooks/config mutation
 ```
 
-Codex hook/config sync is separate and must be explicit:
+Codex hook/config sync is separate, Codex-only, and must be explicit:
 
 ```text
 --profile codex-hooks
@@ -124,6 +128,7 @@ Codex hook/config sync is separate and must be explicit:
 ```
 
 Do not run hook/config sync as part of a normal skill install.
+Non-Codex entrypoints must reject `--profile codex-hooks` or omit that option entirely.
 
 ## CLI Shape
 
@@ -149,24 +154,35 @@ uv run python scripts/skills/install_skills.py --skill <name> --target-root <pat
 
 `--all` means all discoverable repo skill folders under `AISkills/skills/` that contain `SKILL.md`. If a curated bundle is needed later, add a separate `--bundle core` or `--profile core-skills`; do not overload `--all`.
 
+## SOW Breakdown
+
+| SOW | Scope | Purpose |
+| --- | --- | --- |
+| `SOW_0062_core_codex_skill_sync.md` | Shared skill discovery/copy helpers plus `sync_env_codex.py` | Establish the safe base and Codex repo/user/legacy-user behavior first. |
+| `SOW_0063_claude_skill_sync.md` | `sync_env_claude.py` | Add Claude Code repo/user sync without inheriting Codex legacy or hook behavior. |
+| `SOW_0064_opencode_other_skill_sync.md` | `sync_env_opencode.py` and `sync_env_others.py` | Add guarded explicit-target sync for OpenCode and unsupported agents without guessing destinations. |
+| `SOW_0065_skill_sync_docs_verification.md` | README, migration notes, and final matrix verification | Make the CLI usable on fresh macOS/Windows machines and record the final behavior. |
+
 ## Implementation Plan
 
-1. Extract shared skill discovery/copy helpers only where they remove real duplication.
-2. Add separate public sync entrypoints for Codex, Claude, OpenCode, and other agents.
-3. Add `--scope`, `--profile`, `--target-project`, `--skill`, `--all`, `--target-root`, `--overwrite`, and `--dry-run` where needed.
-4. Preserve dry-run output before copying anything.
-5. Keep overwrite opt-in.
-6. Make `skills` the default profile and require explicit opt-in for `codex-hooks`.
-7. Validate each entrypoint's scope matrix before building copy actions.
-8. Update README with macOS and Windows examples.
-9. Add a clear note that project-specific policy/rules are handled by the init skill, not by sync.
-10. Add tests or a deterministic dry-run verification path covering:
+1. SOW 0062 extracts shared skill discovery/copy helpers only where they remove real duplication.
+2. SOW 0062 adds `sync_env_codex.py` with `repo`, `user`, and `legacy-user` scopes.
+3. SOW 0062 keeps `skills` as the default profile and makes `codex-hooks` Codex-only and explicit.
+4. SOW 0063 adds `sync_env_claude.py` with `repo` and `user` scopes only.
+5. SOW 0063 rejects Claude `legacy-user` and any Codex hook/config profile.
+6. SOW 0064 adds `sync_env_opencode.py` with explicit `--target-root` behavior only until OpenCode skill destinations are confirmed.
+7. SOW 0064 adds `sync_env_others.py` with explicit `--target-root` behavior only.
+8. Every SOW preserves dry-run output before copying anything and keeps overwrite opt-in.
+9. SOW 0065 updates README with macOS and Windows examples for each supported entrypoint.
+10. SOW 0065 adds final deterministic verification covering:
    - Codex repo target
    - Codex user target
    - Codex legacy user target
    - Claude repo target
    - Claude user target
    - invalid `claude legacy-user`
+   - invalid non-Codex `codex-hooks`
+   - OpenCode explicit `--target-root`
    - `sync_env_others.py` requiring explicit `--target-root`
    - explicit temp-dir `--target-project` / `--target-root` paths so Windows users are not dependent on POSIX hardcoding
 
@@ -185,4 +201,4 @@ uv run python scripts/skills/install_skills.py --skill <name> --target-root <pat
 
 - Should `legacy-user` eventually be hidden behind a flag like `--legacy-codex-home`, or remain a normal scope during migration?
 - Should the default target be `codex repo` when `--target-project` is provided, and `codex user` otherwise? Current implementation should prefer explicit `--scope`.
-- What is the correct OpenCode skill destination, if any, beyond rule files? Leave `sync_env_opencode.py` guarded until this is verified.
+- What is the correct OpenCode skill destination, if any, beyond rule files? Leave `sync_env_opencode.py` explicit-target-only until this is verified.
