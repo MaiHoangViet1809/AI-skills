@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
-"""Low-level installer for copying repo skills to an explicit target root."""
+"""Sync AISkills skills into an explicit custom destination."""
 
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 from skill_sync_common import normalized_path, print_skill_results, sync_selected_skills
 
 
-def default_target_root() -> Path:
-    return Path.home() / ".codex" / "skills"
-
-
-def discover_skills(root: Path) -> dict[str, Path]:
-    from skill_sync_common import discover_skills as _discover_skills
-
-    return _discover_skills(root)
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--skill", help="install one skill by directory name")
-    parser.add_argument("--all", action="store_true", help="install all repo skills")
-    parser.add_argument("--target-root", default=str(default_target_root()))
+    parser.add_argument("--target-root", required=True, help="explicit destination skills root")
+    parser.add_argument("--skill", help="sync one skill by directory name")
+    parser.add_argument("--all", action="store_true", help="sync all repo skills")
     parser.add_argument("--overwrite", action="store_true", help="replace existing target skill directory")
     parser.add_argument("--dry-run", action="store_true", help="show planned actions without copying")
     return parser.parse_args()

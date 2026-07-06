@@ -1,48 +1,162 @@
-# Skill Install Flow
+# Skill Sync Flow
 
-Install all repo skills into local Codex skills:
+Use one agent-specific command for the one agent environment that needs the skills.
+Do not use a hybrid command to sync multiple agents at once.
 
-```bash
-uv run python scripts/skills/install_skills.py --all
+## Source
+
+All commands copy repo skills from:
+
+```text
+AISkills/skills/<skill-name>/SKILL.md
 ```
 
-Install one skill:
+`--all` means every folder under `skills/` that contains `SKILL.md`.
+`--overwrite` is required before an existing target skill directory is replaced.
+`--dry-run` prints planned actions without copying files.
+
+## Codex
+
+Project-scoped Codex skills:
 
 ```bash
-uv run python scripts/skills/install_skills.py --skill telemetry-flow
+uv run python scripts/skills/sync_env_codex.py \
+  --scope repo \
+  --target-project /path/to/project \
+  --skill task-router-flow \
+  --dry-run
 ```
 
-Preview actions without copying:
+User-scoped Codex skills:
 
 ```bash
-uv run python scripts/skills/install_skills.py --all --dry-run
+uv run python scripts/skills/sync_env_codex.py \
+  --scope user \
+  --all
 ```
 
-Replace existing local copies:
+Legacy Codex user skills:
 
 ```bash
-uv run python scripts/skills/install_skills.py --all --overwrite
+uv run python scripts/skills/sync_env_codex.py \
+  --scope legacy-user \
+  --all
 ```
 
-Notes:
-
-- source is `skills/` in this repo
-- target defaults to `~/.codex/skills`
-- overwrite is opt-in to avoid clobbering local edits
-
-Sync repo-owned shared rules and selected skills into local Codex:
+Codex hook/config sync is explicit and separate from normal skill sync:
 
 ```bash
-uv run python scripts/skills/sync_environment.py --target codex
+uv run python scripts/skills/sync_env_codex.py --profile codex-hooks --dry-run
 ```
 
-Preview sync actions:
+Normal `--profile skills` sync does not write `hooks.json`, `codex_hook_bridge.py`, or `config.toml`.
+
+## Claude Code
+
+Project-scoped Claude Code skills:
+
+```bash
+uv run python scripts/skills/sync_env_claude.py \
+  --scope repo \
+  --target-project /path/to/project \
+  --skill task-router-flow \
+  --dry-run
+```
+
+User-scoped Claude Code skills:
+
+```bash
+uv run python scripts/skills/sync_env_claude.py \
+  --scope user \
+  --all
+```
+
+Claude sync rejects Codex-only `legacy-user` and `codex-hooks`.
+
+## OpenCode
+
+Project-scoped OpenCode skills:
+
+```bash
+uv run python scripts/skills/sync_env_opencode.py \
+  --scope repo \
+  --target-project /path/to/project \
+  --skill task-router-flow \
+  --dry-run
+```
+
+User-scoped OpenCode skills:
+
+```bash
+uv run python scripts/skills/sync_env_opencode.py \
+  --scope user \
+  --all
+```
+
+OpenCode sync writes native OpenCode paths by default:
+
+```text
+repo: <target-project>/.opencode/skills/<skill-name>/
+user: $HOME/.config/opencode/skills/<skill-name>/
+```
+
+Use `--target-root` only when you intentionally want a custom destination:
+
+```bash
+uv run python scripts/skills/sync_env_opencode.py \
+  --target-root /path/to/custom/skills \
+  --skill task-router-flow
+```
+
+## Other Agents
+
+Unsupported agents must use an explicit target root:
+
+```bash
+uv run python scripts/skills/sync_env_others.py \
+  --target-root /path/to/agent/skills \
+  --skill task-router-flow \
+  --dry-run
+```
+
+## Windows
+
+Use explicit paths on Windows 10/11:
+
+```powershell
+uv run python scripts/skills/sync_env_codex.py `
+  --scope repo `
+  --target-project C:\Users\you\Projects\my-project `
+  --skill task-router-flow `
+  --dry-run
+```
+
+```powershell
+uv run python scripts/skills/sync_env_claude.py `
+  --target-root C:\Users\you\.claude\skills `
+  --all `
+  --dry-run
+```
+
+The scripts use `pathlib.Path` and do not hardcode POSIX-only separators.
+
+## Compatibility
+
+The old low-level installer still works for explicit target roots:
+
+```bash
+uv run python scripts/skills/install_skills.py --skill telemetry-flow --target-root /path/to/skills
+```
+
+Without `--target-root`, `install_skills.py` keeps its legacy default of `~/.codex/skills`.
+
+The old environment command remains for compatibility. It syncs Codex hook/config files and the old legacy Codex skill bundle into `~/.codex/skills`:
 
 ```bash
 uv run python scripts/skills/sync_environment.py --target codex --dry-run
 ```
 
-This sync also:
+## Boundary
 
-- writes `~/.codex/hooks.json` from the repo template
-- enables `codex_hooks = true` in `~/.codex/config.toml`
+These scripts only copy AISkills skill directories.
+They do not create or modify project policy files such as `AGENTS.md`, `CLAUDE.md`, `.agents/rules`, or `.claude` project context.

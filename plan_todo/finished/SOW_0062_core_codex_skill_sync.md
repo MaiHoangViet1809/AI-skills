@@ -1,7 +1,8 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: completed
+- **Approval**: approved 2026-07-07
+- **Completed**: 2026-07-07
 - **Task**: Refine the shared AISkills skill copy base and add a Codex-specific sync entrypoint for repo/user/legacy-user skill destinations.
-- **Location**: `scripts/skills/install_skills.py`, `scripts/skills/sync_environment.py`, `scripts/skills/sync_env_codex.py`, shared helper files under `scripts/skills/` if needed, `scripts/skills/README.md`, `plan_todo/agent_skill_sync_refine_plan.md`, `plan_todo/SOW_0062_core_codex_skill_sync.md`, and focused tests or verification scripts if needed under `tests/` or `scripts/skills/`
+- **Location**: `scripts/skills/install_skills.py`, `scripts/skills/sync_environment.py`, `scripts/skills/sync_env_codex.py`, shared helper files under `scripts/skills/` if needed, `scripts/skills/README.md`, `plan_todo/finished/agent_skill_sync_refine_plan.md`, `plan_todo/finished/SOW_0062_core_codex_skill_sync.md`, and focused tests or verification scripts if needed under `tests/` or `scripts/skills/`
 - **Why**: Current sync tooling is designed around local Codex setup and `~/.codex/skills`. Before adding other agents, the repo needs a safe shared copy base plus an explicit Codex command that supports the current preferred Codex paths and legacy compatibility without mixing hook/config mutation into normal skill sync.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -56,9 +57,9 @@ sync_env_codex.py --profile codex-hooks
   - Implementation uses `pathlib.Path` and supports explicit Windows-style paths without hardcoded POSIX assumptions.
   - No project-specific `AGENTS.md`, `CLAUDE.md`, `.agents/rules`, or `.claude` policy files are created by the sync script.
 - **Out-of-Scope**:
-  - Claude Code sync; handled by `plan_todo/SOW_0063_claude_skill_sync.md`.
-  - OpenCode and other-agent sync; handled by `plan_todo/SOW_0064_opencode_other_skill_sync.md`.
-  - Final full-matrix docs and verification; handled by `plan_todo/SOW_0065_skill_sync_docs_verification.md`.
+  - Claude Code sync; handled by `plan_todo/finished/SOW_0063_claude_skill_sync.md`.
+  - OpenCode and other-agent sync; handled by `plan_todo/finished/SOW_0064_opencode_other_skill_sync.md`.
+  - Final full-matrix docs and verification; handled by `plan_todo/finished/SOW_0065_skill_sync_docs_verification.md`.
   - Creating or modifying target project `AGENTS.md`, `CLAUDE.md`, `.agents/rules`, or other policy files.
   - Building the separate `init-agent-env` skill.
   - Installing or configuring the Codex CLI.
@@ -66,7 +67,7 @@ sync_env_codex.py --profile codex-hooks
   - Removing existing support for `~/.codex/skills` before a migration path is proven.
   - Hybrid multi-agent sync in a single command.
 - **Proposed-By**: Codex GPT-5
-- **plan**: `plan_todo/agent_skill_sync_refine_plan.md`
+- **plan**: `plan_todo/finished/agent_skill_sync_refine_plan.md`
 - **Cautions / Risks**:
   - Treating `<project>/.agents/skills` as global would leak one project's rules into another project.
   - Mixing hook/config sync with skill copy can make a simple install command mutate more environment state than expected.

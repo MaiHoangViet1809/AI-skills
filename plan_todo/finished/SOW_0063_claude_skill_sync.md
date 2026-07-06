@@ -1,8 +1,9 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: completed
+- **Approval**: approved 2026-07-07
+- **Completed**: 2026-07-07
 - **Task**: Add Claude Code skill sync support as a separate public entrypoint that publishes AISkills repo skills to Claude Code repo/user skill directories.
-- **Location**: `scripts/skills/sync_env_claude.py`, shared helper files under `scripts/skills/` from SOW 0062 if needed, focused tests or verification scripts under `tests/` or `scripts/skills/`, `scripts/skills/README.md`, `plan_todo/agent_skill_sync_refine_plan.md`, and this SOW.
-- **Depends-On**: `plan_todo/SOW_0062_core_codex_skill_sync.md`
+- **Location**: `scripts/skills/sync_env_claude.py`, shared helper files under `scripts/skills/` from SOW 0062 if needed, focused tests or verification scripts under `tests/` or `scripts/skills/`, `scripts/skills/README.md`, `plan_todo/finished/agent_skill_sync_refine_plan.md`, and this SOW.
+- **Depends-On**: `plan_todo/finished/SOW_0062_core_codex_skill_sync.md`
 - **Why**: Claude Code uses different project/user skill locations from Codex. Its sync command must be explicit, agent-specific, and must not inherit Codex-only legacy paths or hook/config behavior.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -50,7 +51,7 @@ sync_env_claude.py
   - Installing or configuring the Claude Code CLI.
   - Hybrid multi-agent sync in a single command.
 - **Proposed-By**: Codex GPT-5
-- **plan**: `plan_todo/agent_skill_sync_refine_plan.md`
+- **plan**: `plan_todo/finished/agent_skill_sync_refine_plan.md`
 - **Cautions / Risks**:
   - Copying Codex hook/config behavior into Claude would mutate unrelated environment state.
   - Treating Codex legacy paths as Claude-compatible would make sync appear successful while Claude cannot discover the skill.
