@@ -71,6 +71,41 @@ AISkills/
 
 `legacy-user` exists only to support current local Codex setups that still depend on `~/.codex/skills`.
 
+### Valid Target Matrix
+
+| Agent arg | Scope arg | Valid | Notes |
+| --- | --- | --- | --- |
+| `codex` | `repo` | yes | requires `--target-project` unless `--target-root` is supplied |
+| `codex` | `user` | yes | defaults to `$HOME/.agents/skills` |
+| `codex` | `legacy-user` | yes | defaults to `$HOME/.codex/skills` |
+| `claude` | `repo` | yes | requires `--target-project` unless `--target-root` is supplied |
+| `claude` | `user` | yes | defaults to `$HOME/.claude/skills` |
+| `claude` | `legacy-user` | no | Claude does not use the Codex legacy skill directory |
+| `both` | `repo` | yes | installs into both project-local skill roots |
+| `both` | `user` | yes | installs into both user-level skill roots |
+| `both` | `legacy-user` | no | fail clearly; `legacy-user` is Codex-only |
+
+### Sync Profiles
+
+Default behavior must be skill-sync-only:
+
+```text
+--profile skills
+  -> copy skill directories only
+  -> no hooks/config mutation
+```
+
+Codex hook/config sync is separate and must be explicit:
+
+```text
+--profile codex-hooks
+  -> may write ~/.codex/hooks.json
+  -> may write ~/.codex/hooks/codex_hook_bridge.py
+  -> may update ~/.codex/config.toml
+```
+
+Do not run hook/config sync as part of a normal skill install.
+
 ## CLI Shape
 
 Preferred unified command:
@@ -79,6 +114,7 @@ Preferred unified command:
 uv run python scripts/skills/sync_environment.py \
   --agent codex|claude|both \
   --scope repo|user|legacy-user \
+  --profile skills \
   --target-project /path/to/project \
   --skill <name>|--all \
   --overwrite \
@@ -91,23 +127,29 @@ Compatibility path:
 uv run python scripts/skills/install_skills.py --skill <name> --target-root <path>
 ```
 
-`install_skills.py` may become the low-level copier, while `sync_environment.py` owns agent/scope/path resolution.
+`install_skills.py` may become the low-level copier, while `sync_environment.py` owns agent/scope/path resolution. If kept as a public command, document it as low-level or legacy-compatible instead of the recommended cross-agent entrypoint.
+
+`--all` means all discoverable repo skill folders under `AISkills/skills/` that contain `SKILL.md`. If a curated bundle is needed later, add a separate `--bundle core` or `--profile core-skills`; do not overload `--all`.
 
 ## Implementation Plan
 
 1. Refactor path resolution into explicit target resolvers.
-2. Add `--agent`, `--scope`, `--target-project`, `--skill`, `--all`, `--target-root`, `--overwrite`, and `--dry-run` where needed.
+2. Add `--agent`, `--scope`, `--profile`, `--target-project`, `--skill`, `--all`, `--target-root`, `--overwrite`, and `--dry-run` where needed.
 3. Preserve dry-run output before copying anything.
 4. Keep overwrite opt-in.
-5. Update README with macOS and Windows examples.
-6. Add a clear note that project-specific policy/rules are handled by the init skill, not by sync.
-7. Add tests or a deterministic dry-run verification path covering:
+5. Make `skills` the default profile and require explicit opt-in for `codex-hooks`.
+6. Validate the `agent/scope` matrix before building copy actions.
+7. Update README with macOS and Windows examples.
+8. Add a clear note that project-specific policy/rules are handled by the init skill, not by sync.
+9. Add tests or a deterministic dry-run verification path covering:
    - Codex repo target
    - Codex user target
    - Codex legacy user target
    - Claude repo target
    - Claude user target
-   - Windows-style target-project path simulation where feasible with explicit paths
+   - invalid `claude legacy-user`
+   - invalid `both legacy-user`
+   - explicit temp-dir `--target-project` / `--target-root` paths so Windows users are not dependent on POSIX hardcoding
 
 ## Non-Goals
 
@@ -120,6 +162,5 @@ uv run python scripts/skills/install_skills.py --skill <name> --target-root <pat
 
 ## Open Questions
 
-- Should `legacy-user` be hidden behind a flag like `--legacy-codex-home`, or remain a normal scope?
-- Should the default target be `codex repo` when `--target-project` is provided, and `codex user` otherwise?
-- Should `sync_environment.py` keep telemetry hook sync as a separate `--profile codex-hooks` operation instead of mixing it with skill sync?
+- Should `legacy-user` eventually be hidden behind a flag like `--legacy-codex-home`, or remain a normal scope during migration?
+- Should the default target be `codex repo` when `--target-project` is provided, and `codex user` otherwise? Current implementation should prefer explicit `--scope`.
