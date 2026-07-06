@@ -378,6 +378,31 @@ Reason:
 - Only the custom design surface should be versioned and shared from this repo.
 - Pulling in built-in or curated skills would blur ownership and add noise.
 
+## 25. Agent Instruction File Targets
+
+Date: 2026-07-07
+
+Related SOW:
+- `SOW_0061_agent_instruction_file_targets.md`
+
+Decision:
+- `TEMPLATE_AGENTS.md` remains the shared canonical policy template.
+- `create-agents-md` should choose the project instruction filename by target tool:
+  - Codex: `AGENTS.md`
+  - OpenCode: `AGENTS.md`
+  - Claude Code: `CLAUDE.md`
+  - shared/cross-tool: `AGENTS.md` as canonical policy plus tool-specific entrypoints such as `CLAUDE.md`
+  - custom: explicit user-requested filename only, with a warning that unknown names may not be auto-loaded
+- For shared Claude support, `CLAUDE.md` should be an entrypoint that imports `AGENTS.md` with `@AGENTS.md` instead of duplicating the full template.
+- This skill remains repo-local for this SOW and is not synced into `~/.codex/skills`.
+
+Reason:
+- OpenAI Codex official docs identify `AGENTS.md` as project guidance: https://developers.openai.com/codex/guides/agents-md
+- OpenCode official docs use `AGENTS.md` for custom rules: https://opencode.ai/docs/rules/
+- Claude Code official docs use `CLAUDE.md` memory files and support `@path/to/import` from `CLAUDE.md`: https://code.claude.com/docs/en/memory
+- Keeping one shared `AGENTS.md` policy plus tool entrypoint files reduces drift across Codex, OpenCode, and Claude Code.
+- Custom filenames are allowed only when the user explicitly asks because most tools only auto-load their documented filenames.
+
 ## Related SOW Trail
 
 The following finished SOWs capture the main implementation trail behind the current design:
@@ -399,5 +424,6 @@ The following finished SOWs capture the main implementation trail behind the cur
 - `SOW_0017_sow_delegate_flow_claude_raw_only.md`: Claude parser refactor to raw-only persistence
 - `SOW_0018_sow_delegate_flow_refinements.md`: validation matrix, termination policy, and closeout template refinements
 - `SOW_0019_telemetry_hook_skill_v1.md`: separate telemetry skill with start/finish hooks and run-level metrics
+- `SOW_0061_agent_instruction_file_targets.md`: target-specific instruction filenames for Codex, OpenCode, Claude Code, shared, and custom modes
 
 Use these SOWs as the primary historical trail when a later change needs original rationale beyond the summary decisions in this file.

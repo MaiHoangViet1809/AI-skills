@@ -1,7 +1,7 @@
-- **Status**: draft
-- **Approval**: pending
+- **Status**: done
+- **Approval**: approved
 - **Task**: Mở rộng `create-agents-md` để hỗ trợ tạo instruction file đúng theo từng agent/tool thay vì chỉ tạo `AGENTS.md`.
-- **Location**: `skills/create-agents-md/SKILL.md`, `skills/create-agents-md/agents/openai.yaml`, `plan_todo/skill_design_decisions.md`, `plan_todo/SOW_0061_agent_instruction_file_targets.md`
+- **Location**: `skills/create-agents-md/SKILL.md`, `skills/create-agents-md/agents/openai.yaml`, `plan_todo/skill_design_decisions.md`, `plan_todo/finished/SOW_0061_agent_instruction_file_targets.md`
 - **Why**: Skill hiện tại mặc định mọi agent đều dùng `AGENTS.md`, nhưng thực tế Codex/OpenCode dùng `AGENTS.md`, Claude Code dùng `CLAUDE.md`, và một số tool khác có thể cần tên file riêng. Skill cần cho phép chọn target agent/tool, tạo đúng file entrypoint, và vẫn dùng template chung để tránh drift policy.
 - **As-Is Diagram (ASCII)**:
 ```text
@@ -29,7 +29,7 @@ user asks to create agent instructions
   - Update `skills/create-agents-md/SKILL.md` so the skill supports target file selection by agent/tool:
     - Codex: `AGENTS.md`
     - OpenCode: `AGENTS.md`
-    - Claude Code: `CLAUDE.md` entrypoint; when a shared `AGENTS.md` is created or already intended as canonical, `CLAUDE.md` must import or point to that shared policy instead of duplicating the full template
+    - Claude Code: `CLAUDE.md` entrypoint; when a shared `AGENTS.md` is created or already intended as canonical, `CLAUDE.md` must import it with `@AGENTS.md` instead of duplicating the full template
     - all/shared: create the shared `AGENTS.md` plus tool-specific entrypoint files requested by the user
     - custom: allow explicit filename only when the user requests it, with a warning that unknown filenames may not be auto-loaded by any tool
   - Rename wording in the skill from AGENTS-only behavior to agent-instruction-file behavior while keeping the existing skill folder name unless a separate rename is explicitly approved.
