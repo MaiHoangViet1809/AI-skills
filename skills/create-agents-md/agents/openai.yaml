@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create AGENTS.md"
+  short_description: "Create project AGENTS.md from template"
+  default_prompt: "Create or update an AGENTS.md for this project using TEMPLATE_AGENTS.md."
