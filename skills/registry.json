@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "repo": "MaiHoangViet1809/AI-skills",
+  "branch": "main",
+  "install_guide": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/INSTALL_FOR_AGENTS.md",
+  "skills": [
+    {
+      "name": "sow-delegate-flow",
+      "description": "Coordinate approved multi-SOW execution with Claude Code delegation and local verification.",
+      "files": [
+        {
+          "path": "skills/sow-delegate-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/SKILL.md"
+        },
+        {
+          "path": "skills/sow-delegate-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/agents/openai.yaml"
+        },
+        {
+          "path": "skills/sow-delegate-flow/references/claude-delegate-contract.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/claude-delegate-contract.md"
+        },
+        {
+          "path": "skills/sow-delegate-flow/references/log-parsing.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/log-parsing.md"
+        },
+        {
+          "path": "skills/sow-delegate-flow/references/output-filtering.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/output-filtering.md"
+        },
+        {
+          "path": "skills/sow-delegate-flow/scripts/parse_delegate_log.py",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/scripts/parse_delegate_log.py"
+        }
+      ]
+    },
+    {
+      "name": "task-execution-flow",
+      "description": "Execute already-routed work with context gathering, implementation, verification, and closeout discipline.",
+      "files": [
+        {
+          "path": "skills/task-execution-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-execution-flow/SKILL.md"
+        },
+        {
+          "path": "skills/task-execution-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-execution-flow/agents/openai.yaml"
+        }
+      ]
+    },
+    {
+      "name": "task-progress-report",
+      "description": "Report plan or SOW progress with compact status tables.",
+      "files": [
+        {
+          "path": "skills/task-progress-report/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-progress-report/SKILL.md"
+        },
+        {
+          "path": "skills/task-progress-report/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-progress-report/agents/openai.yaml"
+        }
+      ]
+    },
+    {
+      "name": "task-review-investigate-compare",
+      "description": "Review, investigate, or compare before execution or planning writeback.",
+      "files": [
+        {
+          "path": "skills/task-review-investigate-compare/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-review-investigate-compare/SKILL.md"
+        },
+        {
+          "path": "skills/task-review-investigate-compare/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-review-investigate-compare/agents/openai.yaml"
+        }
+      ]
+    },
+    {
+      "name": "task-router-flow",
+      "description": "Route new work into SOW, existing-SOW, debug, or docs-only branches.",
+      "files": [
+        {
+          "path": "skills/task-router-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/SKILL.md"
+        },
+        {
+          "path": "skills/task-router-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/agents/openai.yaml"
+        },
+        {
+          "path": "skills/task-router-flow/references/routing-notes.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/references/routing-notes.md"
+        },
+        {
+          "path": "skills/task-router-flow/references/scope-of-work.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/references/scope-of-work.md"
+        }
+      ]
+    }
+  ]
+}

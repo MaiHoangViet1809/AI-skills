@@ -26,7 +26,7 @@ def opencode_skill_root(scope: str | None, target_project: str | None, target_ro
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--scope", choices=["repo", "user", "legacy-user"])
-    parser.add_argument("--profile", choices=["skills", "codex-hooks"], default="skills")
+    parser.add_argument("--profile", choices=["skills"], default="skills")
     parser.add_argument("--target-project", help="project root for repo-scoped skill installs")
     parser.add_argument("--target-root", help="explicit destination skills root override")
     parser.add_argument("--skill", help="sync one skill by directory name")
@@ -38,9 +38,6 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    if args.profile == "codex-hooks":
-        raise SystemExit("--profile codex-hooks is only valid for sync_env_codex.py")
-
     dest_root = opencode_skill_root(args.scope, args.target_project, args.target_root)
     results = sync_selected_skills(
         dest_root=dest_root,

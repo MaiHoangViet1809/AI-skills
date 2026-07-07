@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -10,6 +11,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_ROOT = REPO_ROOT / "scripts" / "skills"
+SKILLS_ROOT = REPO_ROOT / "skills"
 
 
 class SkillSyncScriptTests(unittest.TestCase):
@@ -88,7 +90,7 @@ class SkillSyncScriptTests(unittest.TestCase):
         )
         self.assertIn("legacy-user is only valid for sync_env_codex.py", invalid.stderr)
 
-    def test_opencode_repo_user_and_invalid_codex_hooks(self) -> None:
+    def test_opencode_repo_user_and_invalid_profile(self) -> None:
         project = self.tmp_path / "project"
         repo_result = self.run_script(
             "sync_env_opencode.py",
@@ -134,7 +136,7 @@ class SkillSyncScriptTests(unittest.TestCase):
             "--dry-run",
             expect_success=False,
         )
-        self.assertIn("codex-hooks is only valid for sync_env_codex.py", invalid.stderr)
+        self.assertIn("invalid choice", invalid.stderr)
 
         invalid_legacy = self.run_script(
             "sync_env_opencode.py",
@@ -175,10 +177,30 @@ class SkillSyncScriptTests(unittest.TestCase):
         )
         self.assertIn("--scope repo requires --target-project", result.stderr)
 
-    def test_legacy_sync_environment_still_includes_old_skill_bundle(self) -> None:
+    def test_legacy_sync_environment_is_skill_copy_only(self) -> None:
         result = self.run_script("sync_environment.py", "--target", "codex", "--dry-run")
-        self.assertIn("hooks.json", result.stdout)
         self.assertIn("/.codex/skills/task-router-flow", result.stdout)
+        self.assertNotIn("hooks.json", result.stdout)
+        self.assertNotIn("config.toml", result.stdout)
+
+    def test_skill_registry_matches_active_skill_files(self) -> None:
+        registry = json.loads((SKILLS_ROOT / "registry.json").read_text())
+        registered = {skill["name"]: skill for skill in registry["skills"]}
+        active = {
+            path.name
+            for path in SKILLS_ROOT.iterdir()
+            if path.is_dir() and (path / "SKILL.md").exists()
+        }
+
+        self.assertEqual(active, set(registered))
+
+        for skill_name, skill in registered.items():
+            self.assertTrue(skill["files"], skill_name)
+            self.assertEqual(f"skills/{skill_name}/SKILL.md", skill["files"][0]["path"])
+            for file_entry in skill["files"]:
+                relative_path = file_entry["path"]
+                self.assertTrue((REPO_ROOT / relative_path).exists(), relative_path)
+                self.assertIn(relative_path, file_entry["raw_url"])
 
 
 if __name__ == "__main__":

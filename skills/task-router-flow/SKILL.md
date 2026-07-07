@@ -76,21 +76,6 @@ After any branch finishes:
 - commit with a clear message unless the user defers commits
 - report the result to the user
 
-## Global Hook Telemetry
-
-When `task-router-flow` runs in its own Codex session or subagent, use a first-line marker like:
-
-```text
-CODEX_SKILL_RUN skill=task-router-flow plan=<plan> sow=<sow> task_type=<task_type> intent=<intent>
-```
-
-Rules:
-- use real values in the marker; do not leave placeholders like `<sow>` or `<task_type>`
-- the skill-run session should return a brief summary to the parent or main session
-- global Codex hooks should anchor `started_at` at `SessionStart` and finish telemetry at `Stop`
-- the current project should be resolved from the session `cwd`, not from this repo path
-- do not call the normal `telemetry-flow start/finish` path manually for this isolated-session path
-
 ## Notes
 
 - This skill decides the branch. It does not replace downstream execution skills.

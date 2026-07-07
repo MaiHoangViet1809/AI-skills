@@ -57,7 +57,7 @@ Use `stream-json` by default so the coordinator can parse progress from the raw 
 Capture raw CLI output to a file first, then parse it on demand before the coordinator reads it.
 
 ```bash
-tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/aiskills/delegate/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --output-format stream-json \
   --json-schema '<schema-json>' \
@@ -66,7 +66,7 @@ claude -p \
   --permission-mode bypassPermissions \
   "<prompt>" > "$tmp_log"
 
-python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python "$INSTALLED_SKILL_ROOT/sow-delegate-flow/scripts/parse_delegate_log.py" \
   --raw-log "$tmp_log" \
   --mode stream-json \
   --repo-root "$REPO"
@@ -82,14 +82,14 @@ Normal polling:
 Follow-up turns:
 
 ```bash
-tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/aiskills/delegate/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --resume <session-id> \
   --output-format stream-json \
   --json-schema '<schema-json>' \
   "<prompt>" > "$tmp_log"
 
-python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python "$INSTALLED_SKILL_ROOT/sow-delegate-flow/scripts/parse_delegate_log.py" \
   --raw-log "$tmp_log" \
   --mode stream-json \
   --repo-root "$REPO"
@@ -98,13 +98,13 @@ python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
 Fresh-session follow-up after compaction:
 
 ```bash
-tmp_log="$HOME/.logs/codex/telemetry/claude/<project>/claude-$(date +%s)-tmp.log"
+tmp_log="$HOME/.logs/aiskills/delegate/<project>/claude-$(date +%s)-tmp.log"
 claude -p \
   --output-format stream-json \
   --json-schema '<schema-json>' \
   "<prompt with compact history>" > "$tmp_log"
 
-python ~/.codex/skills/sow-delegate-flow/scripts/parse_delegate_log.py \
+python "$INSTALLED_SKILL_ROOT/sow-delegate-flow/scripts/parse_delegate_log.py" \
   --raw-log "$tmp_log" \
   --mode stream-json \
   --repo-root "$REPO"

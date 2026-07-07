@@ -1,4 +1,0 @@
-interface:
-  display_name: "Create Agent Instructions"
-  short_description: "Create project agent instruction files from template"
-  default_prompt: "Create the correct agent instruction file(s) for this project using TEMPLATE_AGENTS.md."

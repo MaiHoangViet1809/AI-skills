@@ -4,9 +4,23 @@ This file records the main design decisions and reasons behind the custom workfl
 
 - `task-router-flow`
 - `sow-delegate-flow`
-- `telemetry-flow`
 
 The goal is to preserve enough context that future refinements can continue from the current design without reconstructing the original conversations.
+
+## 2026-07-08 Active Distribution Decision
+
+Decision:
+- AISkills is a portable skill library, not a repo-owned telemetry or dashboard product.
+- `telemetry-flow`, Codex hook templates, telemetry parsers, and the local dashboard runtime are retired from active maintenance in this repo.
+- Detailed telemetry history is retained in finished planning docs only.
+- AI-agent installation should follow `INSTALL_FOR_AGENTS.md` and `skills/registry.json`.
+- Local Python sync scripts remain optional cloned-repo utilities that copy skill directories only.
+- `create-agents-md` is retired; this repo no longer ships a skill that creates project policy files.
+
+Reason:
+- External OSS tooling now owns telemetry/dashboard behavior better than this repo should.
+- Installation should be readable by Codex, Claude Code, OpenCode, and other agents without assuming a cloned repo or a Python script path.
+- Project policy bootstrap is separate from skill installation.
 
 ## 1. Role Separation
 
@@ -90,7 +104,7 @@ Decision:
 - Recommended naming shape: `SOW_0001_short_name.md`.
 
 Reason:
-- Stable IDs are easier to reference in skills, summaries, telemetry, and reviews.
+- Stable IDs are easier to reference in skills, summaries, and reviews.
 - Plain free-form SOW names become harder to track over time.
 
 ## 8. Delegate Flow Trigger
@@ -207,8 +221,8 @@ Reason:
 ## 18. Claude Parsing Became Raw-Only
 
 Decision:
-- Claude telemetry/logging should keep only raw logs:
-  - `~/.logs/codex/telemetry/claude/<project>/claude-<session-id>.log`
+- Claude delegate logging should keep only raw logs:
+  - `~/.logs/aiskills/delegate/<project>/claude-<session-id>.log`
 - No persisted parsed artifact by default
 - No persisted Claude usage ledger by default
 - Parse on demand using Python
@@ -216,40 +230,6 @@ Decision:
 Reason:
 - Raw log is enough as source of truth.
 - Persisting extra parsed files and ledgers created unnecessary file sprawl.
-
-Relevant files:
-
-## 19. Global Ledger Is The Dashboard Source Of Truth
-
-Decision:
-- Dashboard reads only from `~/.logs/codex/telemetry/runs/`
-- project-local telemetry files are debug or backfill sources only
-
-Reason:
-- cross-project tracking is incomplete if the dashboard reads per-repo logs directly
-
-## 20. Hook-Based Skill Pilot Starts With `task-router-flow`
-
-Decision:
-- the first hook-based skill telemetry pilot is `task-router-flow`
-- current `sow-delegate-flow` keeps the explicit `start/finish` telemetry path
-- the pilot uses Codex hook events to self-trigger telemetry for a skill-run session
-
-Reason:
-- this validates cleaner skill/session boundaries without risking the existing delegate flow
-
-## 21. Prompt Marker Is The Pilot Routing Signal
-
-Decision:
-- `UserPromptSubmit` carries the pilot routing signal through a first-line marker like:
-  - `CODEX_SKILL_RUN skill=task-router-flow ...`
-- `Stop` finishes the same run
-
-Reason:
-- `UserPromptSubmit` and `Stop` are available now
-- prompt metadata is a more reliable skill signal than guessing from later tool events
-- `skills/sow-delegate-flow/scripts/parse_delegate_log.py`
-- `skills/sow-delegate-flow/references/log-parsing.md`
 
 ## 19. Cost / Session Hygiene
 
@@ -270,108 +250,10 @@ Decision:
 Reason:
 - A fair comparison against `cocoindex-code` and `cased/kit` did not justify making them part of the standard flow for this repo.
 
-## 21. Telemetry Became A Separate Skill
-
-Decision:
-- Run-level telemetry should live in its own skill, not inside `task-router-flow` or `sow-delegate-flow`.
-
-Reason:
-- Execution and measurement are separate concerns.
-- A separate skill is easier to reuse across different workflows later.
-
-## 22. Telemetry Uses Two Hooks Only
-
-Decision:
-- `telemetry-flow` v1 should use exactly two hooks:
-  - `start`
-  - `finish`
-- Reporting or aggregation is deferred to a later phase.
-
-Reason:
-- This keeps the first integration small.
-- It captures the run facts needed for later dashboards without forcing reporting design too early.
-
-## 23. Hybrid Run Matching
-
-Decision:
-- Use a staging record with `run_id` as the primary source of run identity.
-- Use marker text in Codex rollout as a secondary cross-check and debug aid.
-
-Reason:
-- Marker-only matching is too fragile.
-- Timestamp-only matching is not stable enough for repeated runs in the same repo.
-
-## 24. Metrics Must Be Calculable
-
-Decision:
-- Telemetry metrics must be parsed or calculated from logs, timestamps, git state, or explicit workflow metadata.
-- Do not add LLM-judged metrics such as quality scores or understanding scores.
-
-Reason:
-- Later dashboards need stable, reproducible numbers.
-- Calculable metrics are easier to compare across runs, repos, and skills.
-
-## 25. Codex Task Metric Must Be Task-Local
-
-Decision:
-- The main Codex task metric should be task-local turn usage inside the run window.
-- Do not present cumulative session-token deltas as the primary per-task Codex metric.
-
-Reason:
-- Session-accumulated deltas are easy to misread as "token cost of one task."
-- Task-local turn usage is much easier to interpret in dashboards and reviews.
-
-## 26. Tool And MCP Metrics Belong In Telemetry
-
-Decision:
-- Run telemetry should include calculable tool and MCP call metrics for both Codex and Claude when event-level logs contain them.
-
-Reason:
-- Tool usage is part of the real cost and execution shape of an agentic run.
-- These metrics are useful for later dashboards without requiring subjective scoring.
-- Prompt narrowing and precise file/symbol targeting gave better ROI.
-
-## 21. Codex Metrics Source Changed From OTel To Rollout History
-
-Decision:
-- Codex should be measured from native rollout history under:
-  - `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`
-- OTel is not required for the current Codex measurement path.
-
-Reason:
-- Rollout logs already contain:
-  - session metadata
-  - assistant and user messages
-  - token counts
-  - task completion
-- OTel added setup complexity and did not preserve assistant marker text in a useful way.
-
-Relevant file:
-- `scripts/telemetry/parse_codex_rollout.py`
-
-## 22. Marker Strategy For Codex
-
-Decision:
-- If marker-based measurement is needed, use rollout history as the detection surface.
-- Do not rely on Codex OTel to preserve marker text.
-
-Reason:
-- A direct test showed marker text spoken in the conversation appeared in rollout logs but not in useful OTel fields.
-
-## 23. Session-First Measurement
-
-Decision:
-- Measure Codex and Claude at the session level first.
-- Map sessions to task/SOW efficiency later at the analysis layer.
-
-Reason:
-- This keeps telemetry collection simple.
-- It avoids overfitting collection logic to every single downstream metric.
-
 ## 24. Centralization Strategy
 
 Decision:
-- Custom skills and telemetry design inputs should be centralized into `AISkills`.
+- Custom workflow skills should be centralized into `AISkills`.
 - Built-in or third-party skills are not copied by default.
 
 Reason:
@@ -387,21 +269,16 @@ Related SOW:
 
 Decision:
 - `TEMPLATE_AGENTS.md` remains the shared canonical policy template.
-- `create-agents-md` should choose the project instruction filename by target tool:
-  - Codex: `AGENTS.md`
-  - OpenCode: `AGENTS.md`
-  - Claude Code: `CLAUDE.md`
-  - shared/cross-tool: `AGENTS.md` as canonical policy plus tool-specific entrypoints such as `CLAUDE.md`
-  - custom: explicit user-requested filename only, with a warning that unknown names may not be auto-loaded
-- For shared Claude support, `CLAUDE.md` should be an entrypoint that imports `AGENTS.md` with `@AGENTS.md` instead of duplicating the full template.
-- This skill remains repo-local for this SOW and is not synced into `~/.codex/skills`.
+- Project policy bootstrap is separate from skill installation.
+- This repo no longer ships a skill that creates `AGENTS.md`, `CLAUDE.md`, or other policy files.
+- `INSTALL_FOR_AGENTS.md` is the primary agent-facing install guide for skills.
 
 Reason:
 - OpenAI Codex official docs identify `AGENTS.md` as project guidance: https://developers.openai.com/codex/guides/agents-md
 - OpenCode official docs use `AGENTS.md` for custom rules: https://opencode.ai/docs/rules/
 - Claude Code official docs use `CLAUDE.md` memory files and support `@path/to/import` from `CLAUDE.md`: https://code.claude.com/docs/en/memory
 - Keeping one shared `AGENTS.md` policy plus tool entrypoint files reduces drift across Codex, OpenCode, and Claude Code.
-- Custom filenames are allowed only when the user explicitly asks because most tools only auto-load their documented filenames.
+- Skill installation should not mutate policy files unless a future approved SOW reintroduces a dedicated project-policy bootstrap flow.
 
 ## Related SOW Trail
 

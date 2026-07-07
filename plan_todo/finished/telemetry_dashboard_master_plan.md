@@ -1,5 +1,9 @@
 # Telemetry Dashboard Master Plan
 
+Status: obsolete as of 2026-07-08. AISkills no longer maintains a repo-owned
+telemetry skill, Codex hooks, telemetry runtime, or dashboard. This file is kept
+only as historical planning context.
+
 ## Goal
 
 Build a local telemetry dashboard that boots from one script on port `9999`, uses `Vue 3 + Vite` for the frontend, uses Python + Polars for the backend/data layer, and visualizes the Codex and Claude run metrics already captured in this repo.

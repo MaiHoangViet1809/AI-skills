@@ -6,7 +6,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .path_utils import claude_log_path
+
+def delegate_log_path(repo_root: Path, session_id: str) -> Path:
+    safe_project = repo_root.name.replace("/", "_")
+    root = Path.home() / ".logs" / "aiskills" / "delegate" / safe_project
+    root.mkdir(parents=True, exist_ok=True)
+    return root / f"claude-{session_id}.log"
 
 
 def load_events(raw_text: str) -> List[Dict[str, Any]]:
@@ -114,16 +119,8 @@ def extract_summary(events: List[Dict[str, Any]], mode: str, raw_log_path: Path)
         texts = [piece.get("text") for piece in pieces if isinstance(piece, dict) and piece.get("type") == "text"]
         result_text = "\n".join([t for t in texts if t]) or None
 
-    status = None
-    if isinstance(structured_output, dict):
-        status = structured_output.get("status")
-
-    if not events:
-        progress_state = "no_output"
-    elif result_event:
-        progress_state = "completed"
-    else:
-        progress_state = "running"
+    status = structured_output.get("status") if isinstance(structured_output, dict) else None
+    progress_state = "no_output" if not events else "completed" if result_event else "running"
 
     summary = {
         "session_id": result_event.get("session_id") or session_id,
@@ -191,7 +188,7 @@ def main() -> int:
     summary = extract_summary(events, args.mode, raw_log)
 
     session_id = summary.get("session_id") or f"unknown-{int(datetime.now().timestamp())}"
-    final_raw_log = claude_log_path(repo_root, session_id)
+    final_raw_log = delegate_log_path(repo_root, session_id)
     if raw_log != final_raw_log:
         final_raw_log.write_text(raw_text, encoding="utf-8")
         raw_log.unlink(missing_ok=True)

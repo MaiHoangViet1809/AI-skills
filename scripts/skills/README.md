@@ -1,5 +1,9 @@
 # Skill Sync Flow
 
+For AI-agent-driven installation from GitHub, prefer the root
+`INSTALL_FOR_AGENTS.md` guide. The scripts in this folder are optional local
+utilities for users who have cloned this repo and want a direct copy command.
+
 Use one agent-specific command for the one agent environment that needs the skills.
 Do not use a hybrid command to sync multiple agents at once.
 
@@ -43,13 +47,7 @@ uv run python scripts/skills/sync_env_codex.py \
   --all
 ```
 
-Codex hook/config sync is explicit and separate from normal skill sync:
-
-```bash
-uv run python scripts/skills/sync_env_codex.py --profile codex-hooks --dry-run
-```
-
-Normal `--profile skills` sync does not write `hooks.json`, `codex_hook_bridge.py`, or `config.toml`.
+Codex sync copies skill directories only. It does not write hooks, bridge scripts, or config files.
 
 ## Claude Code
 
@@ -71,7 +69,7 @@ uv run python scripts/skills/sync_env_claude.py \
   --all
 ```
 
-Claude sync rejects Codex-only `legacy-user` and `codex-hooks`.
+Claude sync rejects Codex-only `legacy-user`.
 
 ## OpenCode
 
@@ -145,12 +143,12 @@ The scripts use `pathlib.Path` and do not hardcode POSIX-only separators.
 The old low-level installer still works for explicit target roots:
 
 ```bash
-uv run python scripts/skills/install_skills.py --skill telemetry-flow --target-root /path/to/skills
+uv run python scripts/skills/install_skills.py --skill task-router-flow --target-root /path/to/skills
 ```
 
 Without `--target-root`, `install_skills.py` keeps its legacy default of `~/.codex/skills`.
 
-The old environment command remains for compatibility. It syncs Codex hook/config files and the old legacy Codex skill bundle into `~/.codex/skills`:
+The old environment command remains for compatibility. It copies repo skills into the legacy Codex skill root `~/.codex/skills`:
 
 ```bash
 uv run python scripts/skills/sync_environment.py --target codex --dry-run

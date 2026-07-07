@@ -33,31 +33,26 @@ For execution-time progress updates, follow [brief-execution.md](../../rules/bri
 - Capture the raw stream to a log, then parse progress from that log before deciding whether the delegate is blocked.
 - Capture Claude output to a raw log file first, then parse it on demand and read the parser output by default.
 - Open the raw log only when the parser reports an anomaly or the flow explicitly needs deep debugging.
-- If `telemetry-flow` is available, start a telemetry run before the first delegate call and finish it once the workflow reaches a terminal outcome.
-- If `sow-delegate-flow` is intentionally run in its own Codex session or subagent, use the same `CODEX_SKILL_RUN` first-line marker convention so global hooks can attribute that isolated session to the current project and skill.
-- Do not emit the hook marker for the normal in-session delegate flow when explicit `telemetry-flow start/finish` is already active.
 
 ## Flow
 
 1. Read workspace rules.
 2. Create or update the SOW.
 3. Wait for approval.
-4. If run telemetry is needed, start a `telemetry-flow` run and keep the `run_id`.
-5. Start a delegate session or decide whether to resume the current one.
-6. Delegate by SOW path, not by pasting the full SOW.
-7. Write raw delegate output to the global telemetry Claude log path, parse it with the helper script, and read the parser output.
-8. Enter the coordinator loop:
+4. Start a delegate session or decide whether to resume the current one.
+5. Delegate by SOW path, not by pasting the full SOW.
+6. Write raw delegate output to the delegate log path, parse it with the helper script, and read the parser output.
+7. Enter the coordinator loop:
    - classify task difficulty
    - poll with backoff
    - re-read parser output
    - continue until terminal result, advice request, repair need, or likely-stall threshold
-9. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
-10. If Claude returns done, review files and validate.
-11. If validation fails, send feedback and continue in the current or a refreshed session.
-12. Once the workflow reaches a terminal outcome, finish the telemetry run before closeout or commit.
-13. If validation passes, close the SOW and move it to the repo's `finished/` planning directory when it is complete.
-14. If the owning plan has no active SOW left and the plan itself is complete, move that completed plan to the same `finished/` planning directory.
-15. Drop the session from active state when the plan has no active SOW left.
+8. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
+9. If Claude returns done, review files and validate.
+10. If validation fails, send feedback and continue in the current or a refreshed session.
+11. If validation passes, close the SOW and move it to the repo's `finished/` planning directory when it is complete.
+12. If the owning plan has no active SOW left and the plan itself is complete, move that completed plan to the same `finished/` planning directory.
+13. Drop the session from active state when the plan has no active SOW left.
 
 ## Coordinator Loop
 
@@ -93,8 +88,6 @@ See [claude-delegate-contract.md](references/claude-delegate-contract.md) for th
 See [output-filtering.md](references/output-filtering.md) for the mandatory default filtering policy for captured delegate output.
 
 See [log-parsing.md](references/log-parsing.md) for the raw-log-first capture flow, parser contract, and parser output shape.
-
-See [../telemetry-flow/references/hook-contract.md](../telemetry-flow/references/hook-contract.md) for the start/finish telemetry hook contract used around delegate runs.
 
 ## Defaults
 
