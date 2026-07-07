@@ -88,6 +88,7 @@ Practical rules:
 - When APIs evolve, update call sites directly instead of adding temporary aliases.
 - Abstractions must earn their place by removing real duplication, hiding genuine complexity, or enabling necessary tests.
 - Avoid single-use helper functions that only move code around without clarifying behavior.
+- NEVER create __init__.py file in this project.
 
 ---
 
