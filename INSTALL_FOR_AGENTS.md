@@ -10,13 +10,17 @@ a user asks you to install AISkills from GitHub.
 
 ## Rules
 
-- Install only the skill or skills the user asks for.
+- Install all skills listed in `skills/registry.json` by default.
+- Install a subset only when the user explicitly names one or more skill names
+  and asks for only those skills.
+- Do not ask the user to choose skill names just to complete a normal AISkills
+  install.
 - Do not create or edit project policy files such as `AGENTS.md`, `CLAUDE.md`,
   `.agents/rules`, or `.claude` context files.
 - Do not overwrite an existing local skill directory without user approval.
 - Do not clone this repo or run repo scripts unless the user explicitly asks for
   the local cloned-repo path.
-- Treat `skills/registry.json` as the file list for each skill.
+- Treat `skills/registry.json` as the authoritative skill list and file list.
 
 ## Destination
 
@@ -35,14 +39,19 @@ user scope when the user wants the skill available across repos.
 
 ## Install Flow
 
-1. Read the index and registry URLs above.
-2. Select the requested skill names from the registry.
-3. Resolve the destination root from the table.
-4. For each selected skill, create `<destination-root>/<skill-name>/`.
-5. Download every file listed for that skill in `skills/registry.json`.
-6. Preserve relative paths under the skill directory.
-7. Verify that `SKILL.md` exists in each installed skill directory.
-8. Report installed skill names and destination paths.
+1. Read `skills/registry.json` from the Registry URL above.
+2. Select skills:
+   - default: every skill in the registry;
+   - subset: only exact registry names explicitly requested by the user.
+3. If a requested subset name is missing or ambiguous, report the available
+   registry names and stop for clarification.
+4. Resolve the destination root from the table.
+5. For each selected skill, create `<destination-root>/<skill-name>/`.
+6. Download every file listed for that skill in `skills/registry.json`.
+7. Preserve relative paths under the skill directory.
+8. Verify that `SKILL.md` exists in each installed skill directory.
+9. Report whether this was an all-skill install or subset install, the installed
+   skill count, skill names, and destination paths.
 
 ## Manual Download Shape
 

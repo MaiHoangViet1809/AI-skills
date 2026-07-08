@@ -14,5 +14,8 @@ Use `registry.json` for exact files and raw download URLs.
 
 ## Install
 
-Agents should follow the root `INSTALL_FOR_AGENTS.md` guide. Users with a local
-clone can use scripts under `scripts/skills/`.
+Agents should follow the root `INSTALL_FOR_AGENTS.md` guide. A normal install
+installs every skill listed in `registry.json`; use this table only for
+reference or explicit subset installs.
+
+Users with a local clone can use scripts under `scripts/skills/`.
