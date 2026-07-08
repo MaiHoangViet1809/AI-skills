@@ -37,7 +37,7 @@ Use `SkillPipeline` when:
 - your flow fits a stage-based pipeline
 - you do not need branching/merge graph semantics
 
-Use `darwinSkill.native.run_*` helpers when:
+Use `darwinSkill.src.native.run_*` helpers when:
 
 - you want the shortest path to a working train/eval flow
 - you want benchmark-backed runs
@@ -47,15 +47,15 @@ Short rule:
 
 - lowest-level control: `SkillTrainer`
 - linear staged orchestration: `SkillPipeline`
-- fastest usable API: `darwinSkill.native`
+- fastest usable API: `darwinSkill.src.native`
 
-Use `darwinSkill.provider_logs` when:
+Use `darwinSkill.src.provider_logs` when:
 
 - you need to harvest provider-native transcripts into a stable raw schema
 - you want Codex historical session logs as input evidence
 - you need a provider-agnostic artifact before any task judgment
 
-Use `darwinSkill.extraction` when:
+Use `darwinSkill.src.extraction` when:
 
 - you already have canonical raw evidence
 - you need task-bounded work units
@@ -66,7 +66,7 @@ Use `darwinSkill.extraction` when:
 The base public sample type is:
 
 ```python
-from darwinSkill.contracts import SkillSample
+from darwinSkill.src.contracts import SkillSample
 
 sample = SkillSample(
     prompt="Capital of France?",
@@ -84,7 +84,7 @@ The default mental model is:
 Training config:
 
 ```python
-from darwinSkill.contracts import TrainingConfig
+from darwinSkill.src.contracts import TrainingConfig
 
 config = TrainingConfig(
     num_epochs=2,
@@ -98,7 +98,7 @@ config = TrainingConfig(
 Evaluation config:
 
 ```python
-from darwinSkill.contracts import EvaluationConfig
+from darwinSkill.src.contracts import EvaluationConfig
 
 config = EvaluationConfig(
     skill_text="current skill text",
@@ -151,7 +151,7 @@ If epoch memory is enabled, also inspect:
 Use:
 
 ```python
-from darwinSkill.inspection import inspect_run, summarize_run, load_step_record
+from darwinSkill.src.inspection import inspect_run, summarize_run, load_step_record
 ```
 
 to inspect run artifacts programmatically.
@@ -191,10 +191,10 @@ For tool-heavy benchmarks such as `ALFWorld` and `SpreadsheetBench`, assume the 
 ### 1. Simple Trainer Run
 
 ```python
-from darwinSkill.contracts import TrainingConfig
-from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
-from darwinSkill.evaluators import ExactMatchEvaluator
-from darwinSkill.trainer import SkillTrainer
+from darwinSkill.src.contracts import TrainingConfig
+from darwinSkill.src.demo_text import DarwinMemoryBackend, demo_samples
+from darwinSkill.src.evaluators import ExactMatchEvaluator
+from darwinSkill.src.trainer import SkillTrainer
 
 trainer = SkillTrainer(
     backend=DarwinMemoryBackend(),
@@ -208,9 +208,9 @@ artifacts = trainer.fit(demo_samples())
 ### 2. Benchmark Run From Dataset Path
 
 ```python
-from darwinSkill.contracts import TrainingConfig
-from darwinSkill.demo_text import DarwinMemoryBackend
-from darwinSkill.native import run_reference_benchmark_from_path
+from darwinSkill.src.contracts import TrainingConfig
+from darwinSkill.src.demo_text import DarwinMemoryBackend
+from darwinSkill.src.native import run_reference_benchmark_from_path
 
 artifacts = run_reference_benchmark_from_path(
     name="officeqa",
@@ -223,7 +223,7 @@ artifacts = run_reference_benchmark_from_path(
 ### 3. Interactive Benchmark Router
 
 ```python
-from darwinSkill.backends import build_interactive_router_for_benchmark
+from darwinSkill.src.backends import build_interactive_router_for_benchmark
 
 router = build_interactive_router_for_benchmark(
     benchmark_name="spreadsheet_bench",
@@ -240,8 +240,8 @@ Use this when the target runtime is interactive or tool-driven.
 ```python
 from pathlib import Path
 
-from darwinSkill.extraction import CallbackEvidenceInterpreter, build_trainable_examples
-from darwinSkill.provider_logs import load_codex_session
+from darwinSkill.src.extraction import CallbackEvidenceInterpreter, build_trainable_examples
+from darwinSkill.src.provider_logs import load_codex_session
 
 session = load_codex_session(Path("/abs/path/to/codex-session.jsonl"))
 examples = build_trainable_examples(session, skill_name="task-execution-flow")
@@ -258,7 +258,7 @@ Use the default path first. Add an LLM-backed interpreter only when you need sub
 
 ## Recommended Operating Pattern
 
-1. Start with `darwinSkill.native.run_*` unless you need lower-level control.
+1. Start with `darwinSkill.src.native.run_*` unless you need lower-level control.
 2. Use benchmark helpers when your task already matches an existing benchmark surface.
 3. Drop to `SkillTrainer` when you need custom evaluator or backend behavior.
 4. Use `SkillPipeline` only when a linear stage sequence is the right abstraction.

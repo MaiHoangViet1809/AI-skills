@@ -7,10 +7,10 @@
 Use this when you want direct control over the `SkillTrainer` object.
 
 ```python
-from darwinSkill.contracts import TrainingConfig
-from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
-from darwinSkill.evaluators import ExactMatchEvaluator
-from darwinSkill.trainer import SkillTrainer
+from darwinSkill.src.contracts import TrainingConfig
+from darwinSkill.src.demo_text import DarwinMemoryBackend, demo_samples
+from darwinSkill.src.evaluators import ExactMatchEvaluator
+from darwinSkill.src.trainer import SkillTrainer
 
 trainer = SkillTrainer(
     backend=DarwinMemoryBackend(),
@@ -26,9 +26,9 @@ artifacts = trainer.fit(demo_samples())
 ### From In-Memory Records
 
 ```python
-from darwinSkill.contracts import TrainingConfig
-from darwinSkill.demo_text import DarwinMemoryBackend
-from darwinSkill.native import run_reference_benchmark
+from darwinSkill.src.contracts import TrainingConfig
+from darwinSkill.src.demo_text import DarwinMemoryBackend
+from darwinSkill.src.native import run_reference_benchmark
 
 artifacts = run_reference_benchmark(
     name="searchqa",
@@ -43,9 +43,9 @@ artifacts = run_reference_benchmark(
 ### From A Dataset Path
 
 ```python
-from darwinSkill.contracts import TrainingConfig
-from darwinSkill.demo_text import DarwinMemoryBackend
-from darwinSkill.native import run_reference_benchmark_from_path
+from darwinSkill.src.contracts import TrainingConfig
+from darwinSkill.src.demo_text import DarwinMemoryBackend
+from darwinSkill.src.native import run_reference_benchmark_from_path
 
 artifacts = run_reference_benchmark_from_path(
     name="officeqa",
@@ -65,7 +65,7 @@ If an adapter exposes separate train/eval splits, `darwinSkill` will:
 For interactive benchmarks, wrap the target runtime callback through `BackendRouter`.
 
 ```python
-from darwinSkill.backends import build_spreadsheetbench_router
+from darwinSkill.src.backends import build_spreadsheetbench_router
 
 router = build_spreadsheetbench_router(
     target_backend=my_chat_backend,
@@ -76,7 +76,7 @@ router = build_spreadsheetbench_router(
 You can also build an adapter directly from config:
 
 ```python
-from darwinSkill.config_loader import build_reference_adapter_from_config
+from darwinSkill.src.config_loader import build_reference_adapter_from_config
 
 adapter = build_reference_adapter_from_config(
     {
@@ -89,7 +89,7 @@ adapter = build_reference_adapter_from_config(
 If the target backend returns OpenAI/Claude/Qwen/Codex-style payloads, normalize them with a compat wrapper:
 
 ```python
-from darwinSkill.backends import build_openai_compat_backend
+from darwinSkill.src.backends import build_openai_compat_backend
 
 target_backend = build_openai_compat_backend(my_provider_callback)
 ```
@@ -97,7 +97,7 @@ target_backend = build_openai_compat_backend(my_provider_callback)
 Or bootstrap directly from benchmark name plus provider family:
 
 ```python
-from darwinSkill.backends import build_interactive_router_for_benchmark
+from darwinSkill.src.backends import build_interactive_router_for_benchmark
 
 router = build_interactive_router_for_benchmark(
     benchmark_name="spreadsheet_bench",
@@ -121,7 +121,7 @@ router = build_interactive_router_for_benchmark(
 ## 4. Artifact Inspection
 
 ```python
-from darwinSkill.inspection import inspect_run, load_step_record, summarize_run
+from darwinSkill.src.inspection import inspect_run, load_step_record, summarize_run
 
 info = inspect_run(artifacts.output_dir)
 summary = summarize_run(artifacts.output_dir)
@@ -155,7 +155,7 @@ Use this when you want to turn provider-native logs into a canonical raw artifac
 ```python
 from pathlib import Path
 
-from darwinSkill.provider_logs import load_codex_session, write_provider_session
+from darwinSkill.src.provider_logs import load_codex_session, write_provider_session
 
 session = load_codex_session(Path("/abs/path/to/codex-session.jsonl"))
 write_provider_session(Path("/abs/path/to/canonical-session.json"), session)
@@ -164,7 +164,7 @@ write_provider_session(Path("/abs/path/to/canonical-session.json"), session)
 Command form:
 
 ```bash
-PYTHONPATH=. uv run python scripts/darwinSkill/harvest_provider_logs.py \
+PYTHONPATH=. uv run python darwinSkill/scripts/harvest_provider_logs.py \
   --provider codex \
   --input /abs/path/to/codex-session.jsonl \
   --output /abs/path/to/canonical-session.json
@@ -183,8 +183,8 @@ Use this when you already have canonical raw evidence and want task-bounded skil
 ```python
 from pathlib import Path
 
-from darwinSkill.extraction import CallbackEvidenceInterpreter, build_trainable_examples
-from darwinSkill.provider_logs import read_provider_session
+from darwinSkill.src.extraction import CallbackEvidenceInterpreter, build_trainable_examples
+from darwinSkill.src.provider_logs import read_provider_session
 
 session = read_provider_session(Path("/abs/path/to/canonical-session.json"))
 examples = build_trainable_examples(session, skill_name="task-execution-flow")
@@ -200,7 +200,7 @@ judged_examples = build_trainable_examples(
 Command form:
 
 ```bash
-PYTHONPATH=. uv run python scripts/darwinSkill/extract_skill_examples.py \
+PYTHONPATH=. uv run python darwinSkill/scripts/extract_skill_examples.py \
   --input /abs/path/to/canonical-session.json \
   --output /abs/path/to/examples.json \
   --skill-name task-execution-flow

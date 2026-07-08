@@ -7,15 +7,15 @@ It distills the core mechanics of `SkillOpt` into a cleaner API that can be embe
 ## Public Imports
 
 ```python
-from darwinSkill.native import run_training, run_evaluation, run_reference_benchmark
-from darwinSkill.trainer import SkillTrainer
-from darwinSkill.pipeline import SkillPipeline
-from darwinSkill.contracts import SkillSample, TrainingConfig, EvaluationConfig, PipelineConfig
-from darwinSkill.evaluators import ExactMatchEvaluator
-from darwinSkill.demo_text import DarwinMemoryBackend, demo_samples
-from darwinSkill.reference_adapters import SearchQAAdapter, DocVQAAdapter, OfficeQAAdapter
-from darwinSkill.provider_logs import load_codex_session, read_provider_session, write_provider_session
-from darwinSkill.extraction import build_trainable_examples, segment_session_into_work_units
+from darwinSkill.src.native import run_training, run_evaluation, run_reference_benchmark
+from darwinSkill.src.trainer import SkillTrainer
+from darwinSkill.src.pipeline import SkillPipeline
+from darwinSkill.src.contracts import SkillSample, TrainingConfig, EvaluationConfig, PipelineConfig
+from darwinSkill.src.evaluators import ExactMatchEvaluator
+from darwinSkill.src.demo_text import DarwinMemoryBackend, demo_samples
+from darwinSkill.src.reference_adapters import SearchQAAdapter, DocVQAAdapter, OfficeQAAdapter
+from darwinSkill.src.provider_logs import load_codex_session, read_provider_session, write_provider_session
+from darwinSkill.src.extraction import build_trainable_examples, segment_session_into_work_units
 ```
 
 ## Main Docs
@@ -34,14 +34,14 @@ from darwinSkill.extraction import build_trainable_examples, segment_session_int
 
 ## Native Python Entry Points
 
-- `darwinSkill.native.run_training(...)`
-- `darwinSkill.native.run_evaluation(...)`
-- `darwinSkill.native.run_reference_benchmark(...)`
-- `darwinSkill.native.run_reference_benchmark_from_path(...)`
-- `darwinSkill.native.run_reference_adapter(...)`
-- `darwinSkill.inspection.inspect_run(...)`
-- `darwinSkill.inspection.summarize_run(...)`
-- `darwinSkill.inspection.load_step_record(...)`
+- `darwinSkill.src.native.run_training(...)`
+- `darwinSkill.src.native.run_evaluation(...)`
+- `darwinSkill.src.native.run_reference_benchmark(...)`
+- `darwinSkill.src.native.run_reference_benchmark_from_path(...)`
+- `darwinSkill.src.native.run_reference_adapter(...)`
+- `darwinSkill.src.inspection.inspect_run(...)`
+- `darwinSkill.src.inspection.summarize_run(...)`
+- `darwinSkill.src.inspection.load_step_record(...)`
 
 ## Skill Improvement Data Pipeline
 
@@ -56,13 +56,13 @@ provider-native logs
 
 Main modules:
 
-- `darwinSkill.provider_logs`
-- `darwinSkill.extraction`
+- `darwinSkill.src.provider_logs`
+- `darwinSkill.src.extraction`
 
 Main scripts:
 
-- `PYTHONPATH=. uv run python scripts/darwinSkill/harvest_provider_logs.py --provider codex --input /abs/path/to/session.jsonl --output /abs/path/to/canonical.json`
-- `PYTHONPATH=. uv run python scripts/darwinSkill/extract_skill_examples.py --input /abs/path/to/canonical.json --output /abs/path/to/examples.json --skill-name task-execution-flow`
+- `PYTHONPATH=. uv run python darwinSkill/scripts/harvest_provider_logs.py --provider codex --input /abs/path/to/session.jsonl --output /abs/path/to/canonical.json`
+- `PYTHONPATH=. uv run python darwinSkill/scripts/extract_skill_examples.py --input /abs/path/to/canonical.json --output /abs/path/to/examples.json --skill-name task-execution-flow`
 
 Default behavior:
 
@@ -72,32 +72,32 @@ Default behavior:
 
 ## Backend And Integration Helpers
 
-- `darwinSkill.backends.build_spreadsheetbench_router(...)`
-- `darwinSkill.backends.build_alfworld_router(...)`
-- `darwinSkill.backends.build_openai_compat_backend(...)`
-- `darwinSkill.backends.build_claude_compat_backend(...)`
-- `darwinSkill.backends.build_qwen_compat_backend(...)`
-- `darwinSkill.backends.build_codex_compat_backend(...)`
-- `darwinSkill.backends.build_provider_compat_backend_for_family(...)`
-- `darwinSkill.backends.build_interactive_router_for_benchmark(...)`
-- `darwinSkill.reference_adapters.build_reference_adapter(...)`
-- `darwinSkill.config_loader.build_reference_adapter_from_config(...)`
+- `darwinSkill.src.backends.build_spreadsheetbench_router(...)`
+- `darwinSkill.src.backends.build_alfworld_router(...)`
+- `darwinSkill.src.backends.build_openai_compat_backend(...)`
+- `darwinSkill.src.backends.build_claude_compat_backend(...)`
+- `darwinSkill.src.backends.build_qwen_compat_backend(...)`
+- `darwinSkill.src.backends.build_codex_compat_backend(...)`
+- `darwinSkill.src.backends.build_provider_compat_backend_for_family(...)`
+- `darwinSkill.src.backends.build_interactive_router_for_benchmark(...)`
+- `darwinSkill.src.reference_adapters.build_reference_adapter(...)`
+- `darwinSkill.src.config_loader.build_reference_adapter_from_config(...)`
 
 ## Benchmark-Native Surfaces
 
-- `darwinSkill.searchqa_env`
-- `darwinSkill.docvqa_env`
-- `darwinSkill.officeqa_env`
-- `darwinSkill.alfworld_env`
-- `darwinSkill.spreadsheetbench_env`
-- `darwinSkill.livemathematician_env`
+- `darwinSkill.src.searchqa_env`
+- `darwinSkill.src.docvqa_env`
+- `darwinSkill.src.officeqa_env`
+- `darwinSkill.src.alfworld_env`
+- `darwinSkill.src.spreadsheetbench_env`
+- `darwinSkill.src.livemathematician_env`
 
 Useful runtime helpers:
 
 - `run_reference_benchmark(...)` auto-resolves benchmark-specific evaluators for SearchQA, DocVQA, and OfficeQA.
-- `darwinSkill.alfworld_env.run_alfworld_episode(...)` runs a native Python ALFWorld episode/runtime loop.
-- `darwinSkill.alfworld_env.build_live_alfworld_environment_factory(...)` provides an optional bridge to the reference ALFWorld simulator.
-- `darwinSkill.spreadsheetbench_env.run_spreadsheet_react_session(...)` runs a native Python react/tool loop for SpreadsheetBench.
+- `darwinSkill.src.alfworld_env.run_alfworld_episode(...)` runs a native Python ALFWorld episode/runtime loop.
+- `darwinSkill.src.alfworld_env.build_live_alfworld_environment_factory(...)` provides an optional bridge to the reference ALFWorld simulator.
+- `darwinSkill.src.spreadsheetbench_env.run_spreadsheet_react_session(...)` runs a native Python react/tool loop for SpreadsheetBench.
 
 ## Adapter-Aware Behavior
 
@@ -124,8 +124,8 @@ Useful runtime helpers:
 - ALFWorld, SpreadsheetBench, and LiveMathematicianBench have benchmark-native loader, evaluator, and adapter paths.
 - SpreadsheetBench supports Python code predictions, JSON artifact bundles, workspace bundles, structured tool calls, react transcripts, and upstream-style conversation replay bundles.
 - ALFWorld supports a native episode runner and an optional live environment factory when local dependencies are available.
-- `darwinSkill.backends` includes target-role wrappers for SpreadsheetBench and ALFWorld, plus provider-compat payload normalizers and family-aware router bootstrap helpers.
-- `darwinSkill.reference_adapters` includes a registry builder for benchmark aliases and dataset-backed adapters from Python/config inputs.
+- `darwinSkill.src.backends` includes target-role wrappers for SpreadsheetBench and ALFWorld, plus provider-compat payload normalizers and family-aware router bootstrap helpers.
+- `darwinSkill.src.reference_adapters` includes a registry builder for benchmark aliases and dataset-backed adapters from Python/config inputs.
 
 Current remaining integration gaps are mostly outside the framework core:
 
@@ -136,6 +136,6 @@ Current remaining integration gaps are mostly outside the framework core:
 ## Demo Scripts
 
 ```bash
-PYTHONPATH=. uv run python scripts/darwinSkill/train_demo.py
-PYTHONPATH=. uv run python scripts/darwinSkill/pipeline_demo.py
+PYTHONPATH=. uv run python darwinSkill/scripts/train_demo.py
+PYTHONPATH=. uv run python darwinSkill/scripts/pipeline_demo.py
 ```
