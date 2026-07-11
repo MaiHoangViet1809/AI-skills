@@ -1,0 +1,131 @@
+- **Status**: in_progress
+- **Approval**: approved by user on 2026-07-12
+- **Task**: Add a human-guided `skill-evolution-flow` that converts explicit usage feedback into a reviewed, regression-backed update of the canonical AISkills skill and then syncs that exact skill to a selected local agent environment.
+- **Location**:
+  - `skills/skill-evolution-flow/`
+  - `skills/registry.json`
+  - `skills/INDEX.md`
+  - `tests/skill_feedback_cases/`
+  - `tests/test_skill_feedback_cases.py`
+  - `scripts/skills/verify_skill_copy.py`
+  - `scripts/skills/skill_sync_common.py` only if shared comparison helpers remove real duplication
+  - `tests/test_skill_sync_scripts.py`
+  - `scripts/skills/README.md`
+- **Why**: Real skill usage exposes trigger, decision, and procedure failures that should become durable improvements. The repository needs one guarded loop that preserves user feedback as a regression case, updates the canonical skill first, validates the change, and prevents drift between AISkills and installed copies.
+- **As-Is Diagram (ASCII)**:
+
+```text
+use installed skill
+  -> behavior is wrong
+  -> user comments
+  -> agent interprets feedback ad hoc
+  -> skill may be patched manually
+  -> validation, regression evidence, commit, and sync vary by session
+  -> AISkills and installed copies can drift
+```
+
+- **To-Be Diagram (ASCII)**:
+
+```text
+use installed skill
+  -> explicit user feedback
+  -> normalize feedback
+     - trigger and context
+     - actual behavior
+     - expected behavior
+     - reusable invariant
+  -> classify cause
+     - frontmatter trigger
+     - SKILL.md decision/procedure
+     - deterministic resource/script
+     - external policy conflict
+  -> verify ownership
+     - registered AISkills source -> continue
+     - system/plugin/installed-only skill -> stop and report
+  -> compare observed installed version with canonical source
+     - stale installed copy -> sync/retest before rewriting canonical
+     - parity confirmed -> continue diagnosis
+  -> apply target-repo policy gate
+     - existing approved scope -> continue
+     - new approval/SOW required -> route and wait
+  -> choose update mode
+     - authorized low-ambiguity correction -> patch
+     - material or ambiguous change -> request approval
+  -> record regression case
+  -> patch AISkills canonical source
+  -> validate structure + scenarios + diff
+  -> commit exact AISkills files
+  -> sync only the changed skill to one selected environment
+  -> verify source/install parity
+  -> observe the next real use and repeat
+```
+
+- **Deliverables**:
+  - Add `skill-evolution-flow` with explicit triggers for user feedback about a skill's observed behavior.
+  - Define a canonical-first invariant: `AISkills/skills/<skill>/` is edited and validated before any installed copy; installed copies are deployment targets, never authoring sources.
+  - Resolve the target through `skills/registry.json` and the canonical repo folder before editing. Refuse to vendor or mutate system, plugin-owned, or installed-only skills that AISkills does not own.
+  - When the installed path that produced the behavior is known, compare it with canonical source before diagnosing the skill. If it is stale and canonical already contains the expected rule, sync and retest instead of rewriting canonical content.
+  - Normalize each actionable feedback item into: target skill, triggering request/context, actual behavior, expected behavior, generalized invariant, cause class, and evidence reference when available.
+  - Distinguish update modes:
+    - directly apply low-ambiguity corrections only when the user requested mutation and the target repository permits the edit or an approved SOW already covers it;
+    - stop for approval when feedback materially changes purpose, scope, tool authority, or safety behavior;
+    - abstain when the target skill or expected behavior cannot be established reliably.
+  - Apply the target repository's routing and SOW rules before patching. Never treat a behavior-bearing `SKILL.md` as docs-only merely because it is Markdown, and never use this meta-skill to bypass an approval gate.
+  - Classify the change surface before editing: frontmatter for trigger failures, `SKILL.md` for reasoning/procedure failures, bundled scripts/resources for deterministic repeated failures, or no skill patch when a higher-priority project/system policy caused the behavior.
+  - Add a compact JSON regression-case contract under `tests/skill_feedback_cases/` and a standard-library test that validates required fields, unique case IDs, valid target skill names, and referenced skill existence.
+  - Store only the minimum sanitized scenario needed for regression testing; exclude secrets, credentials, private transcript content, and machine-specific absolute paths.
+  - Seed the regression corpus with the `task-review-investigate-compare` case: a concrete low-ambiguity finding during repeated review of a known plan must write back unless the user explicitly requests discussion-only.
+  - Require scenario coverage for every skill update: one expected-use case, one negative/non-trigger case, and one boundary case. Structural tests validate the corpus; fresh-context forward-testing evaluates model behavior when feasible and must not leak the intended answer into the test prompt.
+  - Reuse the existing `scripts/skills/sync_env_<agent>.py` entrypoints. Run dry-run first, sync only the changed skill with explicit overwrite, and never add a hybrid or implicit `--all` deployment path.
+  - Add `verify_skill_copy.py` as a deterministic exact-skill parity checker with explicit source skill and destination root inputs. Reuse declared copy-ignore patterns and report missing, extra, and content-different relative paths instead of returning only pass/fail.
+  - Verify byte-level parity between the canonical skill directory and the selected installed target after sync. Do not hide undeclared extra files; exclude only the existing declared copy-ignore patterns.
+  - Treat self-evolution explicitly: if `skill-evolution-flow` is the target, finish the current run using its start-of-turn instructions, patch the canonical source, and activate the revised installed version only for a later turn.
+  - Keep traceability from regression case to commit by using a stable case ID in the fixture and reporting that ID in the evolution closeout; do not add a separate changelog.
+  - Update the registry, index, and sync documentation for the new meta-skill and feedback loop.
+  - Define failure handling: do not sync or commit when validation fails; do not overwrite unrelated user changes; report partial failure explicitly if commit succeeds but local deployment or parity verification fails.
+- **Done Criteria**:
+  - `skill-evolution-flow` clearly routes trigger, decision/procedure, deterministic-resource, policy-conflict, deployment-drift, ambiguous, and material-change feedback.
+  - The flow refuses an installed-only or non-AISkills-owned target without modifying repo or installed files.
+  - The initial review/writeback regression case is stored and passes schema validation.
+  - Positive, negative, and boundary scenarios are documented for the initial case, and any forward-test result is reported separately from deterministic validation.
+  - The new skill passes the available skill structural validator; future target-skill changes must be validated within their own approved task scope.
+  - `uv run python -m unittest tests.test_skill_feedback_cases tests.test_skill_sync_scripts` passes.
+  - `skills/registry.json` exactly matches active skill folders and includes every shipped file for `skill-evolution-flow`.
+  - A temporary-directory smoke test proves dry-run, exact-skill overwrite sync, and source/install parity without mutating an unrelated installed skill.
+  - Parity tests cover missing target files, undeclared extra target files, changed content, and declared ignored files.
+  - A self-evolution scenario proves the current run does not claim to use instructions written during that same run.
+  - Git diff and commit scope contain only the approved evolution-flow implementation, its regression fixtures, and registry/index/docs changes.
+  - The implementation does not claim that schema validation proves model behavior; model behavior is checked through isolated scenario testing or marked unverified.
+- **Out-of-Scope**:
+  - automatic mining or labeling of provider logs
+  - automatic online self-training or `darwinSkill` optimization
+  - silently changing skills from inferred feedback without an explicit user correction or request
+  - modifying `task-review-investigate-compare` or any other existing target skill during this SOW; the initial case is regression evidence only
+  - using this SOW as standing approval for future skill mutations
+  - automatically pushing commits, opening pull requests, or publishing remotely
+  - syncing all skills or multiple agent environments from one feedback event
+  - modifying system, project, or safety policies to force a skill outcome
+  - importing or vendoring system/plugin skills into AISkills merely because an installed copy received feedback
+  - building a generic evaluation platform or reward model
+- **Proposed-By**: Codex GPT-5
+- **plan**: Standalone SOW; related to but not part of `plan_todo/codex_skill_improvement_data_plan.md`, whose automated evidence/extraction pipeline remains separate.
+- **Cautions / Risks**:
+  - A literal rewrite from one comment can overfit the skill; convert feedback into a reusable invariant and include negative and boundary cases.
+  - Skill metadata and body can drift; update `agents/openai.yaml` whenever its interface text no longer matches `SKILL.md`.
+  - Structural validation cannot prove model behavior; keep deterministic checks and forward-test evidence distinct.
+  - Installed paths differ by agent and scope; require an explicit target and reuse existing sync resolution.
+  - A pass/fail-only parity check hides repair scope; report mismatch buckets with exact relative paths.
+  - Directly committing ambiguous behavioral changes can broaden authority or alter safety boundaries; require approval for material changes.
+  - Feedback fixtures can leak sensitive conversation or environment data; store sanitized behavioral evidence only.
+  - A meta-skill can accidentally bypass target-repo governance; target repository instructions and approved task scope remain authoritative.
+  - Updating the active meta-skill cannot retroactively change the current turn; apply the revised installed version from the next invocation.
+  - Editing installed copies first recreates source drift; canonical-first ordering is mandatory.
+
+## Implementation Verification
+
+- structural validation: passed for `skills/skill-evolution-flow/`
+- targeted tests: `uv run python -m unittest tests.test_skill_feedback_cases tests.test_skill_sync_scripts` passed, 11 tests
+- full discovered tests: `uv run python -m unittest discover -s tests` passed, 11 tests
+- parity smoke: passed through temporary-directory tests for exact sync, ignored files, and missing/extra/changed buckets
+- scenario contracts: positive, negative, boundary, self-evolution, ownership, and installed-drift cases recorded
+- isolated model forward-test: not run in this side conversation; deterministic validation does not claim model-behavior proof

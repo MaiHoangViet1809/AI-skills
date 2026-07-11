@@ -165,6 +165,76 @@ class SkillSyncScriptTests(unittest.TestCase):
         self.run_script("sync_env_others.py", "--target-root", str(target_root), "--skill", "task-router-flow")
         self.assertTrue((target_root / "task-router-flow" / "SKILL.md").exists())
 
+    def test_exact_skill_overwrite_preserves_unrelated_skill(self) -> None:
+        target_root = self.tmp_path / "custom-skills"
+        target_skill = target_root / "task-router-flow"
+        unrelated = target_root / "unrelated-skill" / "sentinel.txt"
+        target_skill.mkdir(parents=True)
+        unrelated.parent.mkdir(parents=True)
+        (target_skill / "stale.txt").write_text("stale")
+        unrelated.write_text("keep")
+
+        self.run_script(
+            "sync_env_others.py",
+            "--target-root",
+            str(target_root),
+            "--skill",
+            "task-router-flow",
+            "--overwrite",
+        )
+
+        self.assertFalse((target_skill / "stale.txt").exists())
+        self.assertEqual("keep", unrelated.read_text())
+
+    def test_verify_skill_copy_reports_mismatch_buckets(self) -> None:
+        target_root = self.tmp_path / "custom-skills"
+        self.run_script(
+            "sync_env_others.py",
+            "--target-root",
+            str(target_root),
+            "--skill",
+            "task-router-flow",
+        )
+
+        passing = self.run_script(
+            "verify_skill_copy.py",
+            "--target-root",
+            str(target_root),
+            "--skill",
+            "task-router-flow",
+        )
+        self.assertIn("parity: ok", passing.stdout)
+
+        target_skill = target_root / "task-router-flow"
+        (target_skill / ".DS_Store").write_text("ignored")
+        ignored_dir = target_skill / "__pycache__"
+        ignored_dir.mkdir()
+        (ignored_dir / "cache.pyc").write_bytes(b"ignored")
+        ignored = self.run_script(
+            "verify_skill_copy.py",
+            "--target-root",
+            str(target_root),
+            "--skill",
+            "task-router-flow",
+        )
+        self.assertIn("parity: ok", ignored.stdout)
+
+        (target_skill / "extra.txt").write_text("extra")
+        (target_skill / "SKILL.md").write_text("changed")
+        (target_skill / "agents" / "openai.yaml").unlink()
+        failed = self.run_script(
+            "verify_skill_copy.py",
+            "--target-root",
+            str(target_root),
+            "--skill",
+            "task-router-flow",
+            expect_success=False,
+        )
+        self.assertIn("missing:\n  agents/openai.yaml", failed.stdout)
+        self.assertIn("extra:\n  extra.txt", failed.stdout)
+        self.assertIn("changed:\n  SKILL.md", failed.stdout)
+        self.assertIn("parity: fail", failed.stdout)
+
     def test_missing_repo_target_project_fails(self) -> None:
         result = self.run_script(
             "sync_env_codex.py",
@@ -197,6 +267,16 @@ class SkillSyncScriptTests(unittest.TestCase):
         for skill_name, skill in registered.items():
             self.assertTrue(skill["files"], skill_name)
             self.assertEqual(f"skills/{skill_name}/SKILL.md", skill["files"][0]["path"])
+            listed_files = {file_entry["path"] for file_entry in skill["files"]}
+            actual_files = {
+                path.relative_to(REPO_ROOT).as_posix()
+                for path in (SKILLS_ROOT / skill_name).rglob("*")
+                if path.is_file()
+                and "__pycache__" not in path.parts
+                and path.name != ".DS_Store"
+                and path.suffix != ".pyc"
+            }
+            self.assertEqual(actual_files, listed_files, skill_name)
             for file_entry in skill["files"]:
                 relative_path = file_entry["path"]
                 self.assertTrue((REPO_ROOT / relative_path).exists(), relative_path)

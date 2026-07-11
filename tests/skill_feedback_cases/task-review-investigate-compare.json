@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "review-writeback-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user asks for another review of a known plan that has already been edited in the current workstream.",
+        "actual_behavior": "The review reports a concrete low-ambiguity finding but selects no writeback.",
+        "expected_behavior": "Patch the finding into the known plan unless the user explicitly requests discussion-only or no edits.",
+        "invariant": "Concrete low-ambiguity findings in a known planning artifact default to review and writeback.",
+        "evidence_ref": "sanitized:user-feedback-2026-07-12"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review the same implementation plan one more time.",
+          "context": "The plan is known, has already been edited, and the review finds a missing persistence criterion.",
+          "expected_behavior": "Patch the criterion into the plan and report review and writeback.",
+          "must_not": "Return no writeback while leaving the concrete finding only in chat."
+        },
+        {
+          "kind": "negative",
+          "request": "Brainstorm possible future directions; do not edit any files.",
+          "context": "No target planning artifact is selected.",
+          "expected_behavior": "Stay in brainstorm mode and do not write files.",
+          "must_not": "Infer permission to patch a plan."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review whether this finding should change the approved implementation direction.",
+          "context": "The finding would materially change deliverables and sequencing.",
+          "expected_behavior": "Classify the result as a scope change and route it for approval.",
+          "must_not": "Apply a material contract change as a low-ambiguity writeback."
+        }
+      ]
+    }
+  ]
+}

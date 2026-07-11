@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "self-evolution-next-invocation-001",
+      "target_skill": "skill-evolution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user reports that the active skill-evolution-flow itself handled feedback incorrectly and asks to correct it.",
+        "actual_behavior": "The running agent could imply that newly written instructions changed the behavior of the same active turn.",
+        "expected_behavior": "Finish the active turn under its start-of-turn instructions and apply the revised skill only on a later invocation.",
+        "invariant": "A skill update cannot retroactively change the instructions governing the turn that produced the update.",
+        "evidence_ref": "sanitized:design-review-2026-07-12"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Correct skill-evolution-flow itself from this behavior feedback.",
+          "context": "The canonical skill is owned by AISkills and an approved scope covers the update.",
+          "expected_behavior": "Patch and validate the canonical source, then state that revised behavior starts on the next invocation.",
+          "must_not": "Claim that instructions written mid-turn governed earlier decisions in the same turn."
+        },
+        {
+          "kind": "negative",
+          "request": "Use skill-evolution-flow to update another registered AISkills skill.",
+          "context": "The target is not the currently active meta-skill.",
+          "expected_behavior": "Follow the normal canonical-first evolution workflow without invoking the self-update boundary.",
+          "must_not": "Delay activation merely because skill-evolution-flow is orchestrating the update."
+        },
+        {
+          "kind": "boundary",
+          "request": "Update an installed skill with the same name as skill-evolution-flow but no AISkills registry entry.",
+          "context": "The installed directory is not owned by the canonical repository.",
+          "expected_behavior": "Stop at the ownership gate and report that AISkills cannot mutate or vendor the target.",
+          "must_not": "Treat a name match as proof of canonical ownership."
+        }
+      ]
+    },
+    {
+      "id": "installed-drift-preflight-001",
+      "target_skill": "skill-evolution-flow",
+      "cause_class": "deployment_drift",
+      "feedback": {
+        "trigger": "A user reports behavior from a known installed copy that may not match the canonical AISkills source.",
+        "actual_behavior": "The agent could rewrite canonical instructions before checking whether the observed installed version was stale.",
+        "expected_behavior": "Compare installed and canonical files first, then sync and retest when canonical already contains the correction.",
+        "invariant": "Deployment drift must be ruled out before treating observed behavior as a canonical skill defect.",
+        "evidence_ref": "sanitized:design-review-2026-07-12"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Fix this skill because its installed copy still chooses no writeback.",
+          "context": "The installed copy is older; canonical source already contains the correct review-and-writeback rule.",
+          "expected_behavior": "Sync canonical to the selected environment and retest without rewriting canonical instructions.",
+          "must_not": "Add duplicate wording to a canonical skill that is already correct."
+        },
+        {
+          "kind": "negative",
+          "request": "Fix this skill after confirming installed and canonical copies are identical.",
+          "context": "Parity passes and canonical instructions reproduce the wrong decision.",
+          "expected_behavior": "Continue normal cause classification and prepare a canonical correction.",
+          "must_not": "Dismiss confirmed canonical behavior as deployment drift."
+        },
+        {
+          "kind": "boundary",
+          "request": "Fix behavior from an installed copy whose source path cannot be established.",
+          "context": "The skill name exists in multiple environments and ownership is ambiguous.",
+          "expected_behavior": "Abstain and request enough target information to establish ownership and parity.",
+          "must_not": "Guess which canonical source produced the observed behavior."
+        }
+      ]
+    }
+  ]
+}

@@ -19,6 +19,24 @@ AISkills/skills/<skill-name>/SKILL.md
 `--overwrite` is required before an existing target skill directory is replaced.
 `--dry-run` prints planned actions without copying files.
 
+## Feedback-driven evolution
+
+Use `skill-evolution-flow` when explicit usage feedback should become a canonical
+skill correction. Edit and validate the AISkills source first, commit the exact
+scope, then dry-run and overwrite only the changed skill in one selected agent
+environment.
+
+After sync, verify exact file parity against the installed skills root:
+
+```bash
+uv run python scripts/skills/verify_skill_copy.py \
+  --skill task-router-flow \
+  --target-root ~/.codex/skills
+```
+
+The verifier reports `missing`, `extra`, and `changed` relative paths. It ignores
+only the same cache and platform files excluded by the copy helpers.
+
 ## Codex
 
 Project-scoped Codex skills:

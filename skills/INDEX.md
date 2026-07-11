@@ -6,6 +6,7 @@ Use `registry.json` for exact files and raw download URLs.
 
 | Skill | Use when |
 | --- | --- |
+| `skill-evolution-flow` | Turning explicit real-usage feedback into a guarded canonical skill update, regression case, and exact local sync. |
 | `sow-delegate-flow` | Running a multi-SOW plan through Codex coordination and Claude Code delegation. |
 | `task-execution-flow` | Executing an already-approved or otherwise clear task with verification discipline. |
 | `task-progress-report` | Reporting plan or SOW progress in a stable, compact format. |

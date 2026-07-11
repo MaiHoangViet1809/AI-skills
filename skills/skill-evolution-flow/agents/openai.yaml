@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Evolution Flow"
+  short_description: "Evolve skills safely from real usage feedback"
+  default_prompt: "Use $skill-evolution-flow to turn explicit skill feedback into a validated canonical update and exact local sync."

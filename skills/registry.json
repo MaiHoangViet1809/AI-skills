@@ -5,6 +5,20 @@
   "install_guide": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/INSTALL_FOR_AGENTS.md",
   "skills": [
     {
+      "name": "skill-evolution-flow",
+      "description": "Turn explicit skill feedback into a guarded canonical update, regression case, and exact local sync.",
+      "files": [
+        {
+          "path": "skills/skill-evolution-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/skill-evolution-flow/SKILL.md"
+        },
+        {
+          "path": "skills/skill-evolution-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/skill-evolution-flow/agents/openai.yaml"
+        }
+      ]
+    },
+    {
       "name": "sow-delegate-flow",
       "description": "Coordinate approved multi-SOW execution with Claude Code delegation and local verification.",
       "files": [
