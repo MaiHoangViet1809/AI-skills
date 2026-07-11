@@ -1,5 +1,6 @@
-- **Status**: in_progress
+- **Status**: done
 - **Approval**: approved by user on 2026-07-12
+- **Completed**: 2026-07-12
 - **Task**: Add a human-guided `skill-evolution-flow` that converts explicit usage feedback into a reviewed, regression-backed update of the canonical AISkills skill and then syncs that exact skill to a selected local agent environment.
 - **Location**:
   - `skills/skill-evolution-flow/`
@@ -129,3 +130,6 @@ use installed skill
 - parity smoke: passed through temporary-directory tests for exact sync, ignored files, and missing/extra/changed buckets
 - scenario contracts: positive, negative, boundary, self-evolution, ownership, and installed-drift cases recorded
 - isolated model forward-test: not run in this side conversation; deterministic validation does not claim model-behavior proof
+- canonical implementation commit: `292c8dd`
+- local deployment: exact `skill-evolution-flow` sync to Codex legacy-user scope passed
+- source/install parity: passed for `~/.codex/skills/skill-evolution-flow`
