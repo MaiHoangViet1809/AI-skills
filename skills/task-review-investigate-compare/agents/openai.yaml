@@ -1,4 +1,4 @@
 interface:
   display_name: "TaskReviewInvestigateCompare"
-  short_description: "Review plans and ideas, investigate evidence, and compare approaches before writeback or HITL handoff"
-  default_prompt: "Use TaskReviewInvestigateCompare to review a plan, SOW, request, or idea; investigate codebase or internet evidence; and recommend whether to write back, route a scope change, or stop at a human-in-the-loop handoff."
+  short_description: "Review evidence and write concrete findings back into known plans by default"
+  default_prompt: "Use TaskReviewInvestigateCompare to review a plan, SOW, request, or idea. Write concrete, low-ambiguity findings back into a known existing plan or SOW by default unless the user requests discussion only; route material scope changes separately."

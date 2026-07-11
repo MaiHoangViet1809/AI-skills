@@ -1,6 +1,6 @@
 ---
 name: task-review-investigate-compare
-description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes in the codebase or from internet sources; or compare implementation approaches before deciding whether to write back to planning docs, route to SOW changes, or hand off for later human-in-the-loop or execution follow-up.
+description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes; or compare approaches. Default concrete, low-ambiguity findings back into a known existing plan or SOW unless the user explicitly requests discussion only; route material contract changes separately.
 ---
 
 # Task Review Investigate Compare
@@ -32,9 +32,25 @@ Execution belongs to a later skill or human-in-the-loop step after this review i
 
 Choose exactly one mode before gathering evidence.
 
+Default selection:
+
+```text
+known existing plan/SOW?
+├─ no  -> Brainstorm
+└─ yes -> concrete, low-ambiguity finding?
+          ├─ no  -> report no actionable finding; do not edit
+          └─ yes -> materially changes the contract?
+                    ├─ yes -> Scope Change
+                    └─ no  -> Review And Writeback
+```
+
+- Do not choose `Brainstorm` merely because the user says `review`.
+- Treat `review again`, `double-check`, and `final review` as continuation of `Review And Writeback` when the same artifact has already been edited in the current workstream.
+- Override that default only when the user explicitly requests discussion-only, no-writeback, or no file edits.
+
 ### 1. Brainstorm
 
-Use when the user is exploring and does not want file edits yet.
+Use when no target artifact is known, findings are still exploratory or ambiguous, or the user explicitly does not want file edits yet.
 
 Output:
 - clarify the real question
@@ -42,6 +58,8 @@ Output:
 - recommend next steps
 
 Do not write files in this mode unless the user explicitly asks.
+
+Do not use this mode solely because the request is phrased as a review.
 
 ### 2. Review And Writeback
 
@@ -56,7 +74,10 @@ Examples:
 
 Default rule:
 - if ambiguity is low and the writeback only clarifies existing planning artifacts, update them directly
+- if the review finds a concrete issue that belongs in a known planning artifact, patch it in the same turn; the user does not need to separately say `patch`
 - do not stop only to ask for approval of the writeback itself
+
+Typical writeback findings include missing acceptance criteria, persistence boundaries, consumer or callsite coverage, validation coverage, risks, and naming drift.
 
 ### 3. Scope Change
 
@@ -183,6 +204,14 @@ Write back directly when all of these are true:
 - the update mainly records or clarifies findings
 - the implementation contract is not materially changing
 - ambiguity is low
+
+A concrete finding in a known artifact is sufficient authorization for this docs-only writeback unless the user explicitly requests discussion-only or no edits.
+
+For repeated reviews of the same artifact:
+
+- finding found: patch it, verify the resulting document, and report the writeback
+- no finding found: report `No actionable findings found.` and leave the file unchanged
+- never return `no writeback` after making a qualifying writeback
 
 Escalate to `task-router-flow` when the findings would materially change scope rather than merely document it.
 
