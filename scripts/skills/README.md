@@ -23,8 +23,8 @@ AISkills/skills/<skill-name>/SKILL.md
 
 Use `skill-evolution-flow` when explicit usage feedback should become a canonical
 skill correction. Edit and validate the AISkills source first, commit the exact
-scope, then dry-run and overwrite only the changed skill in one selected agent
-environment.
+scope, then preview the exact single-skill overwrite command with `--dry-run`.
+Execute it by removing only `--dry-run`.
 
 After sync, verify exact file parity against the installed skills root:
 

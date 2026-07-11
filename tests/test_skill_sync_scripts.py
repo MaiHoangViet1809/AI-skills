@@ -186,6 +186,29 @@ class SkillSyncScriptTests(unittest.TestCase):
         self.assertFalse((target_skill / "stale.txt").exists())
         self.assertEqual("keep", unrelated.read_text())
 
+    def test_overwrite_dry_run_previews_replace_without_mutating(self) -> None:
+        target_root = self.tmp_path / "custom-skills"
+        stale = target_root / "task-router-flow" / "stale.txt"
+        unrelated = target_root / "unrelated-skill" / "sentinel.txt"
+        stale.parent.mkdir(parents=True)
+        unrelated.parent.mkdir(parents=True)
+        stale.write_text("stale")
+        unrelated.write_text("keep")
+
+        result = self.run_script(
+            "sync_env_others.py",
+            "--target-root",
+            str(target_root),
+            "--skill",
+            "task-router-flow",
+            "--overwrite",
+            "--dry-run",
+        )
+
+        self.assertIn("replace task-router-flow ->", result.stdout)
+        self.assertEqual("stale", stale.read_text())
+        self.assertEqual("keep", unrelated.read_text())
+
     def test_verify_skill_copy_reports_mismatch_buckets(self) -> None:
         target_root = self.tmp_path / "custom-skills"
         self.run_script(

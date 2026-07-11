@@ -109,10 +109,11 @@ Commit only the exact approved AISkills files, including the canonical skill, re
 
 For one explicitly selected agent environment:
 
-1. Run the matching `scripts/skills/sync_env_<agent>.py` command with `--skill <name> --dry-run`.
-2. Run the same exact-skill command with `--overwrite`.
-3. Run `scripts/skills/verify_skill_copy.py --skill <name> --target-root <skills-root>`.
-4. Report missing, extra, or changed relative paths if parity fails.
+1. Build the exact sync command with agent, scope, target, `--skill <name>`, and `--overwrite` when replacing an existing target.
+2. Preview that exact command by adding `--dry-run`.
+3. Execute the same command by removing only `--dry-run`.
+4. Run `scripts/skills/verify_skill_copy.py --skill <name> --target-root <skills-root>`.
+5. Report missing, extra, or changed relative paths if parity fails.
 
 Never use `--all` or sync multiple environments from one feedback event.
 

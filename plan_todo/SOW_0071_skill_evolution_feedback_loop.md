@@ -1,6 +1,6 @@
-- **Status**: done
+- **Status**: in_progress
 - **Approval**: approved by user on 2026-07-12
-- **Completed**: 2026-07-12
+- **Initial-Completed**: 2026-07-12
 - **Task**: Add a human-guided `skill-evolution-flow` that converts explicit usage feedback into a reviewed, regression-backed update of the canonical AISkills skill and then syncs that exact skill to a selected local agent environment.
 - **Location**:
   - `skills/skill-evolution-flow/`
@@ -133,3 +133,20 @@ use installed skill
 - canonical implementation commit: `292c8dd`
 - local deployment: exact `skill-evolution-flow` sync to Codex legacy-user scope passed
 - source/install parity: passed for `~/.codex/skills/skill-evolution-flow`
+
+## Extension 1: Overwrite Dry-Run Parity
+
+- **Status**: in_progress
+- **Approval**: approved by user on 2026-07-12
+- **Finding**: The workflow previews an existing target without `--overwrite`, so dry-run reports `skip` while execution uses `--overwrite` and performs `replace`.
+- **Location**: `skills/skill-evolution-flow/SKILL.md`, `scripts/skills/README.md`, `tests/test_skill_sync_scripts.py`, `plan_todo/fix_bug.md`, and this SOW.
+- **Change**:
+  - require preview and execution to use the same agent, scope, target, skill, and overwrite flags;
+  - preview adds `--dry-run`; execution removes only `--dry-run`;
+  - add a regression test proving overwrite dry-run reports `replace` without mutating the existing target.
+- **Done Criteria**:
+  - an existing target preview reports `replace`, not `skip`;
+  - preview leaves stale target content unchanged;
+  - the corresponding execution replaces only the selected skill;
+  - structural validation, full tests, exact-skill sync, and installed parity pass.
+- **Out-of-Scope**: changing sync command semantics, adding multi-skill sync, or modifying unrelated skills.
