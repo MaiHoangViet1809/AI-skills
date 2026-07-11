@@ -1,6 +1,7 @@
-- **Status**: in_progress
+- **Status**: done
 - **Approval**: approved by user on 2026-07-12
 - **Initial-Completed**: 2026-07-12
+- **Completed**: 2026-07-12 after Extension 1
 - **Task**: Add a human-guided `skill-evolution-flow` that converts explicit usage feedback into a reviewed, regression-backed update of the canonical AISkills skill and then syncs that exact skill to a selected local agent environment.
 - **Location**:
   - `skills/skill-evolution-flow/`
@@ -136,7 +137,7 @@ use installed skill
 
 ## Extension 1: Overwrite Dry-Run Parity
 
-- **Status**: in_progress
+- **Status**: done
 - **Approval**: approved by user on 2026-07-12
 - **Finding**: The workflow previews an existing target without `--overwrite`, so dry-run reports `skip` while execution uses `--overwrite` and performs `replace`.
 - **Location**: `skills/skill-evolution-flow/SKILL.md`, `scripts/skills/README.md`, `tests/test_skill_sync_scripts.py`, `plan_todo/fix_bug.md`, and this SOW.
@@ -150,3 +151,8 @@ use installed skill
   - the corresponding execution replaces only the selected skill;
   - structural validation, full tests, exact-skill sync, and installed parity pass.
 - **Out-of-Scope**: changing sync command semantics, adding multi-skill sync, or modifying unrelated skills.
+- **Verification**:
+  - overwrite preview reported `replace` and did not mutate the target;
+  - full suite passed, 12 tests;
+  - canonical fix commit: `1674b60`;
+  - exact Codex legacy-user overwrite sync and source/install parity passed.
