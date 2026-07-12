@@ -28,6 +28,21 @@ Use `task-router-flow` when the job is mainly branch selection for implementatio
 
 Execution belongs to a later skill or human-in-the-loop step after this review is complete.
 
+## Project Guardrail Conformance Audit
+
+Before choosing a review mode for a design-bearing request:
+
+1. Read the target project's authority documents and nested rules.
+2. Extract relevant invariants and prohibited designs.
+3. Compare every viable option and recommendation against those rules.
+4. Identify evidence that would prove the recommended direction preserves them.
+5. Treat missing or conflicting authority as a decision blocker, not freedom to
+   choose an implementation-convenient architecture.
+
+For a non-design review, record that this audit is not applicable and continue
+with the normal review flow. This audit is project-derived and must not impose a
+domain, storage model, or ownership model of its own.
+
 ## Operating Modes
 
 Choose exactly one mode before gathering evidence.
@@ -223,6 +238,7 @@ Escalate to `task-router-flow` when the findings would materially change scope r
 - do not keep the task in brainstorm mode once the user clearly asked for writeback or routing
 - do not ask for approval solely because a low-ambiguity planning writeback is possible
 - do not execute the proposed work from this skill; stop at recommendation, writeback, or routing
+- do not present a false dichotomy when an authority-compliant alternative exists; include that alternative in the comparison
 
 ## Closeout
 

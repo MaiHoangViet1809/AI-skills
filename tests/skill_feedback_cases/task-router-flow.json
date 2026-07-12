@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "guardrail-conformance-router-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A request needs a new architecture-affecting SOW.",
+        "actual_behavior": "The router drafts an implementation direction before reading project authority documents.",
+        "expected_behavior": "Audit project authority before branch selection or SOW direction and stop on unresolved conflict.",
+        "invariant": "Routing derives design constraints from the target project's authority documents.",
+        "evidence_ref": "sanitized:guardrail-conformance-feedback"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Draft a migration that changes persistence ownership.",
+          "context": "The project design document defines a persistence ownership invariant.",
+          "expected_behavior": "Read the authority, map viable directions to it, and draft only a compliant SOW direction.",
+          "must_not": "Route directly to a convenience-driven implementation plan."
+        },
+        {
+          "kind": "negative",
+          "request": "Correct a typo in a planning document.",
+          "context": "No architecture, ownership, or runtime contract is affected.",
+          "expected_behavior": "Use the docs-only branch without requiring a design audit.",
+          "must_not": "Create architectural work from an editorial request."
+        },
+        {
+          "kind": "boundary",
+          "request": "Draft a redesign where the authority documents are silent on the proposed ownership split.",
+          "context": "The change would establish a new architecture contract.",
+          "expected_behavior": "Stop and request a project-authority decision before drafting the implementation direction.",
+          "must_not": "Treat silence as approval."
+        }
+      ]
+    }
+  ]
+}

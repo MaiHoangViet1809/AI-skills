@@ -35,6 +35,41 @@
           "must_not": "Apply a material contract change as a low-ambiguity writeback."
         }
       ]
+    },
+    {
+      "id": "guardrail-conformance-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review recommends an implementation-convenient design without checking the target project's architecture authority.",
+        "actual_behavior": "The recommendation treats a local trade-off as sufficient architecture evidence.",
+        "expected_behavior": "Read project authority, compare viable options against its invariants, and stop when authority is missing or conflicting.",
+        "invariant": "Review recommendations derive design constraints from the target project's authority documents.",
+        "evidence_ref": "sanitized:guardrail-conformance-feedback"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review two persistence designs for a project whose architecture document declares one write owner.",
+          "context": "One option introduces a second write owner for local convenience.",
+          "expected_behavior": "Reject the conflicting option, state the governing invariant, and require evidence for the compliant option.",
+          "must_not": "Treat local implementation convenience as an architecture exception."
+        },
+        {
+          "kind": "negative",
+          "request": "Review wording in a release note.",
+          "context": "No architecture or ownership contract is affected.",
+          "expected_behavior": "Mark the conformance audit not applicable and perform the normal review.",
+          "must_not": "Demand a design authority audit for an editorial change."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a design where the project documents do not decide ownership.",
+          "context": "The options have different ownership consequences.",
+          "expected_behavior": "Surface the authority ambiguity and route it for an explicit design decision.",
+          "must_not": "Choose the lowest-effort option by default."
+        }
+      ]
     }
   ]
 }

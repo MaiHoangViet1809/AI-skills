@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "guardrail-conformance-execution-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "An approved implementation task changes an architecture boundary.",
+        "actual_behavior": "Execution starts from the SOW file list without checking that the selected design conforms to project authority.",
+        "expected_behavior": "Re-check authority mapping and planned evidence before implementation, then stop on conflict or ambiguity.",
+        "invariant": "Execution preserves project-declared architecture instead of optimizing around it.",
+        "evidence_ref": "sanitized:guardrail-conformance-feedback"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Implement an approved ownership-boundary refactor.",
+          "context": "The SOW identifies the governing architecture invariant and verification evidence.",
+          "expected_behavior": "Confirm the mapping, implement within it, and verify the stated evidence.",
+          "must_not": "Introduce a second ownership path for implementation convenience."
+        },
+        {
+          "kind": "negative",
+          "request": "Apply an approved text-only documentation correction.",
+          "context": "No design contract changes.",
+          "expected_behavior": "Execute the docs change without demanding architecture evidence.",
+          "must_not": "Block a non-design edit on an irrelevant audit."
+        },
+        {
+          "kind": "boundary",
+          "request": "Implement a SOW whose selected design conflicts with a newer project authority document.",
+          "context": "The conflict changes ownership semantics.",
+          "expected_behavior": "Stop and route back for a project-authority amendment or revised SOW.",
+          "must_not": "Implement the stale SOW unchanged."
+        }
+      ]
+    }
+  ]
+}

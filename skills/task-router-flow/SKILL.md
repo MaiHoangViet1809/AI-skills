@@ -11,6 +11,23 @@ For execution-time progress updates, follow [brief-execution.md](../../rules/bri
 
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
+## Project Guardrail Conformance Audit
+
+Run this audit before selecting a branch or drafting a SOW when the request may
+affect architecture, ownership, persistence, migration, runtime boundaries, or
+another project-defined design contract.
+
+1. Read the target project's authority documents and nested rules.
+2. Extract the invariants and prohibited designs relevant to the request.
+3. Map viable directions to those invariants, including the selected direction.
+4. State the evidence needed to prove the selected direction preserves them.
+5. If authority is missing or conflicting, stop before drafting an
+   implementation direction and request a project-authority decision.
+
+Do not invent a project architecture from implementation convenience. This
+audit derives rules from the target project; it does not prescribe a domain,
+storage model, or ownership model.
+
 ## Branches
 
 ### 1. New Code Change
@@ -59,6 +76,18 @@ Flow:
 - Edit the docs or planning files directly.
 - If the edit makes a SOW or plan complete, move that completed file into `plan_todo/finished/` before closeout.
 
+## Change Completeness Guardrail
+
+Use this guardrail in every branch:
+- Do not treat a request as a single-point fix by default.
+- Check adjacent or analogous scope that can drift for the same reason.
+- Present a short coverage note before execution:
+  - what is directly requested
+  - what analogous scope should also be handled
+  - what is intentionally left out, if any
+- If similar surfaces are likely affected, suggest a family-level fix path.
+- If scope is intentionally narrow, explicitly mark it as a trade-off.
+
 ## SOW Extension Limit
 
 - Treat 3 extensions as the hard maximum for a single SOW.
@@ -75,6 +104,18 @@ After any branch finishes:
 - summarize the outcome
 - commit with a clear message unless the user defers commits
 - report the result to the user
+
+## Global Hook Telemetry
+
+When this skill runs in its own Codex session, emit one first-line marker:
+
+```text
+CODEX_SKILL_RUN skill=task-router-flow plan=<plan> sow=<sow> task_type=<task_type> intent=<intent>
+```
+
+Use real values, resolve the target project from the session working directory,
+and let global hooks own timing. Do not run a second telemetry lifecycle from
+this isolated routing session.
 
 ## Notes
 

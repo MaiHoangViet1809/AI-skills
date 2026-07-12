@@ -21,6 +21,8 @@ If branch or scope is still unclear, use `task-router-flow` first.
 ## Core Rules
 
 - Read local repo rules and the active scope contract before editing.
+- For architecture, ownership, persistence, migration, or runtime-boundary work, re-read the target project's authority documents; extract applicable invariants and forbidden designs before implementation.
+- Confirm the approved SOW or decision maps the selected design and viable alternatives to those invariants. Missing or conflicting authority is a stop condition, not permission to select a convenience-driven design.
 - Confirm the approved SOW covers the exact task before code changes begin.
 - Build context from the codebase or problem first. Do not lead with assumptions.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
@@ -34,6 +36,9 @@ If branch or scope is still unclear, use `task-router-flow` first.
 ```text
 Phase 0: scope check
 -> confirm the approved SOW covers the exact task
+-> for a design-bearing task, confirm the authority-to-design mapping and planned evidence are present
+-> if the mapping is missing, authority is ambiguous, or the selected design conflicts:
+   -> stop and return to project-authority review before implementation
 -> if this is a regression or follow-up under an active SOW:
    -> extend that SOW only while it stays within the repo's extension limit
    -> otherwise open a replacement SOW that references the prior one
