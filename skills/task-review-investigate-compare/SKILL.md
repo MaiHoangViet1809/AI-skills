@@ -137,9 +137,12 @@ If the question is still ambiguous after this pass, narrow the ambiguity before 
 
 Build evidence from the right source first.
 
-- use `code-context-search-policy` for codebase investigation
-- use `codegraph` first for symbols, callers, callees, impact, and structure questions
-- use `rg` first for literal strings, config keys, logs, comments, and fuzzy text hunts
+- choose an available inspection method that fits the question and produces
+  sufficient repository evidence
+- CodeGraph may help with symbols, callers, impact, or structure when already
+  available, but never require its setup or invocation
+- `rg` is useful for literal strings, config keys, logs, comments, and fuzzy
+  text hunts, but it is not a universal mandatory first step
 - browse official or primary internet sources when the comparison depends on current external facts, changing APIs, version behavior, specs, or recommendations
 
 When using internet sources:

@@ -70,6 +70,41 @@
           "must_not": "Choose the lowest-effort option by default."
         }
       ]
+    },
+    {
+      "id": "optional-code-search-tool-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review needs repository evidence about implementation or ownership.",
+        "actual_behavior": "The review mandates a search-policy skill and CodeGraph-first navigation even when the index is unavailable.",
+        "expected_behavior": "Select available inspection methods based on the question and evidence needed, with CodeGraph remaining optional.",
+        "invariant": "Review quality is defined by sufficient evidence, not mandatory use of one search tool.",
+        "evidence_ref": "sanitized:user-feedback-optional-codegraph"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a plan against the current implementation.",
+          "context": "CodeGraph is not initialized, and exact files plus literal references are available.",
+          "expected_behavior": "Use direct reads and suitable search to produce grounded findings.",
+          "must_not": "Pause the review to initialize or require CodeGraph."
+        },
+        {
+          "kind": "negative",
+          "request": "Determine the impact radius of a known symbol.",
+          "context": "An initialized CodeGraph is available and provides accurate caller relationships.",
+          "expected_behavior": "Use the semantic graph when it materially improves evidence quality.",
+          "must_not": "Treat optional CodeGraph as forbidden."
+        },
+        {
+          "kind": "boundary",
+          "request": "Investigate a vague behavior with both structural and literal clues.",
+          "context": "No single method is clearly sufficient at the start.",
+          "expected_behavior": "Start with a reasonable available method and switch or combine tools when evidence demands it.",
+          "must_not": "Enforce one universal first-tool policy."
+        }
+      ]
     }
   ]
 }

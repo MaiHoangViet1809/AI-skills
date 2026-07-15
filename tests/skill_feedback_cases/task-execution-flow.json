@@ -35,6 +35,41 @@
           "must_not": "Implement the stale SOW unchanged."
         }
       ]
+    },
+    {
+      "id": "optional-code-search-tool-execution-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "An approved task requires reading and navigating a repository.",
+        "actual_behavior": "Execution invokes a separate search-policy skill and treats CodeGraph as mandatory before normal inspection.",
+        "expected_behavior": "Choose any available method that gathers sufficient code evidence without requiring CodeGraph setup or invocation.",
+        "invariant": "Execution requires real repository evidence, not one mandatory code-navigation tool.",
+        "evidence_ref": "sanitized:user-feedback-optional-codegraph"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Implement an approved change after inspecting the relevant code paths.",
+          "context": "CodeGraph is unavailable, while direct reads and text search can establish the implementation shape.",
+          "expected_behavior": "Inspect with available tools and continue once evidence is sufficient.",
+          "must_not": "Initialize or invoke CodeGraph merely because the task touches code."
+        },
+        {
+          "kind": "negative",
+          "request": "Analyze the caller impact of a known symbol using the already-available semantic graph.",
+          "context": "CodeGraph is initialized and is the cheapest reliable tool for the question.",
+          "expected_behavior": "Use CodeGraph when it is useful without treating it as globally required.",
+          "must_not": "Ban CodeGraph or force a less suitable tool."
+        },
+        {
+          "kind": "boundary",
+          "request": "Inspect an unfamiliar repository where no single search tool answers the full question.",
+          "context": "Several available methods provide complementary evidence.",
+          "expected_behavior": "Combine suitable methods proportionally to the uncertainty.",
+          "must_not": "Replace CodeGraph-first with another universal mandatory search order."
+        }
+      ]
     }
   ]
 }

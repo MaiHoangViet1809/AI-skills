@@ -281,5 +281,7 @@ Final response must include:
 ## Composition With Other Skills
 
 - Use `task-router-flow` when branch or scope is unclear.
-- Use `code-context-search-policy` when deciding how to inspect the codebase.
+- Choose any available inspection method that provides sufficient codebase
+  evidence; CodeGraph and a separate search-policy skill are optional, never
+  required setup or invocation.
 - Use `sow-delegate-flow` only when the task is being delegated to Claude.
