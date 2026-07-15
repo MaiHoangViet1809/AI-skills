@@ -1,6 +1,6 @@
 # SOW_0072 - Remove Mandatory CodeGraph Skill Policy
 
-- **Status**: IN PROGRESS
+- **Status**: DONE
 - **Approval**: approved by user request on 2026-07-16
 - **Task**: Remove mandatory CodeGraph and `code-context-search-policy` usage from AISkills-owned Codex workflows while keeping tool choice evidence-driven.
 - **Location**:
@@ -53,3 +53,33 @@ codebase task
   - Removing a mandatory tool must not weaken the requirement to inspect real code and gather evidence.
   - Do not replace CodeGraph-first with an equally rigid `rg`-first rule for every question.
   - The installed-only `code-context-search-policy` skill has no AISkills registry owner and must not be edited as canonical source.
+
+## Closeout
+
+Definitely implemented:
+
+- Removed mandatory `code-context-search-policy` composition from `task-execution-flow`.
+- Removed CodeGraph-first evidence rules from `task-review-investigate-compare`.
+- Kept CodeGraph optional when already available and useful.
+- Added regression cases `optional-code-search-tool-execution-001` and
+  `optional-code-search-tool-review-001`.
+- Committed canonical changes as `23809c2`.
+- Synced both changed skills individually to the Codex legacy-user skill root;
+  exact parity passed for each.
+
+Verification:
+
+- Structural validation passed for both changed skill folders.
+- `uv run python -m unittest tests.test_skill_feedback_cases tests.test_skill_sync_scripts` passed: 12 tests.
+- `uv run python -m unittest discover -s tests` passed: 12 tests.
+- `git diff --check` passed.
+- Exact overwrite dry-run, sync, and parity verification passed separately for
+  both skills.
+
+Not modified or not verified:
+
+- No isolated model forward-test ran because side-conversation subagents were
+  unavailable; deterministic validation does not claim model-behavior proof.
+- The installed-only `code-context-search-policy` skill still exists and still
+  contains CodeGraph-first guidance. It has no AISkills registry/canonical
+  source, so this SOW did not mutate or vendor it.
