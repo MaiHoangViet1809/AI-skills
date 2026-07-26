@@ -41,6 +41,27 @@ Agents **MUST NOT** silently drift from the principle design through hybrid owne
 
 ---
 
+## Concept Authority
+
+Concept authority activates only when the target repository declares a canonical
+concept source through Project Overrides or an equivalent repository-documented
+canonical concept index.
+
+When concept authority is active:
+
+- recorded concepts **MUST** be treated as implementation authority
+- implementation **MUST NOT** conflict with those concepts unless the approved
+  SOW explicitly declares a concept change
+- concept changes and their implementation **MUST** live in the same approved
+  SOW
+- a SOW **MUST NOT** silently override, bypass, or postpone a required concept
+  update
+
+When concept authority is not declared, concept-specific routing, SOW fields,
+preflight, and closeout gates do not activate.
+
+---
+
 ## Task Routing
 
 Use this routing before execution:
@@ -76,6 +97,19 @@ An approved SOW **MUST** include:
 - **Proposed-By**: agent name or tool identity
 - **Plan / Reference**: related plan, issue, ticket, or investigation when applicable
 - **Cautions / Risks**: likely failure modes
+
+When concept authority is active, an approved SOW **MUST** also include:
+
+```md
+## Concept Compliance
+
+- Applicable Concepts: <stable IDs or authority paths, or None with rationale>
+- Concept Change: No | Yes
+- Required Concept Updates: <None or exact concept IDs/files and intended change>
+```
+
+`Applicable Concepts: None` is allowed only with a concrete task-specific
+rationale after concept authority has already been detected.
 
 Agents **MUST** re-check the active SOW at each major task switch.
 If scope expands, stop and update the SOW before continuing.
@@ -248,6 +282,8 @@ Keep the generic contract above portable.
 ### Architecture Source Of Truth
 
 - Principle/design docs:
+- Concept authority docs:
+- Concept authority index:
 - Runtime ownership boundaries:
 - API or schema rules:
 

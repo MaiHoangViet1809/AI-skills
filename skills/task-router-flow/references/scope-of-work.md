@@ -32,6 +32,33 @@ Rules:
 - Before code changes begin, `Approval` must be `approved`.
 - When work is finished and the SOW is moved to `finished/`, set `Status` to a completed state such as `done`.
 - When a plan document reaches its terminal completed state and is moved to `finished/`, make that completed state explicit in the plan file.
+- If the target repository declares concept authority, add `Concept Compliance`
+  to the SOW before approval.
+
+## Conditional Concept Compliance
+
+Activate this section only when the target repository declares concept
+authority through `AGENTS.md` Project Overrides or an equivalent
+repository-documented canonical concept index.
+
+Required section:
+
+```md
+## Concept Compliance
+
+- Applicable Concepts: <stable IDs or authority paths, or None with rationale>
+- Concept Change: No | Yes
+- Required Concept Updates: <None or exact concept IDs/files and intended change>
+```
+
+Rules:
+
+- `Applicable Concepts: None` is allowed only with a concrete task-specific
+  rationale after concept authority has already been detected.
+- Use stable IDs or exact authority paths, not paraphrases of the concept.
+- If implementation changes a concept, declare `Concept Change: Yes` before
+  approval and keep the concept update in the same SOW.
+- If no concept authority exists, omit `Concept Compliance` entirely.
 
 ## Indexing
 

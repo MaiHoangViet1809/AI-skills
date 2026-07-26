@@ -23,6 +23,8 @@ If branch or scope is still unclear, use `task-router-flow` first.
 - Read local repo rules and the active scope contract before editing.
 - For architecture, ownership, persistence, migration, or runtime-boundary work, re-read the target project's authority documents; extract applicable invariants and forbidden designs before implementation.
 - Confirm the approved SOW or decision maps the selected design and viable alternatives to those invariants. Missing or conflicting authority is a stop condition, not permission to select a convenience-driven design.
+- When concept authority exists, run Concept Preflight before implementation
+  and Concept Closeout before completion.
 - Confirm the approved SOW covers the exact task before code changes begin.
 - Build context from the codebase or problem first. Do not lead with assumptions.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
@@ -39,6 +41,10 @@ Phase 0: scope check
 -> for a design-bearing task, confirm the authority-to-design mapping and planned evidence are present
 -> if the mapping is missing, authority is ambiguous, or the selected design conflicts:
    -> stop and return to project-authority review before implementation
+-> if concept authority exists:
+   -> read the mapped concepts
+   -> extract applicable invariants and forbidden designs
+   -> stop if `Concept Compliance` is missing, false, or conflicts with the selected design
 -> if this is a regression or follow-up under an active SOW:
    -> extend that SOW only while it stays within the repo's extension limit
    -> otherwise open a replacement SOW that references the prior one
@@ -73,6 +79,10 @@ Phase 4: gap-finding pass
 -> answer the required post-implementation gap checklist
 -> if any answer is uncertain:
    -> do one more targeted inspection or runtime check
+-> if concept authority exists:
+   -> compare the final diff with the SOW's `Concept Compliance` mapping
+   -> if semantics changed a concept without the same-SOW concept update:
+      -> block closeout and reopen the loop
 -> if a gap is found:
    -> report the actionable findings in a `Severity | Finding | Impact | Solution` table before choosing the next action
    -> convert it into a repair mini-task

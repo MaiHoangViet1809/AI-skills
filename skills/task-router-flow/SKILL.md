@@ -36,6 +36,10 @@ Use this branch when the user requests a new code change, feature, refactor, or 
 
 Flow:
 - Draft a new SOW using the repo's active template.
+- Determine whether concept authority exists in the target repo before drafting
+  the final SOW.
+- When concept authority exists, add `Concept Compliance` before approval and
+  map applicable concepts or an explicit `None` rationale.
 - Revise it if the user requests changes.
 - Wait for approval.
 - Hand off to the next execution step or downstream skill.
@@ -48,6 +52,9 @@ Flow:
 - Check how many approved extensions the active SOW already has.
 - If the next change would become extension 4, do not keep extending the same SOW.
 - Draft a new SOW that references the prior SOW and carries forward only the still-relevant context.
+- Re-check concept authority for the updated scope.
+- When concept authority exists, refresh `Concept Compliance` before approval
+  and route undeclared concept conflicts back to authority review.
 - If the work belongs to a plan, extend the plan first and then update the aligned SOW.
 - Otherwise extend or update the standalone SOW.
 - Wait for approval.
@@ -62,6 +69,8 @@ Flow:
 - Confirm user intent only if there is a real ambiguity or tradeoff.
 - If the resulting fix is a big change, extend the active SOW before major edits unless that SOW already has 3 extensions.
 - If the active SOW already has 3 extensions, draft a new SOW for the fix and link it back to the prior SOW.
+- When concept authority exists, treat an undeclared concept conflict as a
+  stop condition and route it back for explicit review before execution.
 - Continue to execution.
 - Record the bug in `plan_todo/fix_bug.md`.
 

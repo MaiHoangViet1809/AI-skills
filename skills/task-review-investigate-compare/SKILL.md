@@ -94,6 +94,14 @@ Default rule:
 
 Typical writeback findings include missing acceptance criteria, persistence boundaries, consumer or callsite coverage, validation coverage, risks, and naming drift.
 
+When concept authority exists:
+
+- treat missing, false, or stale `Concept Compliance` mapping as an actionable
+  finding
+- patch low-ambiguity mapping gaps directly in the existing SOW
+- route material concept changes for explicit approval instead of silently
+  rewriting the mapping
+
 ### 3. Scope Change
 
 Use when findings materially change the contract and need explicit routing.
@@ -242,6 +250,8 @@ Escalate to `task-router-flow` when the findings would materially change scope r
 - do not ask for approval solely because a low-ambiguity planning writeback is possible
 - do not execute the proposed work from this skill; stop at recommendation, writeback, or routing
 - do not present a false dichotomy when an authority-compliant alternative exists; include that alternative in the comparison
+- if the repository has no declared concept authority, keep concept compliance
+  out of scope rather than inferring a concept catalog from incidental docs
 
 ## Closeout
 
