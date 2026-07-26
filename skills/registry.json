@@ -5,6 +5,48 @@
   "install_guide": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/INSTALL_FOR_AGENTS.md",
   "skills": [
     {
+      "name": "playwright-flow",
+      "description": "Automate Playwright CLI browser flows with explicit session lifecycle and cleanup.",
+      "files": [
+        {
+          "path": "skills/playwright-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/SKILL.md"
+        },
+        {
+          "path": "skills/playwright-flow/LICENSE.txt",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/LICENSE.txt"
+        },
+        {
+          "path": "skills/playwright-flow/NOTICE.txt",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/NOTICE.txt"
+        },
+        {
+          "path": "skills/playwright-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/agents/openai.yaml"
+        },
+        {
+          "path": "skills/playwright-flow/assets/playwright-small.svg",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/assets/playwright-small.svg"
+        },
+        {
+          "path": "skills/playwright-flow/assets/playwright.png",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/assets/playwright.png"
+        },
+        {
+          "path": "skills/playwright-flow/references/cli.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/references/cli.md"
+        },
+        {
+          "path": "skills/playwright-flow/references/workflows.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/references/workflows.md"
+        },
+        {
+          "path": "skills/playwright-flow/scripts/playwright_cli.sh",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/playwright-flow/scripts/playwright_cli.sh"
+        }
+      ]
+    },
+    {
       "name": "skill-evolution-flow",
       "description": "Turn explicit skill feedback into a guarded canonical update, regression case, and exact local sync.",
       "files": [
