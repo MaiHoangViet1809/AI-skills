@@ -1,0 +1,4 @@
+interface:
+  display_name: "ProjectConceptGovernanceFlow"
+  short_description: "Create, review, update, and enforce a project's docs/concept authority"
+  default_prompt: "Use ProjectConceptGovernanceFlow to manage this project's concept catalog, compare work against accepted concepts, and update concept authority when approved design changes."

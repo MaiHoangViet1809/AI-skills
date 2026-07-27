@@ -47,6 +47,32 @@
       ]
     },
     {
+      "name": "project-concept-governance-flow",
+      "description": "Create, review, update, and enforce a project's local docs/concept authority.",
+      "files": [
+        {
+          "path": "skills/project-concept-governance-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/project-concept-governance-flow/SKILL.md"
+        },
+        {
+          "path": "skills/project-concept-governance-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/project-concept-governance-flow/agents/openai.yaml"
+        },
+        {
+          "path": "skills/project-concept-governance-flow/references/concept-catalog-template.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/project-concept-governance-flow/references/concept-catalog-template.md"
+        },
+        {
+          "path": "skills/project-concept-governance-flow/references/mature-concept-template.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/project-concept-governance-flow/references/mature-concept-template.md"
+        },
+        {
+          "path": "skills/project-concept-governance-flow/references/inline-rule-template.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/project-concept-governance-flow/references/inline-rule-template.md"
+        }
+      ]
+    },
+    {
       "name": "skill-evolution-flow",
       "description": "Turn explicit skill feedback into a guarded canonical update, regression case, and exact local sync.",
       "files": [

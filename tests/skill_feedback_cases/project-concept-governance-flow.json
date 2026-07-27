@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "project-concept-authority-001",
+      "target_skill": "project-concept-governance-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A project needs a reusable docs/concept protocol rather than copied concept content.",
+        "actual_behavior": "The agent proposes a generic catalog name or copies another project's concept decisions.",
+        "expected_behavior": "Create or use a project-local concept governance flow that defines the skeleton, status model, preflight, update, and closeout rules without sharing project-specific concepts.",
+        "invariant": "Concept authority is project-local and governs future work in that project.",
+        "evidence_ref": "sanitized:project-concept-governance-feedback"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Create a concept catalog skeleton for this repo and record how future SOWs should compare against it.",
+          "context": "No concept authority exists yet, and the user wants reusable structure only.",
+          "expected_behavior": "Create docs/concept README, inline rules, and mature concept templates with project-local status semantics.",
+          "must_not": "Copy another project's accepted concepts as if they apply here."
+        },
+        {
+          "kind": "negative",
+          "request": "Fix a typo in a README.",
+          "context": "The edit does not touch design, ownership, runtime contracts, or implementation semantics.",
+          "expected_behavior": "Do the docs edit without forcing a concept preflight.",
+          "must_not": "Treat every markdown change as concept-governed architecture work."
+        },
+        {
+          "kind": "boundary",
+          "request": "Implement a feature whose SOW conflicts with an existing concept.",
+          "context": "The repo declares docs/concept as canonical authority.",
+          "expected_behavior": "Stop until the SOW includes an explicit concept change and updates the concept in the same approved scope.",
+          "must_not": "Let implementation silently override the concept catalog."
+        }
+      ]
+    }
+  ]
+}
