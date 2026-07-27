@@ -1,6 +1,6 @@
 ---
 name: project-concept-governance-flow
-description: Use when a project needs a docs/concept authority system created, reviewed, updated, or enforced; when design-bearing work must be checked against project concepts; or when concepts, inline rules, SOW Concept Compliance, implementation status, or concept drift must be managed inside the current project.
+description: Use when the user asks to create, review, update, or enforce a project-local docs/concept authority; when a design-bearing SOW or implementation must be checked against declared project concepts; or when concept status, inline rules, SOW Concept Compliance, or concept drift must be managed. Do not use for trivial docs/code edits with no design, ownership, lifecycle, UI/UX, runtime-contract, or architecture impact.
 ---
 
 # Project Concept Governance Flow
@@ -10,20 +10,29 @@ the reusable protocol and document shape, not the project's actual concepts.
 
 ## Core Model
 
-`docs/concept` is the project-local authority for accepted design decisions.
-Historical SOWs, plans, chat logs, and code are evidence, but they do not
-override the catalog.
+`docs/concept` is the project-local authority for accepted design decisions only
+when the project declares it as authority. Historical SOWs, plans, chat logs,
+and code are evidence, but they do not override the catalog.
 
 ```text
 project request
   -> read project guardrails
-  -> detect docs/concept authority
+  -> detect declared docs/concept authority
   -> read relevant concept files
   -> compare request/SOW/code against concepts
   -> update concepts when approved design changes
   -> implement or review against the updated authority
   -> update implementation status only after verification
 ```
+
+## Authority Activation
+
+Activate concept authority only when the target project declares a canonical
+concept source, usually through project guardrails, a Project Overrides section,
+or a canonical `docs/concept/README.md` index.
+
+If creating a new concept catalog, add a short local guardrail only when the user
+asks to enable enforcement. Do not infer authority from incidental docs.
 
 ## When Creating Concept Authority
 
@@ -32,15 +41,15 @@ for a project:
 
 ```text
 docs/concept/
-├── README.md
-├── inline_rules.md
-└── mature/
-    ├── foundation/
-    ├── workflow/
-    ├── node/
-    ├── ui/
-    ├── data/
-    └── operations/
++-- README.md
++-- inline_rules.md
++-- mature/
+    +-- foundation/
+    +-- workflow/
+    +-- node/
+    +-- ui/
+    +-- data/
+    +-- operations/
 ```
 
 Use [concept-catalog-template.md](references/concept-catalog-template.md),
@@ -71,6 +80,9 @@ lifecycle work:
 4. Extract invariants and prohibited designs.
 5. Compare the request or SOW against those invariants.
 6. Stop if the request conflicts and no approved concept update is included.
+
+If no concept authority is declared and the user did not ask to create one, keep
+concept compliance out of scope and continue with the normal project workflow.
 
 For a code-changing SOW under concept authority, require:
 
