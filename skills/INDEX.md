@@ -16,6 +16,7 @@ Use `registry.json` for exact files and raw download URLs.
 | `task-progress-report` | Reporting plan or SOW progress in a stable, compact format. |
 | `task-review-investigate-compare` | Reviewing plans, SOWs, ideas, root causes, or implementation approaches before execution. |
 | `task-router-flow` | Routing work into SOW, debug, code-change, or docs-only branches. |
+| `taste-skill` (`$design-taste-frontend`) | Anti-slop frontend guidance for landing pages, portfolios, and redesigns. |
 | `verify-design-mirror` | Independently verifying mirrored UI fidelity against the source package and mapping. |
 
 ## Install

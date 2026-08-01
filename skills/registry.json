@@ -229,6 +229,24 @@
       ]
     },
     {
+      "name": "taste-skill",
+      "description": "Import of upstream Taste Skill v2, invoked as design-taste-frontend.",
+      "files": [
+        {
+          "path": "skills/taste-skill/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/taste-skill/SKILL.md"
+        },
+        {
+          "path": "skills/taste-skill/LICENSE.txt",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/taste-skill/LICENSE.txt"
+        },
+        {
+          "path": "skills/taste-skill/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/taste-skill/agents/openai.yaml"
+        }
+      ]
+    },
+    {
       "name": "verify-design-mirror",
       "description": "Verify source-to-target design fidelity with an independent matrix.",
       "files": [

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Taste Frontend"
+  short_description: "Anti-slop frontend design guidance"
+  default_prompt: "Use $design-taste-frontend to design a non-templated landing page or portfolio."
