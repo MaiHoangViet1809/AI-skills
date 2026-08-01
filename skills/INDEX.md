@@ -6,6 +6,8 @@ Use `registry.json` for exact files and raw download URLs.
 
 | Skill | Use when |
 | --- | --- |
+| `apply-design-mirror` | Applying an extracted design package through a target project's real design-system ownership. |
+| `extract-design-mirror` | Extracting a UI design language into `DESIGN.md` plus evidence for later reuse. |
 | `playwright-flow` | Automating Playwright CLI browser work with explicit session lifecycle and cleanup. |
 | `project-concept-governance-flow` | Creating, reviewing, updating, or enforcing a project's local `docs/concept` authority. |
 | `skill-evolution-flow` | Turning explicit real-usage feedback into a guarded canonical skill update, regression case, and exact local sync. |
@@ -14,6 +16,7 @@ Use `registry.json` for exact files and raw download URLs.
 | `task-progress-report` | Reporting plan or SOW progress in a stable, compact format. |
 | `task-review-investigate-compare` | Reviewing plans, SOWs, ideas, root causes, or implementation approaches before execution. |
 | `task-router-flow` | Routing work into SOW, debug, code-change, or docs-only branches. |
+| `verify-design-mirror` | Independently verifying mirrored UI fidelity against the source package and mapping. |
 
 ## Install
 

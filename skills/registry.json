@@ -5,6 +5,54 @@
   "install_guide": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/INSTALL_FOR_AGENTS.md",
   "skills": [
     {
+      "name": "apply-design-mirror",
+      "description": "Apply an extracted design package through existing target UI ownership.",
+      "files": [
+        {
+          "path": "skills/apply-design-mirror/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/apply-design-mirror/SKILL.md"
+        },
+        {
+          "path": "skills/apply-design-mirror/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/apply-design-mirror/agents/openai.yaml"
+        },
+        {
+          "path": "skills/apply-design-mirror/references/target-mapping-contract.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/apply-design-mirror/references/target-mapping-contract.md"
+        }
+      ]
+    },
+    {
+      "name": "extract-design-mirror",
+      "description": "Extract a portable UI design language into DESIGN.md with evidence.",
+      "files": [
+        {
+          "path": "skills/extract-design-mirror/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/extract-design-mirror/SKILL.md"
+        },
+        {
+          "path": "skills/extract-design-mirror/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/extract-design-mirror/agents/openai.yaml"
+        },
+        {
+          "path": "skills/extract-design-mirror/references/source-routing.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/extract-design-mirror/references/source-routing.md"
+        },
+        {
+          "path": "skills/extract-design-mirror/references/design-md-contract.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/extract-design-mirror/references/design-md-contract.md"
+        },
+        {
+          "path": "skills/extract-design-mirror/references/evidence-contract.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/extract-design-mirror/references/evidence-contract.md"
+        },
+        {
+          "path": "skills/extract-design-mirror/scripts/collect-web-evidence.js",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/extract-design-mirror/scripts/collect-web-evidence.js"
+        }
+      ]
+    },
+    {
       "name": "playwright-flow",
       "description": "Automate Playwright CLI browser flows with explicit session lifecycle and cleanup.",
       "files": [
@@ -177,6 +225,24 @@
         {
           "path": "skills/task-router-flow/references/scope-of-work.md",
           "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/references/scope-of-work.md"
+        }
+      ]
+    },
+    {
+      "name": "verify-design-mirror",
+      "description": "Verify source-to-target design fidelity with an independent matrix.",
+      "files": [
+        {
+          "path": "skills/verify-design-mirror/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/verify-design-mirror/SKILL.md"
+        },
+        {
+          "path": "skills/verify-design-mirror/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/verify-design-mirror/agents/openai.yaml"
+        },
+        {
+          "path": "skills/verify-design-mirror/references/fidelity-matrix.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/verify-design-mirror/references/fidelity-matrix.md"
         }
       ]
     }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apply Design Mirror"
+  short_description: "Map a design language into a target UI"
+  default_prompt: "Use $apply-design-mirror to map this DESIGN.md into the target project without creating a parallel design owner."

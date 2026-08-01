@@ -1,0 +1,62 @@
+{
+  "schema_version": "design-mirror-evidence/v1",
+  "package_root": ".",
+  "generated_at": "2026-08-02T00:00:00Z",
+  "sources": [
+    {
+      "id": "source-fixture-css",
+      "type": "repository",
+      "locator": "../source/styles.css",
+      "authorization": "supplied",
+      "notes": "Local deterministic fixture."
+    }
+  ],
+  "capture_conditions": {
+    "browser": "not_required",
+    "os": "not_required",
+    "viewports": ["desktop", "mobile"],
+    "theme": "light",
+    "device_pixel_ratio": "not_required"
+  },
+  "sampled_surfaces": [
+    {
+      "id": "surface-dashboard",
+      "locator": "../source/index.html",
+      "states": ["primary", "secondary", "disabled", "selected", "error"]
+    }
+  ],
+  "claims": [
+    {
+      "id": "color-primary",
+      "dimension": "color",
+      "classification": "observed",
+      "value": "#2563eb",
+      "evidence": ["source-fixture-css::--dm-color-primary"],
+      "confidence": "high",
+      "notes": "Declared CSS token."
+    },
+    {
+      "id": "radius-card",
+      "dimension": "radius",
+      "classification": "observed",
+      "value": "8px",
+      "evidence": ["source-fixture-css::--dm-radius-card"],
+      "confidence": "high",
+      "notes": "Declared CSS token."
+    },
+    {
+      "id": "motion",
+      "dimension": "motion",
+      "classification": "unsupported",
+      "value": null,
+      "evidence": [],
+      "confidence": "none",
+      "notes": "No motion evidence in fixture."
+    }
+  ],
+  "known_gaps": [
+    "No dark theme fixture.",
+    "No motion fixture.",
+    "No screenshot evidence required."
+  ]
+}

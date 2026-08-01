@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Design Mirror"
+  short_description: "Verify source-to-target design fidelity"
+  default_prompt: "Use $verify-design-mirror to verify the implemented UI against the source design package and mapping."

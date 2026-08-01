@@ -1,0 +1,4 @@
+interface:
+  display_name: "Extract Design Mirror"
+  short_description: "Extract portable design language evidence"
+  default_prompt: "Use $extract-design-mirror to extract a grounded DESIGN.md from this UI reference."
