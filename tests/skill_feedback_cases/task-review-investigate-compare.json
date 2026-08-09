@@ -105,6 +105,41 @@
           "must_not": "Enforce one universal first-tool policy."
         }
       ]
+    },
+    {
+      "id": "ui-visible-double-check-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user asks for another double-check of a UI-visible feature after source and unit checks passed.",
+        "actual_behavior": "The review relies on source grep, unit tests, and build success while missing visible layout, interaction, and data-rendering defects.",
+        "expected_behavior": "Use rendered UI or runtime evidence when feasible, and explicitly report incomplete visual verification when it is not feasible.",
+        "invariant": "UI-visible review quality requires rendered evidence or an honest visual-verification boundary.",
+        "evidence_ref": "sanitized:ui-visible-double-check-feedback"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Double-check this node output panel implementation.",
+          "context": "The change is visible on the canvas and affects panel width, controls, and rendered output data.",
+          "expected_behavior": "Inspect the rendered UI or a browser/runtime path when feasible, compare visual and interaction behavior, and verify data-present plus empty-state paths separately.",
+          "must_not": "Claim no findings from source grep, unit tests, or build success alone."
+        },
+        {
+          "kind": "negative",
+          "request": "Double-check this backend serializer helper.",
+          "context": "The change has no visible UI surface and is covered by targeted unit tests.",
+          "expected_behavior": "Use source review and targeted runtime or unit evidence appropriate to the backend behavior.",
+          "must_not": "Require a browser smoke for a non-UI change."
+        },
+        {
+          "kind": "boundary",
+          "request": "Double-check this drawer layout change, but the app cannot be started locally.",
+          "context": "The behavior is UI-visible, but real browser verification is unavailable in the current environment.",
+          "expected_behavior": "Run the best available static and component checks, then state that visual verification is incomplete and list concrete residual UI risks.",
+          "must_not": "Treat build success as proof that the rendered UI is correct."
+        }
+      ]
     }
   ]
 }

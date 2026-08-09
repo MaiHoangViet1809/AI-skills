@@ -151,6 +151,15 @@ Build evidence from the right source first.
   available, but never require its setup or invocation
 - `rg` is useful for literal strings, config keys, logs, comments, and fuzzy
   text hunts, but it is not a universal mandatory first step
+- when the reviewed behavior is UI-visible, gather rendered UI evidence when
+  feasible, such as a browser smoke path, screenshot comparison, DOM/CSS
+  inspection, or component-level rendered artifact
+- do not claim UI quality, visual fit, or interaction completeness from source
+  grep, unit tests, or build success alone
+- for UI-visible output/data surfaces, verify data-present and empty-state paths
+  separately when feasible
+- if the real UI or runtime path cannot be checked, state that visual
+  verification is incomplete and list the concrete residual UI risks
 - browse official or primary internet sources when the comparison depends on current external facts, changing APIs, version behavior, specs, or recommendations
 
 When using internet sources:
