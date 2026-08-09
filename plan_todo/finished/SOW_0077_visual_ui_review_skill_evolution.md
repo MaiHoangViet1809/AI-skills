@@ -1,6 +1,6 @@
 # SOW_0077 - Visual UI Review Verification Rule
 
-- **Status**: in progress
+- **Status**: completed
 - **Approval**: approved by user on 2026-08-09
 - **Task**: Evolve `task-review-investigate-compare` so UI-visible double-checks require visual/runtime evidence when feasible, not only source grep, unit tests, or build checks.
 - **Location**:
