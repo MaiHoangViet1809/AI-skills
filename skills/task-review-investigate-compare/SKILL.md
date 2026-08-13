@@ -145,6 +145,27 @@ If the question is still ambiguous after this pass, narrow the ambiguity before 
 
 Build evidence from the right source first.
 
+### Exact runtime-contract evidence
+
+Before recommending or writing back a mutation to a schema, API payload,
+persisted storage, connection/config contract, or other external runtime
+surface:
+
+- identify the exact runtime identity: target or path, owner or producer,
+  environment or deployment lane, connection or provider, and relevant version;
+- require authoritative evidence tied to that identity, such as direct read-only
+  inspection or an explicitly authoritative current contract artifact;
+- treat producer code, representative or synthetic fixtures, naming
+  conventions, adjacent environments, and similarly named objects as
+  hypotheses only;
+- if exact evidence is unavailable, mark the premise unverified and do not
+  write the mutation into an approved plan or SOW as fact;
+- invalidate prior evidence when any runtime identity dimension changes, then
+  reverify affected consumers.
+
+Review premise truth separately from document consistency. Repeated review must
+not turn a consistent assumption into evidence.
+
 - choose an available inspection method that fits the question and produces
   sufficient repository evidence
 - CodeGraph may help with symbols, callers, impact, or structure when already

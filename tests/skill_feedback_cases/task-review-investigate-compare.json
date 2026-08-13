@@ -140,6 +140,41 @@
           "must_not": "Treat build success as proof that the rendered UI is correct."
         }
       ]
+    },
+    {
+      "id": "exact-runtime-contract-evidence-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review proposes changing fields or behavior of an external runtime contract using representative or producer-side evidence.",
+        "actual_behavior": "The review promotes proxy evidence into a fact about an exact deployed object and writes the mutation into an approval artifact.",
+        "expected_behavior": "Require evidence tied to the exact object and environment, or mark the premise unverified and block the mutation writeback.",
+        "invariant": "External-contract mutations require authoritative evidence for the exact runtime identity they affect.",
+        "evidence_ref": "sanitized:runtime-contract-evidence-feedback-2026-08-14"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a plan that changes SQL column references from snake case to camel case.",
+          "context": "Producer code and a synthetic DataFrame use camel case, but the exact deployed table through its selected connection has not been inspected.",
+          "expected_behavior": "Treat the source schema as unverified, require exact authoritative schema evidence, and block the column-contract mutation from writeback.",
+          "must_not": "Present representative schema or producer implementation as proof of the deployed table contract."
+        },
+        {
+          "kind": "negative",
+          "request": "Review a local variable rename that does not change any persisted, network, API, configuration, or runtime-facing contract.",
+          "context": "The change is fully contained within one implementation and all callers are repository-visible.",
+          "expected_behavior": "Use normal repository evidence without demanding an external runtime schema probe.",
+          "must_not": "Apply the exact-runtime-contract gate to a purely local refactor."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a schema mapping after the producer owner and deployment connection changed.",
+          "context": "An earlier probe covered the old owner and connection; current runtime access is unavailable, but an explicitly authoritative current schema artifact may be requested.",
+          "expected_behavior": "Invalidate the stale probe, accept only evidence explicitly tied to the current runtime identity, and otherwise report the mapping as unverified.",
+          "must_not": "Reuse evidence from the old owner, target, environment, or connection merely because table names are similar."
+        }
+      ]
     }
   ]
 }
