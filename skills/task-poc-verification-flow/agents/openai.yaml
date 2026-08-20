@@ -1,0 +1,4 @@
+interface:
+  display_name: "TaskPocVerificationFlow"
+  short_description: "Review POC SOWs with runtime evidence gates"
+  default_prompt: "Use $task-poc-verification-flow to review this POC SOW against repository guardrails, runtime evidence, and safe verification boundaries."

@@ -241,6 +241,8 @@ Keep each finding row concise but complete:
 - `Impact`: why it matters in user, product, or technical terms
 - `Solution`: the proposed fix or next investigation step
 
+If the user asks for a plain `summary`, `summarize`, or status recap and does not ask for review findings, do not use the findings table. Use concise prose or hand off to `task-progress-report` when the request is plan/SOW progress-shaped.
+
 `Recommendation` should say what to do, not just what was observed.
 
 `Next action` must be one of:

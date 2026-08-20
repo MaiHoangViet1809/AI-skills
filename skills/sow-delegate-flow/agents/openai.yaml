@@ -1,4 +1,4 @@
 interface:
   display_name: "SowDelegateFlow"
-  short_description: "SOW-first Claude handoff flow"
-  default_prompt: "Use SowDelegateFlow to create an approved SOW, delegate by SOW path, then review or take over locally if needed."
+  short_description: "SOW-first native sub-agent delegation"
+  default_prompt: "Use $sow-delegate-flow to delegate this approved SOW to GLM5.2, then independently review and verify the result."

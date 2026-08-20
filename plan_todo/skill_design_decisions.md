@@ -110,11 +110,18 @@ Reason:
 ## 8. Delegate Flow Trigger
 
 Decision:
-- `sow-delegate-flow` is intended for work executed as a plan with multiple sequential SOWs.
+- `sow-delegate-flow` activates when the user explicitly delegates a task, SOW,
+  or plan to a native Codex sub-agent, including GLM5.2.
+- Implementation delegation requires an approved SOW. Review, investigation,
+  plan drafting, and SOW drafting may be delegated before approval without
+  implementation writes.
+- The coordinator must classify `planning/read-only` versus `implementation`
+  before spawning the child, so planning delegation does not inherit an
+  implementation-only approval gate.
 
 Reason:
-- This is its real sweet spot.
-- For single small tasks, the overhead is not worth it.
+- Explicit user delegation is the authority to use a sub-agent.
+- Approval gates implementation authority, not read-only or planning work.
 
 ## 9. Approved SOW Is The Execution Source Of Truth
 
@@ -130,33 +137,29 @@ Reason:
 Decision:
 - `AGENTS.md` / repo rules define process constraints and guardrails.
 - The approved SOW defines the current task scope and deliverables.
-- `CLAUDE.md` provides Claude-specific helper context only.
+- The coordinator remains responsible for sub-agent selection, scope, review,
+  verification, repair decisions, and closeout.
 
 Reason:
 - Without an explicit precedence rule, conflicts between repo rules and delegate context become ambiguous.
 
-## 11. Claude Structured Output Contract
+## 11. Native Sub-Agent Handoff Contract
 
 Decision:
-- Claude should return structured output with fields like:
-  - `status`
-  - `failure_type`
-  - `changed_files`
-  - `summary`
-  - `open_questions`
-  - `scope_respected`
-  - `validation_hint`
-  - `fallback_needed`
+- A native sub-agent handoff should report changed files, verification performed,
+  remaining risks, and decisions needing coordinator or user approval.
+- The coordinator must independently inspect the diff and verification evidence.
 
 Reason:
-- Machine-readable handoff is much more reliable than parsing free-form prose.
-- It reduces noisy review loops and makes fallback logic deterministic.
+- Native child-agent status and final responses already provide the lifecycle
+  boundary; provider-specific CLI schemas are unnecessary.
+- Delegate completion does not prove SOW completion.
 
 ## 12. Advice Loop And Feedback Loop
 
 Decision:
-- Claude may return `needs_advice` with `open_questions`.
-- If Claude says done but validation fails, Codex should send repair feedback and continue.
+- A sub-agent may ask for advice or report unresolved decisions.
+- If a sub-agent says done but validation fails, Codex should send repair feedback and continue.
 - `delegate done` is not equal to `SOW done`.
 
 Reason:
@@ -183,6 +186,8 @@ Decision:
   - frontend
   - backend
   - migration
+- Delegated implementation must also satisfy `task-execution-flow` runtime
+  verification, evidence, gap-finding, and closeout hard gates.
 
 Reason:
 - One generic "run something" rule left too much operator judgment.
@@ -194,52 +199,56 @@ Decision:
 - `quality`: allow up to 2 repair rounds, then finish locally or stop
 - `infra`: if scope is clear, finish locally
 - `uncertainty`: answer once; if still ambiguous, stop/escalate
-- `rate-limit`: if partial diff is usable and scope is clear, finish locally
+- `unavailable requested model`: report it without silent model substitution
+- `scope drift`: interrupt the child and repair locally or update the SOW
 
 Reason:
 - Explicit stop conditions reduce ceremonial loops and make the workflow more predictable.
 
-## 16. JSON First, Stream Only For Debug
+## 16. Native Sub-Agent Lifecycle
 
 Decision:
-- Claude CLI should use `json` output by default.
-- Use `stream-json` only when deeper delegate debugging is needed.
+- Use native Codex sub-agent tools for spawn, wait, follow-up, and interrupt.
+- Resolve user-named agents from the current session's catalog.
+- When GLM5.2 is exposed as `router_custom_greennode_glm_5_2`, pass that role as
+  `agent_type`; do not treat that role name as globally portable.
 
 Reason:
-- `stream-json` produced too much event noise.
-- `json` still captured limit errors and enough final metadata for the normal path.
+- Native lifecycle tools avoid provider-specific CLI, transcript, and parser
+  coupling.
+- Catalog resolution preserves the requested model while tolerating role-name
+  changes across environments.
 
-## 17. Output Filtering Is Mandatory By Default
+## 17. Native Progress And Repair
 
 Decision:
-- Captured delegate output should drop `system`-typed noise by default.
-- Only keep normally dropped output when the flow or user explicitly requires it.
+- Wait until completion, an advice request, failure, or repair need.
+- Use follow-up on the same child for clarification or targeted repair.
+- Allow at most two quality repair rounds.
 
 Reason:
-- System/init payloads added context cost without helping normal review or fallback.
+- The coordinator needs actionable state, not provider transport noise.
 
-## 18. Claude Parsing Became Raw-Only
+## 18. No Provider-Specific Delegate Log Pipeline
 
 Decision:
-- Claude delegate logging should keep only raw logs:
-  - `~/.logs/aiskills/delegate/<project>/claude-<session-id>.log`
-- No persisted parsed artifact by default
-- No persisted Claude usage ledger by default
-- Parse on demand using Python
+- Do not require Claude CLI, stream JSON, raw delegate logs, or a parser for the
+  native sub-agent flow.
+- Child-agent status and final handoff are the normal evidence source.
 
 Reason:
-- Raw log is enough as source of truth.
-- Persisting extra parsed files and ledgers created unnecessary file sprawl.
+- Provider-specific transport artifacts duplicate the native coordinator
+  lifecycle and create stale maintenance surfaces.
 
-## 19. Cost / Session Hygiene
+## 19. Child-Agent Hygiene
 
 Decision:
-- Resume a delegate session only while it stays short and clean.
-- If it gets long or noisy, compact the useful history and continue in a fresh session.
+- Give each child one bounded SOW or non-overlapping ownership slice.
+- Interrupt terminal, idle, or errored children before closeout.
 
 Reason:
-- Long-running sessions accumulate context cost.
-- Compact-and-refresh is usually cheaper than blindly resuming forever.
+- Bounded ownership prevents conflicting writes.
+- Explicit cleanup prevents completed children from remaining active.
 
 ## 20. Code Context Benchmark Result
 

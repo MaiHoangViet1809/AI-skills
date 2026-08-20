@@ -136,7 +136,7 @@
     },
     {
       "name": "sow-delegate-flow",
-      "description": "Coordinate approved multi-SOW execution with Claude Code delegation and local verification.",
+      "description": "Coordinate approved SOW or plan execution with Codex native sub-agents and local verification.",
       "files": [
         {
           "path": "skills/sow-delegate-flow/SKILL.md",
@@ -145,22 +145,6 @@
         {
           "path": "skills/sow-delegate-flow/agents/openai.yaml",
           "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/agents/openai.yaml"
-        },
-        {
-          "path": "skills/sow-delegate-flow/references/claude-delegate-contract.md",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/claude-delegate-contract.md"
-        },
-        {
-          "path": "skills/sow-delegate-flow/references/log-parsing.md",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/log-parsing.md"
-        },
-        {
-          "path": "skills/sow-delegate-flow/references/output-filtering.md",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/output-filtering.md"
-        },
-        {
-          "path": "skills/sow-delegate-flow/scripts/parse_delegate_log.py",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/scripts/parse_delegate_log.py"
         }
       ]
     },
@@ -175,6 +159,20 @@
         {
           "path": "skills/task-execution-flow/agents/openai.yaml",
           "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-execution-flow/agents/openai.yaml"
+        }
+      ]
+    },
+    {
+      "name": "task-poc-verification-flow",
+      "description": "Review POC SOWs and POC plans against runtime evidence and safety gates.",
+      "files": [
+        {
+          "path": "skills/task-poc-verification-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-poc-verification-flow/SKILL.md"
+        },
+        {
+          "path": "skills/task-poc-verification-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-poc-verification-flow/agents/openai.yaml"
         }
       ]
     },

@@ -98,6 +98,7 @@ Phase 5: closeout
    -> move that completed planning file into the repo's `finished/` planning directory before commit
 -> produce the final summary
    -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
+   -> use a progress/closeout summary shape, not a findings table, unless actionable issues remain
 -> commit
    -> verify the worktree only contains changes covered by the approved scope
    -> stage only the relevant files with `git add`
@@ -173,6 +174,8 @@ Use this table before deciding whether to:
 - leave the issue as an explicit residual risk
 
 Do not force the table when there are no findings or when the result is just a short status update.
+
+Do not use this findings table for a plain `summary`, `summarize`, or closeout recap unless actionable issues remain.
 
 If there are no actionable findings, say directly:
 
@@ -294,4 +297,4 @@ Final response must include:
 - Choose any available inspection method that provides sufficient codebase
   evidence; CodeGraph and a separate search-policy skill are optional, never
   required setup or invocation.
-- Use `sow-delegate-flow` only when the task is being delegated to Claude.
+- Use `sow-delegate-flow` when the user explicitly delegates a task, SOW, or plan to a native sub-agent.

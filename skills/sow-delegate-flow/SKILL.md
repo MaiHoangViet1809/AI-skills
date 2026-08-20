@@ -1,11 +1,15 @@
 ---
 name: sow-delegate-flow
-description: Use when a task is being executed as a plan with multiple sequential SOWs. Keep each approved SOW as the source of truth, delegate implementation to Claude Code CLI by SOW path, and manage cost by resuming only short, clean delegate sessions while compacting long ones into a fresh session. Handle review, advice, repair feedback, and local fallback when Claude fails, hits limits, or drifts outside scope.
+description: Use when the user asks to delegate a task, SOW, or plan to a Codex sub-agent, especially GLM5.2. Keep approved SOWs authoritative, give each sub-agent a bounded ownership slice, then review and verify locally.
 ---
 
 # Sow Delegate Flow
 
-Use this skill for multi-SOW plans that run as Codex -> SOW -> approval -> Claude -> review -> feedback/advice -> fallback.
+Use this skill for Codex-native delegation:
+
+```text
+Codex coordinator -> classify mode -> native sub-agent -> local review and verification -> repair or closeout
+```
 
 For execution-time progress updates, follow [brief-execution.md](../../rules/brief-execution.md).
 
@@ -13,101 +17,126 @@ For execution-time progress updates, follow [brief-execution.md](../../rules/bri
 
 - `AGENTS.md` and repo rules define process constraints and guardrails.
 - The approved SOW defines the active task scope and deliverables.
-- `CLAUDE.md` adds Claude-specific helper context but does not override repo rules or the approved SOW.
+
+## Trigger And Routing
+
+Activate when the user explicitly asks to delegate, assign, or hand off a task,
+SOW, or plan to a sub-agent. Treat these as direct triggers:
+
+- `delegate task ... cho GLM5.2`
+- `delegate SOW ... cho GLM5.2`
+- `delegate plan ... cho GLM5.2`
+- an equivalent request naming a registered Codex sub-agent
+
+Do not activate for ordinary single-agent execution or a request merely
+mentioning another model.
+
+- When the user names `GLM5.2`, resolve it against the native agent catalog for
+  the current session. When `router_custom_greennode_glm_5_2` is exposed, pass
+  that registered role as `agent_type`; do not assume the role name exists in
+  every environment or silently replace it with another model.
+- When the user names another available sub-agent, honor that selection.
+- When no model is named, choose an available native sub-agent appropriate to
+  the work and state the selection briefly.
+- Delegating an implementation requires an approved SOW. A delegate may inspect
+  or draft a plan/SOW before approval, but must not modify product code, tests,
+  scripts, config, or runtime contracts in that mode.
 
 ## Rules
 
 - Keep the approved SOW as the source of truth for the current implementation.
-- Do not delegate before approval.
-- Track `session_id` from CLI output, not from model text.
-- Delegate with `sow_path`, short intent, write scope, and structured output.
-- Tell Claude to read the SOW file itself.
-- Read local repo rules first, especially `AGENTS.md` and `CLAUDE.md`.
-- Review changed files and run one relevant local check.
-- If Claude asks a good question, answer it and continue.
-- If Claude says done but validation fails, send repair feedback and continue.
-- Resume only when the current delegate session is still short and clean.
-- If the current delegate session is long or noisy, read its transcript, compact the useful history, and continue in a fresh session.
-- Take over locally if Claude fails, drifts, or the CLI output shows usage or rate-limit blocking.
-- Use `stream-json` output by default.
-- Capture the raw stream to a log, then parse progress from that log before deciding whether the delegate is blocked.
-- Capture Claude output to a raw log file first, then parse it on demand and read the parser output by default.
-- Open the raw log only when the parser reports an anomaly or the flow explicitly needs deep debugging.
+- Do not delegate implementation before approval. Scoped inspection, review,
+  plan drafting, and SOW drafting may be delegated before approval when they do
+  not modify implementation surfaces.
+- Read local repo rules and inspect `git status --short` before delegating.
+- For implementation, delegate with the approved SOW path, short intent,
+  explicit write scope, and verification requirements. For planning/read-only,
+  provide the target question or artifact plus explicit non-implementation
+  scope.
+- Give one sub-agent one bounded SOW or non-overlapping ownership slice at a
+  time. Do not run overlapping write scopes in parallel.
+- The coordinator remains responsible for scope, review, validation, repair
+  decisions, user communication, and closeout.
+- A sub-agent completion is handoff evidence, not task completion. Independently
+  apply the implementation-verification and gap-finding hard gates from
+  `task-execution-flow` before closeout.
+- If a sub-agent asks a resolvable question, answer it with `followup_task` and
+  continue. If scope or approval is unclear, stop and escalate.
+- If a sub-agent reports completion but local validation fails, send concise
+  repair feedback and continue.
+- Take over locally if the sub-agent fails, drifts, cannot use required tools,
+  or exhausts the two repair rounds.
+- When a child reaches a terminal, idle, or errored state, call
+  `interrupt_agent` before closeout so it is not left working.
 
 ## Flow
 
 1. Read workspace rules.
-2. Create or update the SOW.
-3. Wait for approval.
-4. Start a delegate session or decide whether to resume the current one.
-5. Delegate by SOW path, not by pasting the full SOW.
-6. Write raw delegate output to the delegate log path, parse it with the helper script, and read the parser output.
-7. Enter the coordinator loop:
-   - classify task difficulty
-   - poll with backoff
-   - re-read parser output
-   - continue until terminal result, advice request, repair need, or likely-stall threshold
-8. If Claude returns `needs_advice`, answer and continue in the current or a refreshed session.
-9. If Claude returns done, review files and validate.
-10. If validation fails, send feedback and continue in the current or a refreshed session.
-11. If validation passes, close the SOW and move it to the repo's `finished/` planning directory when it is complete.
-12. If the owning plan has no active SOW left and the plan itself is complete, move that completed plan to the same `finished/` planning directory.
-13. Drop the session from active state when the plan has no active SOW left.
+2. Classify the delegation mode:
+   - `planning/read-only`: define the permitted inspection or documentation
+     scope; no approved SOW is required and implementation writes are forbidden
+   - `implementation`: locate the approved SOW and verify that it covers the
+     exact delegated write scope
+3. Select the requested native sub-agent; use GLM5.2 exactly when requested.
+4. Start the sub-agent with `spawn_agent`, a bounded prompt, and clear ownership.
+   Pass a registered custom role such as GLM5.2 through `agent_type`; use a model
+   override only when the current tool schema exposes that selection as a model.
+5. Wait only until a real decision point: completion, question, failure, or
+   repair need.
+6. On a question, provide the minimum approved clarification with
+   `followup_task`; do not broaden scope.
+7. On completion, independently review the diff, run implementation verification
+   proportional to risk, record evidence, and complete a gap-finding pass.
+8. If validation fails, send targeted repair feedback. Allow at most two repair
+   rounds before local completion or escalation.
+9. Interrupt the terminal child agent.
+10. If validation passes, close the SOW and move it to the repo's `finished/`
+    planning directory when it is complete.
+11. If the owning plan has no active SOW left and the plan itself is complete,
+    move that plan to the same `finished/` directory.
 
-## Coordinator Loop
+## Delegate Prompt Contract
 
-- After starting a delegate run, keep polling inside the same execution path until there is a real decision point.
-- A real decision point is one of:
-  - terminal `result`
-  - `needs_advice`
-  - validation failure that needs repair
-  - likely stall by the active difficulty threshold
-  - explicit rate-limit or infra block
-- Do not stop the coordinator loop just because one poll found no new output.
-- Use parser progress fields as the source of truth during the loop.
-- Use the user only when the delegate actually needs advice or the task has become ambiguous.
+Every implementation-delegate prompt must include:
+
+- absolute SOW path and a direction to read it
+- one-sentence intent
+- exact write scope
+- explicit out-of-scope paths or behavior
+- required verification and evidence to return
+- instruction to stop and ask when scope, approval, or required evidence is
+  missing
+
+Require the sub-agent to return: changed files, verification performed,
+remaining risks, and any decision that needs coordinator or user approval.
 
 ## Validation Matrix
 
-Use repo-specific commands when available. Otherwise apply these minimum checks:
+Use repo-specific commands when available. These are minimum hints and never
+replace the `task-execution-flow` hard gates:
 
 - `docs-only`: `git diff --check` plus one focused cross-reference or grep check
 - `frontend`: targeted build, test, or route/component check for the touched surface
 - `backend`: targeted module test or `uv run pytest ...` for the changed area
 - `migration`: backward-compat check plus one scan for legacy markers or old paths
 
+Do not close delegated implementation when any of these are missing:
+
+- a real runtime scenario for changed runtime behavior
+- multi-step runtime evidence for async, stateful, UI, or performance work
+- verification against the SOW behavior lock
+- a post-implementation gap-finding pass
+
+If required verification is unavailable, stop at
+`implemented but not fully verified` and list the unverified scope.
+
 ## Termination Policy
 
 - `quality`: allow up to 2 repair rounds, then finish locally or stop
-- `infra`: if scope is already clear, finish locally instead of waiting on delegate recovery
+- `infra`: if scope is already clear, finish locally instead of waiting on
+  sub-agent recovery
 - `uncertainty`: answer once; if the task is still ambiguous, stop and escalate
-- `rate-limit`: if the partial diff is usable and scope is clear, finish locally
-
-See [claude-delegate-contract.md](references/claude-delegate-contract.md) for the prompt shape, result contract, transcript compaction, validation guidance, termination policy, and limit handling.
-
-See [output-filtering.md](references/output-filtering.md) for the mandatory default filtering policy for captured delegate output.
-
-See [log-parsing.md](references/log-parsing.md) for the raw-log-first capture flow, parser contract, and parser output shape.
-
-## Defaults
-
-- Prefer the user's normal Claude profile when known.
-- Default to `--model sonnet --effort medium` when no override exists.
-- Use `stream-json` as the default output mode.
-- Use `json` only when you explicitly want terminal-only output and do not need progress tracking.
-- Filter captured output by default, dropping `system`-typed noise unless the flow or user explicitly requires it.
-- Use parser output as the normal read path. Open raw logs only on anomaly or explicit deep-debug flows.
-- Use CLI output or events to detect limit hits after submit. Do not assume percentage prechecks are available.
-- Use polling backoff instead of eager fixed-interval checks.
-- Classify task difficulty before waiting:
-  - `easy`: simple docs or small isolated edit
-  - `medium`: normal feature slice or backend/frontend implementation
-  - `hard`: larger refactor, multi-file logic, or infra-heavy task
-- Poll at roughly 30 second intervals early, then back off as the run stays active.
-- Do not treat missing early output as a stall by itself.
-- Only make a likely-stall decision near these no-progress thresholds:
-  - `easy`: 5 minutes
-  - `medium`: 10 minutes
-  - `hard`: 15 minutes
-- Prefer a fresh session over resuming a long, noisy one.
-- If repo rules are missing, keep scope narrow and verify locally before closing.
+- `unavailable requested model`: report the model unavailability; do not silently
+  substitute another model
+- `scope drift`: interrupt the sub-agent, preserve valid scoped work, and repair
+  locally or stop for a SOW update

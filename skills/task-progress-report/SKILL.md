@@ -12,6 +12,7 @@ Keep progress reporting lightweight. The goal is to improve visibility, not to n
 ## Rules
 
 - Report progress after a meaningful block finishes, not every small action.
+- If the user asks for `summary`, `summarize`, or a plan/SOW status recap, use this skill's compact progress summary table by default.
 - While still executing, only interrupt with a progress update when there is a real decision point, blocker, or substantial milestone.
 - Default to one summary-style progress update near the end of the current block of work.
 - If the task is plan or SOW driven, show a compact table.
@@ -21,7 +22,8 @@ Keep progress reporting lightweight. The goal is to improve visibility, not to n
 - If a SOW is complete, validated, and no follow-up remains, remove it from the table and only reflect it in the overall row.
 - Keep commentary below the table short and only include non-table context that matters.
 - Do not repeat the same progress statement across multiple turns.
-- This skill is progress-oriented, not findings-oriented; only use a `Severity | Finding | Impact | Solution` table when the progress report includes actionable blockers or risks.
+- This skill is progress-oriented, not findings-oriented; do not use a `Severity | Finding | Impact | Solution` table for a plain summary request.
+- Only use a `Severity | Finding | Impact | Solution` table when the progress report includes actionable blockers or risks.
 
 ## Table Format
 

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "native-glm-delegation-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user asks to delegate a task, SOW, or plan to GLM5.2 after adding that native Codex sub-agent.",
+        "actual_behavior": "The skill routes work through a Claude CLI session, logs, and parser instead of the requested native sub-agent.",
+        "expected_behavior": "Select the registered GLM5.2 native sub-agent, preserve SOW-first controls, and independently review the result.",
+        "invariant": "Explicit delegate-model requests use the requested available native sub-agent without a silent provider fallback.",
+        "evidence_ref": "sanitized:user-feedback-native-glm-delegation-2026-08-21"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate this approved SOW to GLM5.2.",
+          "context": "The SOW has explicit write scope and verification criteria; GLM5.2 is registered as a native sub-agent.",
+          "expected_behavior": "Spawn the GLM5.2 sub-agent with the SOW path and bounded ownership, then review and verify locally.",
+          "must_not": "Invoke Claude CLI, create Claude logs, or substitute another model."
+        },
+        {
+          "kind": "negative",
+          "request": "Implement this approved SOW locally.",
+          "context": "The user does not request delegation or name a sub-agent.",
+          "expected_behavior": "Use the normal execution flow without spawning a delegate.",
+          "must_not": "Activate delegation merely because a SOW exists."
+        },
+        {
+          "kind": "boundary",
+          "request": "Delegate this draft plan to GLM5.2.",
+          "context": "The plan is not approved and the request is for investigation and SOW drafting only.",
+          "expected_behavior": "Allow scoped inspection or plan drafting, but prohibit product-code changes until an approved SOW exists.",
+          "must_not": "Authorize implementation work from the unapproved plan."
+        }
+      ]
+    },
+    {
+      "id": "native-delegate-closeout-gates-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A native sub-agent completes delegated work and the coordinator decides whether the task can close.",
+        "actual_behavior": "The coordinator can accept one local check, while approval wording conflicts with pre-approval planning delegation and the GLM role is treated as globally fixed.",
+        "expected_behavior": "Gate only implementation on SOW approval, resolve the requested agent from the current catalog, and independently complete runtime verification plus gap-finding.",
+        "invariant": "Native delegation preserves model intent, authorization boundaries, and the same verification standard as local execution.",
+        "evidence_ref": "sanitized:final-review-native-delegation-2026-08-21"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate this approved async UI SOW to GLM5.2 and finish it.",
+          "context": "The current agent catalog exposes a GLM5.2 custom role and the delegate reports implementation complete.",
+          "expected_behavior": "Spawn the catalog-resolved GLM5.2 role, then require a multi-step runtime scenario, evidence against the SOW lock, and a gap-finding pass before closeout.",
+          "must_not": "Treat delegate completion, syntax checks, or one generic local check as task completion."
+        },
+        {
+          "kind": "negative",
+          "request": "Delegate investigation and draft a SOW for this issue.",
+          "context": "No approved implementation SOW exists and the delegated scope is read-only analysis plus planning documentation.",
+          "expected_behavior": "Allow the planning delegation while prohibiting implementation writes.",
+          "must_not": "Reject all delegation before approval or authorize product-code changes."
+        },
+        {
+          "kind": "boundary",
+          "request": "Delegate this approved SOW to GLM5.2.",
+          "context": "GLM5.2 is requested but its previously known role name is absent from the current agent catalog.",
+          "expected_behavior": "Resolve any currently registered GLM5.2 role; if none exists, report unavailability without substitution.",
+          "must_not": "Use a stale hardcoded role or silently delegate to another model."
+        }
+      ]
+    }
+  ]
+}
