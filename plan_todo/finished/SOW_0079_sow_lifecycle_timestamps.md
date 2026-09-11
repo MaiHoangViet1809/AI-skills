@@ -2,11 +2,11 @@
 
 ## Lifecycle
 
-- Status: in_progress
+- Status: done
 - Approval: approved by user
 - create_dttm: `2026-09-11T15:25:56+07:00`
 - approve_dttm: `2026-09-11T15:25:56+07:00`
-- finish_dttm: `null`
+- finish_dttm: `2026-09-11T15:28:57+07:00`
 
 ## Task
 
@@ -19,7 +19,7 @@ storing approval transcripts or redundant approval evidence.
 - `skills/task-router-flow/references/scope-of-work.md`
 - `skills/task-router-flow/references/routing-notes.md`
 - `tests/skill_feedback_cases/task-router-flow.json`
-- `plan_todo/SOW_0079_sow_lifecycle_timestamps.md`
+- `plan_todo/finished/SOW_0079_sow_lifecycle_timestamps.md`
 
 ## Why
 
@@ -86,3 +86,11 @@ Codex, from explicit user feedback on 2026-09-11.
 - Do not fabricate historical times from file metadata or Git history.
 - Reopening a finished SOW clears only its top-level `finish_dttm`; completed
   extension timestamps remain immutable.
+
+## Verification
+
+- Structural validation: passed.
+- Feedback and sync tests: 12 passed.
+- Forward-test: not run; no isolated evaluator was available.
+- Canonical implementation commit: `127a1ef`.
+- Codex legacy-user exact-skill sync and parity: passed.
