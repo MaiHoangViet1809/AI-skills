@@ -14,6 +14,9 @@ Use the repository's active SOW template. In this repo, the template is:
 
 - **Status**: lifecycle state such as `draft`, `approved`, `in_progress`, or `done`
 - **Approval**: explicit approval state such as `pending` or `approved`
+- **create_dttm**: exact SOW creation time
+- **approve_dttm**: exact SOW approval time, or `null` while unapproved
+- **finish_dttm**: exact SOW completion time, or `null` while unfinished
 - **Task**: one-sentence change
 - **Location**: exact folder or file paths
 - **Why**: business or technical driver
@@ -29,6 +32,14 @@ Use the repository's active SOW template. In this repo, the template is:
 Rules:
 
 - Every active SOW should show both `Status` and `Approval`.
+- Keep `Approval` short: record the state and approver when known. Do not add
+  approval transcripts, quoted chat, message IDs, or an `Approval-Evidence`
+  field.
+- Record `create_dttm`, `approve_dttm`, and `finish_dttm` as ISO-8601 datetimes
+  with timezone. Set a future lifecycle event to `null`; never predict its time.
+- Use `unknown` only when editing a historical SOW whose exact past event time
+  cannot be established authoritatively. Do not derive it from file metadata or
+  Git history.
 - Before code changes begin, `Approval` must be `approved`.
 - When work is finished and the SOW is moved to `finished/`, set `Status` to a completed state such as `done`.
 - When a plan document reaches its terminal completed state and is moved to `finished/`, make that completed state explicit in the plan file.
@@ -75,8 +86,19 @@ Choose the next available index by scanning the repository's planning area, incl
 
 - Create SOW files in the repository's planning directory.
 - In this repo, planning files live under `plan_todo/`.
+- At creation, set `create_dttm` to the current timezone-aware datetime and keep
+  `approve_dttm` and `finish_dttm` null.
+- At explicit approval, set `approve_dttm`; at verified completion, set
+  `finish_dttm`. Update each field only at its matching transition.
 - Before writing code, confirm an approved SOW exists unless the repo explicitly exempts the task.
 - If scope changes materially, update or extend the active SOW and get approval again.
+- Every extension must contain its own `Status`, `Approval`, `create_dttm`,
+  `approve_dttm`, and `finish_dttm`. Do not reuse the parent approval timestamp
+  as the extension approval timestamp.
+- When an extension reopens a completed SOW, return the top-level status to an
+  active state and clear its top-level `finish_dttm` to `null`. Do not rewrite
+  completed extension timestamps. Set the new top-level `finish_dttm` when the
+  whole SOW is complete again.
 - A single SOW may have at most 3 approved extensions.
 - If a follow-up change would become extension 4, create a new SOW instead of adding another extension block.
 - A replacement SOW should reference the prior SOW and carry forward only the still-relevant context, risks, and dependencies.

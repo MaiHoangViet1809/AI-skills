@@ -35,6 +35,41 @@
           "must_not": "Treat silence as approval."
         }
       ]
+    },
+    {
+      "id": "sow-lifecycle-timestamps-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A SOW or extension is created, approved, reopened, or finished.",
+        "actual_behavior": "Lifecycle times are omitted while redundant approval evidence may be added.",
+        "expected_behavior": "Record concise approval metadata plus create, approve, and finish datetimes for the SOW and every extension.",
+        "invariant": "SOW lifecycle is explicit, timestamped, and free of transcript-style approval evidence.",
+        "evidence_ref": "sanitized:user-feedback-sow-lifecycle"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Create a SOW, record my approval, then close it after implementation.",
+          "context": "The exact lifecycle transition times are known.",
+          "expected_behavior": "Record timezone-aware create_dttm, approve_dttm, and finish_dttm at their respective transitions with a concise approval marker.",
+          "must_not": "Add approval transcript, message identifiers, quoted evidence, or an Approval-Evidence field."
+        },
+        {
+          "kind": "negative",
+          "request": "Review this draft SOW but do not approve it.",
+          "context": "The SOW exists, but no approval or completion occurred.",
+          "expected_behavior": "Keep approve_dttm and finish_dttm null while preserving the known create_dttm.",
+          "must_not": "Infer approval from review or write future timestamps."
+        },
+        {
+          "kind": "boundary",
+          "request": "Add an extension to an older SOW whose original exact timestamps are unavailable.",
+          "context": "The new extension times are known, while historical SOW times are not authoritative.",
+          "expected_behavior": "Use unknown for unavailable historical times and give the extension its own three lifecycle timestamps.",
+          "must_not": "Fabricate historical times or reuse the parent approval time for the extension."
+        }
+      ]
     }
   ]
 }
