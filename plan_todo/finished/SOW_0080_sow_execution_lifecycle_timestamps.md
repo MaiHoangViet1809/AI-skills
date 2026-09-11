@@ -2,11 +2,11 @@
 
 ## Lifecycle
 
-- Status: in_progress
+- Status: done
 - Approval: approved by user
 - create_dttm: `2026-09-11T15:30:19+07:00`
 - approve_dttm: `2026-09-11T15:30:19+07:00`
-- finish_dttm: `null`
+- finish_dttm: `2026-09-11T15:31:56+07:00`
 
 ## Task
 
@@ -17,7 +17,7 @@ SOW contract, including the currently executed extension.
 
 - `skills/task-execution-flow/SKILL.md`
 - `tests/skill_feedback_cases/task-execution-flow.json`
-- `plan_todo/SOW_0080_sow_execution_lifecycle_timestamps.md`
+- `plan_todo/finished/SOW_0080_sow_execution_lifecycle_timestamps.md`
 
 ## Why
 
@@ -78,3 +78,11 @@ Codex, from explicit user feedback on 2026-09-11.
 - An unfinished extension keeps the top-level SOW unfinished.
 - Preserve authoritative historical timestamps; use `unknown` rather than
   guessing missing past values.
+
+## Verification
+
+- Structural validation: passed.
+- Feedback and sync tests: 12 passed.
+- Forward-test: not run; no isolated evaluator was available.
+- Canonical implementation commit: `aa77afc`.
+- Codex legacy-user exact-skill sync and parity: passed.
