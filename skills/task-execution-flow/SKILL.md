@@ -26,6 +26,9 @@ If branch or scope is still unclear, use `task-router-flow` first.
 - When concept authority exists, run Concept Preflight before implementation
   and Concept Closeout before completion.
 - Confirm the approved SOW covers the exact task before code changes begin.
+- When the SOW contract includes lifecycle timestamps, confirm the base SOW and
+  active extension each have `create_dttm`, `approve_dttm`, and `finish_dttm`.
+  Do not invent historical times or add approval-evidence prose.
 - Build context from the codebase or problem first. Do not lead with assumptions.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
 - Apply the smallest meaningful patch that satisfies the SOW.
@@ -38,6 +41,10 @@ If branch or scope is still unclear, use `task-router-flow` first.
 ```text
 Phase 0: scope check
 -> confirm the approved SOW covers the exact task
+-> confirm the base SOW and active extension lifecycle metadata is consistent:
+   -> creation and approval timestamps exist for approved current scope
+   -> finish timestamps remain null while their scope is open
+   -> use unknown only for unavailable historical event times
 -> for a design-bearing task, confirm the authority-to-design mapping and planned evidence are present
 -> if the mapping is missing, authority is ambiguous, or the selected design conflicts:
    -> stop and return to project-authority review before implementation
@@ -95,6 +102,9 @@ Phase 5: closeout
 -> review changed files and worktree
 -> confirm no repair loop remains open
 -> if this task makes a SOW or plan complete:
+   -> set the active extension's finish_dttm at its verified completion
+   -> set the top-level SOW finish_dttm only when no owned scope remains open
+   -> preserve completed extension timestamps
    -> move that completed planning file into the repo's `finished/` planning directory before commit
 -> produce the final summary
    -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
@@ -271,6 +281,8 @@ Only close out when all of these are true:
 - final quality check passed
 - the worktree still matches the approved scope
 - any SOW or plan completed by this task has been moved into the repo's `finished/` planning directory
+- the active extension and top-level SOW have their correct completion
+  timestamps before a finished move
 
 Commit discipline:
 
