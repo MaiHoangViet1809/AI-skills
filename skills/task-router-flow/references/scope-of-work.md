@@ -14,9 +14,9 @@ Use the repository's active SOW template. In this repo, the template is:
 
 - **Status**: lifecycle state such as `draft`, `approved`, `in_progress`, or `done`
 - **Approval**: explicit approval state such as `pending` or `approved`
-- **create_dttm**: exact SOW creation time
-- **approve_dttm**: exact SOW approval time, or `null` while unapproved
-- **finish_dttm**: exact SOW completion time, or `null` while unfinished
+- **create_dttm**: exact SOW creation datetime, for example `2026-09-11T15:42:07+07:00`
+- **approve_dttm**: exact SOW approval datetime, or `null` while unapproved
+- **finish_dttm**: exact SOW completion datetime, or `null` while unfinished
 - **Task**: one-sentence change
 - **Location**: exact folder or file paths
 - **Why**: business or technical driver
@@ -35,8 +35,10 @@ Rules:
 - Keep `Approval` short: record the state and approver when known. Do not add
   approval transcripts, quoted chat, message IDs, or an `Approval-Evidence`
   field.
-- Record `create_dttm`, `approve_dttm`, and `finish_dttm` as ISO-8601 datetimes
-  with timezone. Set a future lifecycle event to `null`; never predict its time.
+- Record every known `*_dttm` as a full ISO-8601 datetime with clock time to
+  seconds and numeric timezone offset: `YYYY-MM-DDTHH:mm:ss+HH:MM`, for example
+  `2026-09-11T15:42:07+07:00`. A date-only value such as `2026-09-11` is invalid.
+  Set a future lifecycle event to `null`; never predict its time.
 - Use `unknown` only when editing a historical SOW whose exact past event time
   cannot be established authoritatively. Do not derive it from file metadata or
   Git history.
@@ -86,8 +88,8 @@ Choose the next available index by scanning the repository's planning area, incl
 
 - Create SOW files in the repository's planning directory.
 - In this repo, planning files live under `plan_todo/`.
-- At creation, set `create_dttm` to the current timezone-aware datetime and keep
-  `approve_dttm` and `finish_dttm` null.
+- At creation, set `create_dttm` to the current full timezone-aware datetime
+  and keep `approve_dttm` and `finish_dttm` null.
 - At explicit approval, set `approve_dttm`; at verified completion, set
   `finish_dttm`. Update each field only at its matching transition.
 - Before writing code, confirm an approved SOW exists unless the repo explicitly exempts the task.

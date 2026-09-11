@@ -28,6 +28,8 @@ If branch or scope is still unclear, use `task-router-flow` first.
 - Confirm the approved SOW covers the exact task before code changes begin.
 - When the SOW contract includes lifecycle timestamps, confirm the base SOW and
   active extension each have `create_dttm`, `approve_dttm`, and `finish_dttm`.
+  Every known timestamp must include clock time to seconds and a numeric
+  timezone offset, such as `2026-09-11T15:42:07+07:00`; reject date-only values.
   Do not invent historical times or add approval-evidence prose.
 - Build context from the codebase or problem first. Do not lead with assumptions.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
@@ -44,6 +46,8 @@ Phase 0: scope check
 -> confirm the base SOW and active extension lifecycle metadata is consistent:
    -> creation and approval timestamps exist for approved current scope
    -> finish timestamps remain null while their scope is open
+   -> every known timestamp includes date, time to seconds, and timezone offset;
+      date-only values are invalid
    -> use unknown only for unavailable historical event times
 -> for a design-bearing task, confirm the authority-to-design mapping and planned evidence are present
 -> if the mapping is missing, authority is ambiguous, or the selected design conflicts:

@@ -36,7 +36,8 @@ Use this branch when the user requests a new code change, feature, refactor, or 
 
 Flow:
 - Draft a new SOW using the repo's active template.
-- Initialize its lifecycle timestamps according to the SOW template; do not add
+- Initialize lifecycle timestamps as full timezone-aware datetimes in the form
+  `YYYY-MM-DDTHH:mm:ss+HH:MM`; date-only values are invalid. Do not add
   approval-evidence prose.
 - Determine whether concept authority exists in the target repo before drafting
   the final SOW.
@@ -53,7 +54,8 @@ Use this branch when the user changes scope for work already covered by an activ
 Flow:
 - Check how many approved extensions the active SOW already has.
 - Give the new extension its own lifecycle timestamps and update the parent SOW
-  lifecycle without rewriting completed extension history.
+  lifecycle with full timezone-aware datetimes, without rewriting completed
+  extension history.
 - If the next change would become extension 4, do not keep extending the same SOW.
 - Draft a new SOW that references the prior SOW and carries forward only the still-relevant context.
 - Re-check concept authority for the updated scope.

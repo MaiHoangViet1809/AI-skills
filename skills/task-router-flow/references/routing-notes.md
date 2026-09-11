@@ -13,8 +13,9 @@
 - Place SOW files in the repository's required planning directory
 - Wait for approval before code edits when the repo requires it
 - If scope changes materially, update the SOW and re-approve
-- Record timezone-aware `create_dttm`, `approve_dttm`, and `finish_dttm` for the
-  SOW and independently for each extension
+- Record timezone-aware `create_dttm`, `approve_dttm`, and `finish_dttm` as
+  `YYYY-MM-DDTHH:mm:ss+HH:MM` for the SOW and independently for each extension;
+  never use a date-only value
 - Keep approval as a concise state/approver marker; do not add approval evidence
   or transcript fields
 

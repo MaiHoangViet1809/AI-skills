@@ -77,32 +77,32 @@
       "cause_class": "decision_procedure",
       "feedback": {
         "trigger": "Execution starts or completes work governed by a SOW or extension lifecycle.",
-        "actual_behavior": "The executor may move a SOW to finished without updating its lifecycle timestamps.",
-        "expected_behavior": "Validate lifecycle metadata and record completion time only after the matching scope is verified.",
-        "invariant": "Execution updates SOW and extension lifecycle timestamps at the real transition and never invents approval evidence.",
+        "actual_behavior": "The executor may move a SOW to finished without updating its lifecycle timestamps or accept date-only values.",
+        "expected_behavior": "Validate full lifecycle datetimes and record completion time only after the matching scope is verified.",
+        "invariant": "Execution updates SOW and extension lifecycle timestamps at the real transition with full timezone-aware datetimes and never invents approval evidence.",
         "evidence_ref": "sanitized:user-feedback-sow-lifecycle"
       },
       "scenarios": [
         {
           "kind": "expected",
           "request": "Implement this approved SOW and close it after verification.",
-          "context": "The base SOW has valid creation and approval timestamps and no extensions.",
-          "expected_behavior": "Set the top-level finish_dttm to the actual completion time, mark done, and move the SOW to finished.",
-          "must_not": "Leave finish_dttm null or add approval evidence prose."
+          "context": "The base SOW has valid full creation and approval datetimes and no extensions.",
+          "expected_behavior": "Set the top-level finish_dttm to the actual completion datetime with time and timezone, mark done, and move the SOW to finished.",
+          "must_not": "Leave finish_dttm null, use a date-only timestamp, or add approval evidence prose."
         },
         {
           "kind": "negative",
           "request": "The implementation exists but runtime verification is still blocked.",
           "context": "The active SOW and extension are not complete.",
           "expected_behavior": "Keep finish_dttm null and report implemented but not fully verified.",
-          "must_not": "Write a completion timestamp or move the SOW to finished."
+          "must_not": "Write a completion timestamp, accept a date-only lifecycle value, or move the SOW to finished."
         },
         {
           "kind": "boundary",
           "request": "Complete the latest approved extension of a previously reopened SOW.",
           "context": "Older extension timestamps are complete and authoritative.",
-          "expected_behavior": "Set the active extension finish_dttm, preserve older extension timestamps, and set the top-level finish_dttm only when no scope remains open.",
-          "must_not": "Reuse the parent timestamp, rewrite historical timestamps, or close an unfinished parent SOW."
+          "expected_behavior": "Set the active extension finish_dttm as a full datetime with time and timezone, preserve older extension timestamps, and set the top-level finish_dttm only when no scope remains open.",
+          "must_not": "Reuse the parent timestamp, use date-only values, rewrite historical timestamps, or close an unfinished parent SOW."
         }
       ]
     }
