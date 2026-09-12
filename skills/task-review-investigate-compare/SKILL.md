@@ -273,6 +273,29 @@ For repeated reviews of the same artifact:
 
 Escalate to `task-router-flow` when the findings would materially change scope rather than merely document it.
 
+### Keep Active Plans And SOWs Current
+
+When actionable redundancy or inconsistency is found, update effective sections
+in place. Check Task, diagrams, deliverables, done criteria and out-of-scope text
+for superseded or conflicting instructions. Avoid append-only `Review Pass`
+histories; use at most one short review summary when useful for handoff, subject
+to explicit repository reporting requirements. A clean artifact needs no edit
+or new summary; discussion-only requests remain read-only.
+
+- Keep current requirements, approval gates, unresolved questions, risks and
+  execution evidence visible. Resolved decisions can still govern execution;
+  remove redundant discussion, not their effective requirements.
+- Preserve base/extension IDs, approval states and lifecycle timestamps. A newer
+  draft does not supersede an approved contract; distinguish proposed scope
+  from authorized work and route material changes through the existing gate.
+- Use the repository's existing decision log for historical alternatives,
+  rejected choices and superseded rationale. Preserve any material rationale
+  there before removing its sole SOW copy, avoid duplicate entries and repair
+  affected links. If no decision-log authority exists, retain minimum necessary
+  rationale locally rather than inventing a governance structure.
+- Preserve decision-log chronology and leave completed historical artifacts
+  alone unless their modification is explicitly in scope.
+
 ## Investigation Guardrails
 
 - do not jump to implementation while the main job is still analysis

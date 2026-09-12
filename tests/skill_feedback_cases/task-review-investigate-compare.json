@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "effective-planning-writeback-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Repeated or final review of an active SOW or plan.",
+        "actual_behavior": "The reviewer appends review-pass histories and leaves superseded and current contracts together.",
+        "expected_behavior": "Consolidate actionable redundancy into the effective contract, preserving approval boundaries and moving historical rationale to the existing decision log.",
+        "invariant": "Active planning artifacts retain executable requirements and unresolved gates; decision logs retain historical rationale.",
+        "evidence_ref": "sanitized:user-feedback-effective-sow-writeback-2026-09-12"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review this active SOW one last time and keep it concise.",
+          "context": "An approved decision replaced the old design. The SOW still contains both designs and three review-pass sections. Its declared decision log already records some rationale; one material tradeoff exists only in the SOW.",
+          "expected_behavior": "Update effective sections in place, retain current requirements and evidence, preserve the sole tradeoff in the decision log before removing redundant text, and repair links without duplicating existing history. Use at most one short review summary if useful.",
+          "must_not": "Append another review ledger, delete an effective requirement merely because its decision is resolved, or lose the only copy of material rationale."
+        },
+        {
+          "kind": "negative",
+          "request": "Review the historical decision chronology in discussion-only mode; also assess whether the already concise active SOW needs changes.",
+          "context": "The decision log intentionally retains superseded entries. The active SOW is consistent and has no actionable finding.",
+          "expected_behavior": "Preserve chronology and leave files unchanged. Report no actionable SOW findings without adding a review-summary entry.",
+          "must_not": "Collapse historical decisions, normalize finished artifacts, infer write permission, or manufacture an edit for a clean SOW."
+        },
+        {
+          "kind": "boundary",
+          "request": "Consolidate an active SOW containing an approved base and a newer draft extension.",
+          "context": "The extension proposes a different design and still has an unresolved option. The repository has no declared separate decision-log authority.",
+          "expected_behavior": "Preserve base and extension IDs, approval states, timestamps, current requirements and evidence. Label proposed scope separately, keep the unresolved option visible, retain minimum rationale locally, and route any material contract change for approval.",
+          "must_not": "Treat a newer draft as approved or superseding, remove unresolved gates, rewrite lifecycle metadata, or invent a new decision-log structure."
+        }
+      ]
+    },
+    {
       "id": "review-writeback-001",
       "target_skill": "task-review-investigate-compare",
       "cause_class": "decision_procedure",
