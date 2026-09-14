@@ -2,11 +2,11 @@
 
 ## Lifecycle
 
-- Status: in progress
+- Status: completed
 - Approval: approved by user
 - create_dttm: `2026-09-15T03:22:00+07:00`
 - approve_dttm: `2026-09-15T03:47:19+07:00`
-- finish_dttm: null
+- finish_dttm: `2026-09-15T03:53:34+07:00`
 
 ## Task
 
@@ -238,6 +238,7 @@ Codex, from explicit user feedback on 2026-09-15.
 
 Reviewed baseline/implementation drift, then safeguards and process bloat.
 The subsequent all-skill audit found contributing rules in router and execution
-plus a POC review gap. The draft now proposes four bounded corrections with
-distinct ownership. Implementation approval remains pending; skill behavior has
-not been changed or verified by this document review.
+plus a POC review gap. Four bounded corrections were implemented with distinct
+ownership. All deterministic checks and installed-copy parity passed. Isolated
+model forward-testing was unavailable in this side conversation, so behavioral
+conformance remains unverified until later real invocations.

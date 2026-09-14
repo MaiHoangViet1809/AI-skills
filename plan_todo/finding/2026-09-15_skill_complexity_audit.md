@@ -14,10 +14,10 @@ inspection cannot prove which instruction caused every historical failure.
 
 | Skill | Evidence | Finding and disposition |
 | --- | --- | --- |
-| task-router-flow | `SKILL.md:94–104`, Change Completeness Guardrail | Treats narrow scope as a tradeoff and encourages family-level fixes. Change inspection of adjacent code into evidence gathering; it is not authority to change adjacent code. Proposed SOW_0084 scope. |
-| task-execution-flow | `SKILL.md:64–70,88–100,224–261` | Widen adjacent coverage; convert any gap into a repair; escalate only after three conditions. These can produce endless expansion and conflict with immediate authority stops. Classify in-scope defect, missing evidence and optional/out-of-scope enhancement first; preserve immediate authority stops. Proposed SOW_0084 scope. |
-| task-review-investigate-compare | Comparison Frame and review/writeback rules | Complexity is a comparison dimension, not an approval condition. No required comparison with an existing simpler pattern or actual implementation drift. Proposed SOW_0084 scope. |
-| task-poc-verification-flow | POC Code Review Checklist | Already forbids wrappers and encourages reuse, but does not require each added stage to prove the named hypothesis. A large custom runner can pass the checklist. Add a narrow proof-necessity check. Proposed SOW_0084 scope. |
+| task-router-flow | `SKILL.md:94–104`, Change Completeness Guardrail | Treats narrow scope as a tradeoff and encourages family-level fixes. Change inspection of adjacent code into evidence gathering; it is not authority to change adjacent code. Implemented by SOW_0084. |
+| task-execution-flow | `SKILL.md:64–70,88–100,224–261` | Widen adjacent coverage; convert any gap into a repair; escalate only after three conditions. These can produce endless expansion and conflict with immediate authority stops. Classify in-scope defect, missing evidence and optional/out-of-scope enhancement first; preserve immediate authority stops. Implemented by SOW_0084. |
+| task-review-investigate-compare | Comparison Frame and review/writeback rules | Complexity is a comparison dimension, not an approval condition. No required comparison with an existing simpler pattern or actual implementation drift. Implemented by SOW_0084. |
+| task-poc-verification-flow | POC Code Review Checklist | Already forbids wrappers and encourages reuse, but does not require each added stage to prove the named hypothesis. A large custom runner can pass the checklist. Add a narrow proof-necessity check. Implemented by SOW_0084. |
 | sow-delegate-flow | Rules and Flow steps 6–8 | Already preserves bounded scope and delegates verification to execution flow. Fix that owner; do not duplicate the full new checklist here. Existing portability issues belong to SOW_0082. |
 | task-progress-report | Rules and Completion Discipline | Format/completion requirements can inflate reporting; not evidence of a code-generation cause. Inventory selection and duplicated completion rules already belong to SOW_0082. No new patch here. |
 | skill-evolution-flow | Classify The Cause; Patch The Canonical Skill | Already requires the smallest general correction and prohibits installing unrelated skills. Preserve it; this audit must not become a blanket rewrite. |
@@ -43,9 +43,10 @@ sufficient implementation, and explicit separation of required repairs from
 new work. Do not treat a documented failure as approval for a new subsystem.
 Do not strip required safety or data semantics merely to reduce line count.
 
-## Verification limits and next action
+## Verification and disposition
 
-Read-only source and entrypoint comparison completed. No isolated model test,
-production operation or skill implementation ran. Subagents are prohibited in
-this side conversation. SOW_0084 carries the proposed four-skill correction;
+SOW_0084 implemented the four scoped corrections. Structural validation,
+feedback/sync tests, and exact-copy parity for the four Codex-installed skills
+passed. No isolated model forward-test ran because subagents are prohibited in
+this side conversation; behavior remains to be observed in later real usage.
 SOW_0082 retains its existing ownership, reporting and portability fixes.
