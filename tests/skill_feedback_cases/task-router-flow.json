@@ -70,6 +70,41 @@
           "must_not": "Fabricate historical times, reuse the parent approval time, or use date-only extension timestamps."
         }
       ]
+    },
+    {
+      "id": "router-bounded-adjacency-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Routing a narrow request reveals analogous or adjacent surfaces.",
+        "actual_behavior": "The router pressures every request toward family-level scope and labels a narrow request as a trade-off.",
+        "expected_behavior": "Inspect adjacent impact without adding repair scope unless it is necessary and already authorized.",
+        "invariant": "Adjacent inspection informs scope but does not create implementation authority.",
+        "evidence_ref": "sanitized:user-feedback-bounded-routing-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Fix one bounded caller that violates an established contract.",
+          "context": "A cheap search finds similar callers, but no evidence shows they share the defect.",
+          "expected_behavior": "Keep the approved fix narrow and report other callers only if useful for later investigation.",
+          "must_not": "Require a family-wide repair or invent a trade-off for honoring the requested scope."
+        },
+        {
+          "kind": "negative",
+          "request": "Repair a shared helper defect affecting all known callers.",
+          "context": "The shared owner is in scope and evidence proves the same defect across callers.",
+          "expected_behavior": "Route the shared in-scope repair and verify affected callers proportionally.",
+          "must_not": "Use bounded scope to force duplicate single-caller patches."
+        },
+        {
+          "kind": "boundary",
+          "request": "Fix one caller while proposing a broader compatibility layer.",
+          "context": "The layer may help future callers but is not required or approved for the current outcome.",
+          "expected_behavior": "Route the caller fix and keep the compatibility layer as a separate proposal.",
+          "must_not": "Treat the suggestion as part of approved implementation scope."
+        }
+      ]
     }
   ]
 }

@@ -59,6 +59,20 @@ Verify the proposed or existing POC:
 - cleans only run-owned artifacts when cleanup is part of the POC
 - avoids maintained test suites for one-off POC helpers unless explicitly approved
 
+## Minimum Proof Gate
+
+- Trace every proposed stage, artifact, helper, and persistent state to the POC
+  hypothesis or a concrete runtime constraint. Remove anything with no such
+  responsibility.
+- Prefer the intended runtime path and the nearest fitting existing example over
+  reconstructing framework, authentication, session, checkpoint, or orchestration
+  behavior inside the POC.
+- Do not turn possible future reuse into a parallel framework or generalized
+  tool. Keep optional hardening outside the POC until separately authorized.
+- Preserve the smallest checks needed to prove correctness, cleanup ownership,
+  secret safety, and the stated negative case. Shorter code is not the goal;
+  sufficient proof with no unrelated machinery is.
+
 ## Verification Review
 
 Separate evidence into:

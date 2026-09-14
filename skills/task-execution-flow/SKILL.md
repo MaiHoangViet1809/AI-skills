@@ -32,9 +32,12 @@ If branch or scope is still unclear, use `task-router-flow` first.
   timezone offset, such as `2026-09-11T15:42:07+07:00`; reject date-only values.
   Do not invent historical times or add approval-evidence prose.
 - Build context from the codebase or problem first. Do not lead with assumptions.
+- Reuse the nearest fitting project implementation when one is named or cheaply
+  discoverable; do not rebuild its responsibilities inside task-specific code.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
 - Apply the smallest meaningful patch that satisfies the SOW.
-- Keep behavior locks, invariants, and adjacent consistency in scope.
+- Keep behavior locks, invariants, and only authorized adjacent consistency in
+  scope.
 - Treat syntax or compile checks, implementation verification, and gap-finding as different steps.
 - Do not present the task as complete while any repair loop or required verification remains open.
 
@@ -66,7 +69,8 @@ Phase 1: context and experiment
 -> read the relevant code paths first
 -> run at least one direct inspection or experiment to confirm the likely root cause or implementation shape before editing
 -> sharpen success criteria and behavior locks
--> widen adjacent coverage before declaring the task narrow
+-> inspect adjacent scope only to confirm impact or the same proven defect;
+   inspection does not expand authorized implementation scope
 -> break the work into the smallest meaningful mini-tasks
 
 Phase 2: implement
@@ -96,12 +100,18 @@ Phase 4: gap-finding pass
       -> block closeout and reopen the loop
 -> if a gap is found:
    -> report the actionable findings in a `Severity | Finding | Impact | Solution` table before choosing the next action
-   -> convert it into a repair mini-task
-   -> re-enter at the cheapest correct stage
+   -> classify it as an authorized in-scope defect, missing required evidence,
+      or optional/out-of-scope improvement
+   -> repair only the authorized defect; gather required evidence at the
+      cheapest correct stage; report or route optional/out-of-scope work
+-> challenge each added mechanism against the approved outcome and nearest
+   fitting baseline; report unsupported responsibility and remove it only when
+   the approved scope permits, without weakening required correctness or safety
 
 Phase 5: closeout
 -> only enter after Phase 3 and Phase 4 are complete
--> rerun relevant final checks
+-> reuse still-valid verification evidence; rerun only checks invalidated by
+   changed code, inputs, dependencies, config, or missing evidence
 -> review scope fit
 -> review changed files and worktree
 -> confirm no repair loop remains open
@@ -120,10 +130,9 @@ Phase 5: closeout
    -> if the task is not fully verified, do not commit it as done; only use an explicit checkpoint commit that says verification is still pending
    -> if the user explicitly deferred commits, skip the commit and note that in the final response
 
-Escalate only when all 3 signals are present:
--> the same failure mode repeats
--> no meaningful progress is being made
--> missing information or authority needed to continue
+Escalate immediately when required information or decision authority is
+missing. For recoverable technical failures already within scope, escalate when
+the same failure repeats and no meaningful progress is being made.
 ```
 
 ## Hard Gates
@@ -206,7 +215,8 @@ If there are no actionable findings, say directly:
 - Prefer slices that are small enough to verify quickly.
 - Do not split so far that the slices stop being meaningful.
 - A slice pass is not a task pass.
-- After one slice passes, either move to the next slice or widen coverage if the same pattern clearly applies elsewhere.
+- After one slice passes, move to the next approved slice. Inspect a repeated
+  pattern when useful, but add work only when existing scope and authority cover it.
 
 ## Micro-Checks
 
@@ -234,7 +244,9 @@ Micro-checks do not replace implementation verification. They are a cheap signal
 - looks for gaps in the solution quality, not flaws in the existence of a verify step
 - should actively search for shallow fixes, partial fixes, and technically-passing-but-wrong outcomes
 
-If gap-finding finds a gap, reopen the loop. Do not treat the task as done.
+If gap-finding finds an authorized defect or missing required evidence, reopen
+at the cheapest correct stage. Report or route optional/out-of-scope
+improvements instead of silently adding them to the task.
 
 ## Cheapest Correct Re-Entry Point
 
@@ -246,7 +258,8 @@ Typical re-entry points:
 
 - context gap -> go back to `gather context`
 - success-criteria mismatch -> go back to `sharpen success criteria`
-- adjacent coverage gap -> go back to `widen adjacent coverage`
+- scope-impact gap -> inspect affected scope, then repair only what existing
+  authority covers
 - code defect or weak solution -> go back to `implement smallest meaningful slice`
 - weak or missing validation -> go back to `implementation verification`
 
@@ -254,13 +267,10 @@ If the failure origin is uncertain, bias one stage earlier.
 
 ## Escalation Rule
 
-Escalate only when all 3 signals are present:
-
-- the same failure mode is repeating
-- there is no meaningful progress
-- required information or decision authority is missing
-
-Do not escalate merely because the work is hard or needs another repair pass.
+Escalate immediately when required information or decision authority is
+missing. For a recoverable technical failure already within the approved scope,
+escalate when the same failure mode repeats and no meaningful progress is made.
+Do not escalate merely because the work is hard or needs one bounded repair.
 
 ## Closeout States
 

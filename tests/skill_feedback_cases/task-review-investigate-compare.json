@@ -210,6 +210,41 @@
           "must_not": "Reuse evidence from the old owner, target, environment, or connection merely because table names are similar."
         }
       ]
+    },
+    {
+      "id": "review-anti-overengineering-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review assesses a bounded implementation that is much larger than the requested outcome and a named local baseline.",
+        "actual_behavior": "The review rewards completeness and passing checks without proving that each added responsibility is necessary.",
+        "expected_behavior": "Compare the proposal with the requested outcome and nearest fitting baseline, then block unsupported material complexity.",
+        "invariant": "Every material mechanism must be necessary for the authorized outcome or a concrete governing constraint.",
+        "evidence_ref": "sanitized:user-feedback-review-overengineering-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a one-off migration script against the approved plan and named local migration example.",
+          "context": "The implementation adds its own serializer, state store, orchestration, and repeated scan although the existing source path already provides those responsibilities.",
+          "expected_behavior": "Inspect the baseline and actual diff, identify unsupported responsibilities, block a clean verdict, and recommend direct reuse.",
+          "must_not": "Treat passing checks, earlier approval, robustness labels, or splitting the code into helpers as justification."
+        },
+        {
+          "kind": "negative",
+          "request": "Review a destructive migration that includes recovery, checkpoint, and validation guarantees.",
+          "context": "Each guarantee addresses a documented failure mode and the implementation is the simplest adequate design.",
+          "expected_behavior": "Preserve required safeguards and allow a clean review without inventing a line limit or more process.",
+          "must_not": "Remove necessary correctness or destructive-operation safety merely to shorten the implementation."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review an integration with no usable baseline after a retryable failure was observed.",
+          "context": "A bounded retry is sufficient, while a durable retry service is proposed without authorization.",
+          "expected_behavior": "State the baseline evidence limit, require the proven retry behavior, and keep the service outside the effective contract.",
+          "must_not": "Treat evidence of the failure as permission for a new subsystem or implementation work."
+        }
+      ]
     }
   ]
 }

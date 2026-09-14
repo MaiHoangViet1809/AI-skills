@@ -105,6 +105,41 @@
           "must_not": "Reuse the parent timestamp, use date-only values, rewrite historical timestamps, or close an unfinished parent SOW."
         }
       ]
+    },
+    {
+      "id": "execution-scope-bounded-repair-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Execution or gap-finding discovers adjacent concerns while implementing an approved bounded change.",
+        "actual_behavior": "Every concern becomes a repair mini-task and repeated checks or new machinery are added without separate necessity and authority checks.",
+        "expected_behavior": "Classify findings before repair, reuse the nearest fitting implementation, and keep optional work outside approved scope.",
+        "invariant": "Execution repairs required authorized defects but does not convert review findings into unapproved features.",
+        "evidence_ref": "sanitized:user-feedback-bounded-execution-repair-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Implement an approved small migration using the existing project source path.",
+          "context": "A named baseline already handles fetching and parsing; an optional durable checkpoint subsystem is discovered during gap-finding.",
+          "expected_behavior": "Reuse the baseline, implement the approved outer behavior, and report or route the optional subsystem separately.",
+          "must_not": "Rebuild baseline responsibilities or silently turn the optional subsystem into a repair task."
+        },
+        {
+          "kind": "negative",
+          "request": "Repair an approved change whose current implementation drops required records.",
+          "context": "The defect is within scope and authoritative evidence identifies the exact failing path.",
+          "expected_behavior": "Repair the in-scope defect and rerun only verification invalidated by the change.",
+          "must_not": "Use anti-overengineering as a reason to leave a required correctness defect unfixed."
+        },
+        {
+          "kind": "boundary",
+          "request": "Continue implementation after discovering that a required external decision is missing.",
+          "context": "Technical retries would not resolve the missing authority.",
+          "expected_behavior": "Stop immediately for the required decision while preserving completed in-scope work.",
+          "must_not": "Wait for repeated failures or invent a local policy to bypass missing authority."
+        }
+      ]
     }
   ]
 }

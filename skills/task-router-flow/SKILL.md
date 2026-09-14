@@ -91,17 +91,15 @@ Flow:
 - Edit the docs or planning files directly.
 - If the edit makes a SOW or plan complete, move that completed file into `plan_todo/finished/` before closeout.
 
-## Change Completeness Guardrail
+## Bounded Scope Guardrail
 
-Use this guardrail in every branch:
-- Do not treat a request as a single-point fix by default.
-- Check adjacent or analogous scope that can drift for the same reason.
-- Present a short coverage note before execution:
-  - what is directly requested
-  - what analogous scope should also be handled
-  - what is intentionally left out, if any
-- If similar surfaces are likely affected, suggest a family-level fix path.
-- If scope is intentionally narrow, explicitly mark it as a trade-off.
+- Inspect adjacent or analogous surfaces only when that cheaply clarifies impact
+  or reveals the same proven defect.
+- Inspection does not authorize a broader repair. Add adjacent work only when it
+  is necessary for the requested outcome and already covered by user or project
+  authority.
+- A narrow request is valid and needs no invented trade-off. Report optional or
+  separately owned work as a proposal outside the effective scope.
 
 ## SOW Extension Limit
 

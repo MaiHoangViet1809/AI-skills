@@ -203,6 +203,36 @@ When comparing approaches, cover only the dimensions that matter for the request
 
 Do not pad comparisons with generic pros and cons that do not affect the actual decision.
 
+## Simplicity And Responsibility Gate
+
+For code, design, SOW, and implementation reviews, apply this gate before a
+clean recommendation or `ready for HITL handoff`. Skip it for purely editorial
+work.
+
+- Inspect the closest named or cheaply discoverable project baseline before
+  designing a replacement. If none is available, state that evidence limit.
+- Compare the requested outcome, the baseline, and the proposed responsibilities.
+  Every material added mechanism must serve the authorized outcome or a concrete
+  governing constraint, and the review must explain why a simpler existing
+  mechanism is insufficient.
+- Treat wrappers, adapters, persistence, checkpoints, orchestration, retries,
+  validation passes, compatibility paths, and duplicated framework behavior as
+  complexity to justify. Labels such as robustness, best practice, or future
+  flexibility are not evidence of necessity.
+- Evidence of a problem establishes the problem, not permission for a new
+  feature or a particular solution. Keep optional improvements outside the
+  effective contract until authorized.
+- For implementation review, compare the actual diff with both the approved
+  design and baseline. Passing tests, earlier approval, or moving code into more
+  files does not justify unnecessary responsibility.
+- Preserve complexity required for correctness, security, destructive-operation
+  safety, data semantics, intentional config, or an explicit runtime contract.
+  Line count is only a warning signal.
+
+Unsupported material complexity is an actionable finding and blocks a clean
+approval recommendation. Keep this review proportional; do not require a new
+worksheet, numeric complexity budget, or exhaustive repository search.
+
 ## Output Contract
 
 Structure the result around these sections:

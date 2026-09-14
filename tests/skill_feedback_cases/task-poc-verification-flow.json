@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "poc-minimum-proof-001",
+      "target_skill": "task-poc-verification-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A POC review proposes helpers, state, and orchestration beyond what the hypothesis needs.",
+        "actual_behavior": "The review accepts a self-contained mini-product because it appears robust and testable.",
+        "expected_behavior": "Trace every stage to the hypothesis or a concrete runtime constraint and remove unrelated machinery.",
+        "invariant": "A POC contains sufficient proof and required safety, not speculative production architecture.",
+        "evidence_ref": "sanitized:user-feedback-poc-minimum-proof-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a POC that should prove one runtime integration through an existing project helper.",
+          "context": "The proposal also adds a state store, generalized runner, and helper-specific test suite unrelated to the hypothesis.",
+          "expected_behavior": "Require the real runtime path and negative check, reuse the helper, and remove unrelated persistent or generalized machinery.",
+          "must_not": "Approve a parallel framework merely because it is self-contained."
+        },
+        {
+          "kind": "negative",
+          "request": "Review a destructive POC that creates a disposable remote object.",
+          "context": "Ownership validation and cleanup are necessary to prevent deleting another run's object.",
+          "expected_behavior": "Retain the smallest ownership and cleanup checks needed for safe proof.",
+          "must_not": "Remove necessary safety because it adds code."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a POC whose runtime requires one bounded retry for a documented transient response.",
+          "context": "A local retry proves the integration, while a reusable retry service is proposed for possible future use.",
+          "expected_behavior": "Keep the bounded retry when it serves the hypothesis and leave the generalized service outside scope.",
+          "must_not": "Ban all retries or authorize a new subsystem."
+        }
+      ]
+    }
+  ]
+}
