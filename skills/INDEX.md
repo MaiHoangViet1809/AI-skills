@@ -7,6 +7,7 @@ Use `registry.json` for exact files and raw download URLs.
 | Skill | Use when |
 | --- | --- |
 | `apply-design-mirror` | Applying an extracted design package through a target project's real design-system ownership. |
+| `datamart-design-review` | Designing or reviewing datamart grain, formulas, table and column changes, migration impact, and evidence. |
 | `extract-design-mirror` | Extracting a UI design language into `DESIGN.md` plus evidence for later reuse. |
 | `playwright-flow` | Automating Playwright CLI browser work with explicit session lifecycle and cleanup. |
 | `project-concept-governance-flow` | Creating, reviewing, updating, or enforcing a project's local `docs/concept` authority. |

@@ -23,6 +23,24 @@
       ]
     },
     {
+      "name": "datamart-design-review",
+      "description": "Review datamart grain, formulas, table and column changes, migration impact, and evidence through one merged matrix.",
+      "files": [
+        {
+          "path": "skills/datamart-design-review/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/datamart-design-review/SKILL.md"
+        },
+        {
+          "path": "skills/datamart-design-review/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/datamart-design-review/agents/openai.yaml"
+        },
+        {
+          "path": "skills/datamart-design-review/references/impact-matrix.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/datamart-design-review/references/impact-matrix.md"
+        }
+      ]
+    },
+    {
       "name": "extract-design-mirror",
       "description": "Extract a portable UI design language into DESIGN.md with evidence.",
       "files": [

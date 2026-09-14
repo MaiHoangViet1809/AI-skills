@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "datamart-impact-matrix-001",
+      "target_skill": "datamart-design-review",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Design or review a datamart, analytical serving table, or semantic dataset change.",
+        "actual_behavior": "Table lifecycle, grain, column formulas, migration impact, and evidence are reported separately or incompletely.",
+        "expected_behavior": "Ground the proposal in current contracts and return exactly one merged table-and-column impact matrix with traceable semantics.",
+        "invariant": "Every material datamart change is traceable from table action and grain through physical column semantics to downstream impact and verification.",
+        "evidence_ref": "sanitized:user-feedback-datamart-impact-matrix-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Using the profiled source and current SQL, propose the Silver and Gold redesign and show all impacts in one table.",
+          "context": "The proposal updates an existing aggregate formula and physical type, creates a serving table, retires an obsolete table, and retains one compatibility key. Source uniqueness is observed in one deployed snapshot but the business grain is not approved.",
+          "expected_behavior": "Inspect current sources and consumers, distinguish observed source grain from proposed output grain and business-approved grain, then return exactly one merged impact matrix covering table action, grain and refresh, every required physical column, type and formula transitions, reasons, migration impact, and VERIFIED, PROPOSED, or UNVERIFIED status.",
+          "must_not": "Split table and column changes into separate tables, omit new-table columns, treat snapshot uniqueness as a timeless business contract, or hide a rename inside a generic update."
+        },
+        {
+          "kind": "negative",
+          "request": "Fix the colour and title of this dashboard chart.",
+          "context": "No dataset schema, analytical grain, materialization, or measure definition changes.",
+          "expected_behavior": "Use the relevant visualization workflow without applying the datamart impact-matrix procedure.",
+          "must_not": "Demand warehouse profiling, invent datamart changes, or produce a schema impact matrix."
+        },
+        {
+          "kind": "boundary",
+          "request": "Optimize this long virtual-dataset SQL because the chart is slow.",
+          "context": "It is initially unclear whether the cost is query-local or repeated business logic that belongs in a reusable serving model.",
+          "expected_behavior": "Inspect the query and reuse pattern first. Apply the merged impact matrix only if the recommendation actually changes a datamart or semantic dataset contract; otherwise keep the diagnosis query-local.",
+          "must_not": "Promote one slow query into a new Gold table without reuse and grain evidence, or force a datamart report when no datamart contract changes."
+        }
+      ]
+    }
+  ]
+}

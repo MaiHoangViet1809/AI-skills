@@ -259,6 +259,26 @@ Decision:
 Reason:
 - A fair comparison against `cocoindex-code` and `cased/kit` did not justify making them part of the standard flow for this repo.
 
+## 21. Datamart Review Owns One Merged Impact Matrix
+
+Decision:
+- `datamart-design-review` is a specialized AISkills-owned skill rather than an
+  extension of the generic task review skill.
+- A datamart impact report uses one merged table-and-column matrix covering
+  lifecycle, grain, refresh, physical type, formula, reason, downstream migration
+  and evidence status.
+- The skill distinguishes observed source grain, proposed output grain and
+  business-approved grain; runtime-dependent claims remain `UNVERIFIED` without
+  exact evidence.
+
+Reason:
+- Generic task review should not carry domain-specific analytical modeling
+  contracts or trigger on unrelated reviews.
+- A single matrix keeps table lifecycle and column semantics traceable without
+  forcing readers to reconstruct impact across separate summaries.
+- Snapshot uniqueness and repository SQL are useful evidence but do not establish
+  a timeless business grain or deployed target contract.
+
 ## 24. Centralization Strategy
 
 Decision:
