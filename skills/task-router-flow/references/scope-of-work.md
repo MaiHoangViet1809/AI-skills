@@ -114,6 +114,10 @@ Choose the next available index by scanning the repository's planning area, incl
 - New code change not covered by an active SOW: draft a new SOW.
 - Change to active scoped work under a plan: extend the plan first, then update the aligned SOW.
 - Change to active scoped work not under a plan: extend the existing SOW only while it stays within the 3-extension limit.
-- Debug request: find root cause first, then extend the SOW only if the fix becomes a substantial code change.
+- Debug request: find root cause first; apply repo SOW policy to every code fix,
+  regardless of size. Reuse exact approved coverage or obtain approval for a new
+  or extended SOW before code edits.
 - Debug or follow-up work that would exceed the 3-extension limit: draft a new SOW and cross-reference the prior SOW.
-- Docs, plan, or SOW-only request: no new SOW by default.
+- Docs, plan, or SOW-only request: no new SOW by default; use existing user
+  authorization for the concrete edit when repo policy permits it. Material
+  scope expansion still requires approval.

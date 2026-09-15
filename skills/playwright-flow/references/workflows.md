@@ -3,6 +3,8 @@
 Use the wrapper script and snapshot often.
 Assume `PWCLI` is set and `pwcli` is an alias for `"$PWCLI"`.
 In this repo, run commands from `output/playwright/<label>/` to keep artifacts contained.
+Before these examples, inspect `pwcli list` and set `PLAYWRIGHT_CLI_SESSION` to
+a unique task-owned name. Reuse only that name throughout the task.
 
 ## Standard interaction loop
 
@@ -11,7 +13,7 @@ pwcli open https://example.com
 pwcli snapshot
 pwcli click e3
 pwcli snapshot
-pwcli close-all
+pwcli close
 ```
 
 ## Form submission
@@ -55,12 +57,15 @@ pwcli screenshot
 
 ## Sessions
 
-Use sessions to isolate work across projects:
+Use fresh named sessions to isolate work. These names are examples; first check
+they do not belong to existing tasks. Each session created here needs its own cleanup:
 
 ```bash
 pwcli --session marketing open https://example.com
 pwcli --session marketing snapshot
 pwcli --session checkout open https://example.com/checkout
+pwcli --session marketing close
+pwcli --session checkout close
 ```
 
 Or set the session once:
@@ -76,15 +81,19 @@ Default cleanup after a review or debug loop:
 
 ```bash
 pwcli screenshot
-pwcli close-all
+pwcli close
 ```
 
 If sessions look stale or a headed browser is stuck:
 
 ```bash
 pwcli list
-pwcli kill-all
+pwcli --session "$PLAYWRIGHT_CLI_SESSION" close
 ```
+
+Close only a session whose ownership is established. If scoped cleanup still
+fails, report it; global `close-all` or `kill-all` requires explicit user
+authorization and must not be automatic recovery.
 
 ## Configuration file
 

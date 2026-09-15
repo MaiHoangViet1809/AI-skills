@@ -1,25 +1,29 @@
 ---
 name: task-progress-report
-description: Use when you need to report execution progress in a stable, low-noise format for plan or SOW-driven work. Prefer a short summary after a completed block, with a progress table that shows only still-open SOW items plus one overall completion row such as `overall 4/5`.
+description: Use for concise task progress or structured inventory summaries. Match columns to the requested subject; for plan/SOW execution show overall completion and only open items, with one default report at final closeout.
 ---
 
 # Task Progress Report
 
-Use this skill when the work is active and the user wants disciplined progress reporting instead of ad hoc status chatter.
+Use this skill for execution progress or a structured inventory/status summary.
 
 Keep progress reporting lightweight. The goal is to improve visibility, not to narrate every intermediate thought.
 
 ## Rules
 
-- Report progress after a meaningful block finishes, not every small action.
-- If the user asks for `summary`, `summarize`, or a plan/SOW status recap, use this skill's compact progress summary table by default.
+- First identify the summary's subject. Inventory uses subject-specific columns;
+  plan/SOW execution uses the progress table below. Honor requested columns or prose.
+- Default to one invocation at final task closeout, not after every mini-task.
+  Explicit user status requests may invoke this skill earlier or more than once.
 - While still executing, only interrupt with a progress update when there is a real decision point, blocker, or substantial milestone.
-- Default to one summary-style progress update near the end of the current block of work.
+- Ordinary short execution commentary is separate from this skill's reports.
 - If the task is plan or SOW driven, show a compact table.
 - In the table, show only SOW items that are still open or still being verified.
-- Do not keep already-done SOWs in the table after they have passed the final gap-finding pass.
-- Always include one overall row in the form `overall x/y`.
-- If a SOW is complete, validated, and no follow-up remains, remove it from the table and only reflect it in the overall row.
+- Remove done SOWs only after the Completion Discipline gates below pass.
+- For plan/SOW progress only, include one overall row in the form `overall x/y`.
+- If a SOW is complete and no required work remains, remove it from the table and
+  reflect it in the overall row. An accepted non-blocking follow-up belongs in
+  the short note, not an open SOW row.
 - Keep commentary below the table short and only include non-table context that matters.
 - Do not repeat the same progress statement across multiple turns.
 - This skill is progress-oriented, not findings-oriented; do not use a `Severity | Finding | Impact | Solution` table for a plain summary request.
@@ -27,7 +31,7 @@ Keep progress reporting lightweight. The goal is to improve visibility, not to n
 
 ## Table Format
 
-Use this column order:
+For plan/SOW execution, use this column order:
 
 | plan name | SOW | %Complete | current task short desc | progress |
 
@@ -41,6 +45,18 @@ Rules:
 - If there are no open SOWs left, return only the overall row.
 
 ## Reporting Modes
+
+### Inventory Summary
+
+Use rows for the actual subjects and columns requested by the user. For example:
+
+| Skill | Codex | Claude |
+| --- | --- | --- |
+| example-skill | Installed | Not installed |
+
+Use verified inventory evidence; mark unavailable status unknown. Never invent
+SOW IDs, percentages or an overall SOW row for inventory. A generic prose summary
+need not be forced into a table when the user requests prose.
 
 ### 1. Plan or Multi-SOW Work
 
@@ -82,13 +98,22 @@ Keep it brief. Do not turn the note section into a changelog.
 
 ## Completion Discipline
 
-A SOW counts as done for reporting only after:
+A SOW counts as done for reporting only after evidence shows:
 
 - implementation is finished
+- required implementation verification passed and all done criteria are satisfied
 - you performed the intended gap-finding pass
-- no immediate repair loop remains open
+- no blocking gap or required repair loop remains open
+- execution closeout handling is complete under the applicable workflow
 
-If any of those are still open, keep the SOW in the table.
+Use `task-execution-flow` completion state when available. Accepted non-blocking
+risks may remain if execution records their impact, acceptance authority and
+follow-up; mention them without turning them into completed repairs.
+
+When that skill is unavailable, use actual verification and closeout evidence;
+do not require installing another skill. Missing evidence means pending, not
+done. Percentages and an implementation claim alone never prove completion.
+If any required gate is open or unknown, keep the SOW in the table.
 
 ## Avoid
 

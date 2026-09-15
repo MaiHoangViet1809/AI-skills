@@ -7,7 +7,8 @@ description: Use this skill when the user makes a work request that may require 
 
 Use this skill as the front-door router before execution begins.
 
-For execution-time progress updates, follow [brief-execution.md](../../rules/brief-execution.md).
+Keep execution-time commentary to one short sentence about status, next action
+or a blocker. Keep the final response separate.
 
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
@@ -73,8 +74,11 @@ Use this branch when the user asks to debug, investigate, or fix a bug or regres
 Flow:
 - Find the root cause first.
 - Confirm user intent only if there is a real ambiguity or tradeoff.
-- If the resulting fix is a big change, extend the active SOW before major edits unless that SOW already has 3 extensions.
-- If the active SOW already has 3 extensions, draft a new SOW for the fix and link it back to the prior SOW.
+- Before any code fix, apply the target repo's SOW policy regardless of patch
+  size. Reuse an approved SOW when it already covers the exact fix.
+- If approval is required and coverage is missing, draft or extend the owning
+  SOW and obtain approval before editing code. If another extension would exceed
+  the limit, draft a replacement SOW referencing the prior one.
 - When concept authority exists, treat an undeclared concept conflict as a
   stop condition and route it back for explicit review before execution.
 - Continue to execution.
@@ -87,7 +91,9 @@ Use this branch when the request is limited to docs, SOW, or plan files.
 Flow:
 - Do not propose a new SOW.
 - Show a concrete edit plan.
-- Wait for approval.
+- Proceed when the user's existing request already authorizes that concrete
+  docs edit and repo policy permits it; do not ask for the same approval again.
+- Obtain approval only for missing authority or a material scope expansion.
 - Edit the docs or planning files directly.
 - If the edit makes a SOW or plan complete, move that completed file into `plan_todo/finished/` before closeout.
 
@@ -117,7 +123,7 @@ After any branch finishes:
   transition and move it into the repo's `finished/` planning directory before
   commit
 - summarize the outcome
-- commit with a clear message unless the user defers commits
+- handle commits according to the user's instruction and repo policy
 - report the result to the user
 
 ## Global Hook Telemetry

@@ -45,15 +45,17 @@ domain, storage model, or ownership model of its own.
 
 ## Operating Modes
 
-Choose exactly one mode before gathering evidence.
+Choose one provisional mode, gather evidence, then confirm or revise the mode.
+Mode selection is not a finding or verification result.
 
 Default selection:
 
 ```text
 known existing plan/SOW?
-├─ no  -> Brainstorm
-└─ yes -> concrete, low-ambiguity finding?
-          ├─ no  -> report no actionable finding; do not edit
+├─ no  -> Brainstorm -> gather evidence
+└─ yes -> inspect artifact and relevant evidence
+          -> concrete, low-ambiguity finding?
+          ├─ no  -> evidence sufficient? clean conclusion : unverified conclusion
           └─ yes -> materially changes the contract?
                     ├─ yes -> Scope Change
                     └─ no  -> Review And Writeback
@@ -92,7 +94,10 @@ Default rule:
 - if the review finds a concrete issue that belongs in a known planning artifact, patch it in the same turn; the user does not need to separately say `patch`
 - do not stop only to ask for approval of the writeback itself
 
-Typical writeback findings include missing acceptance criteria, persistence boundaries, consumer or callsite coverage, validation coverage, risks, and naming drift.
+Typical writeback findings clarify already-established acceptance criteria,
+persistence boundaries, consumer coverage, validation, risks and naming. Adding
+new required behavior or changing acceptance thresholds is a Scope Change, even
+when the edit is small. Do not treat a missing requirement as already approved.
 
 When concept authority exists:
 
@@ -121,9 +126,10 @@ In this mode:
 ## Review Loop
 
 ```text
-classify mode
+select provisional mode
 -> normalize the question
 -> gather evidence
+-> confirm mode and evidence sufficiency
 -> separate facts from inference
 -> test adjacent scope and blast radius
 -> compare viable options
@@ -263,6 +269,11 @@ Do not force the table when:
 If there are no actionable findings, say directly:
 
 > No actionable findings found.
+
+Use that conclusion only after sufficient inspection of the reviewed scope.
+When required evidence is unavailable, report the concrete unverified premise
+and next investigation step instead of implying the review is clean. Verified
+findings may still be reported alongside explicitly unverified scope.
 
 Keep each finding row concise but complete:
 

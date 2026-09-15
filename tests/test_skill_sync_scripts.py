@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -257,6 +258,23 @@ class SkillSyncScriptTests(unittest.TestCase):
         self.assertIn("extra:\n  extra.txt", failed.stdout)
         self.assertIn("changed:\n  SKILL.md", failed.stdout)
         self.assertIn("parity: fail", failed.stdout)
+
+    def test_standalone_workflow_resources_resolve_inside_installed_skill(self) -> None:
+        for skill in ("task-router-flow", "sow-delegate-flow"):
+            target_root = self.tmp_path / skill / "fresh-skills"
+            self.run_script(
+                "sync_env_others.py", "--target-root", str(target_root), "--skill", skill
+            )
+            installed = target_root / skill
+            for document in installed.rglob("*.md"):
+                for href in re.findall(r"\]\(([^)]+)\)", document.read_text()):
+                    if "://" in href or href.startswith("#"):
+                        continue
+                    destination = (document.parent / href.split("#", 1)[0]).resolve()
+                    self.assertTrue(destination.is_relative_to(installed.resolve()), href)
+                    self.assertTrue(destination.exists(), href)
+            self.assertEqual([skill], sorted(path.name for path in target_root.iterdir()))
+            self.assertFalse((target_root.parent / "rules").exists())
 
     def test_missing_repo_target_project_fails(self) -> None:
         result = self.run_script(

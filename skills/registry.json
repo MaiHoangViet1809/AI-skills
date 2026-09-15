@@ -196,7 +196,7 @@
     },
     {
       "name": "task-progress-report",
-      "description": "Report plan or SOW progress with compact status tables.",
+      "description": "Report evidence-backed execution progress or inventory with subject-specific columns.",
       "files": [
         {
           "path": "skills/task-progress-report/SKILL.md",

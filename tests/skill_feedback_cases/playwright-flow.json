@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "browser-session-ownership-001",
+      "target_skill": "playwright-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Finish browser task A.",
+        "actual_behavior": "The current cleanup examples call close-all and kill-all.",
+        "expected_behavior": "Cleanup affects only a task-owned session.",
+        "invariant": "Cleanup affects only a task-owned session.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Finish browser task A.",
+          "context": "Named sessions A and B exist; only A belongs to this task.",
+          "expected_behavior": "Close A only.",
+          "must_not": "Close or kill B."
+        },
+        {
+          "kind": "negative",
+          "request": "Leave my other browser task running.",
+          "context": "B belongs to another task; A is finished.",
+          "expected_behavior": "Preserve B and clean only A.",
+          "must_not": "Use global cleanup."
+        },
+        {
+          "kind": "boundary",
+          "request": "The browser is stuck; finish cleanup.",
+          "context": "Session ownership cannot be established.",
+          "expected_behavior": "Inspect ownership or report blocked scoped cleanup.",
+          "must_not": "Infer permission to kill all sessions."
+        }
+      ]
+    }
+  ]
+}

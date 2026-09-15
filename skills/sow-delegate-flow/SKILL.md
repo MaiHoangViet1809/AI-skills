@@ -11,7 +11,8 @@ Use this skill for Codex-native delegation:
 Codex coordinator -> classify mode -> native sub-agent -> local review and verification -> repair or closeout
 ```
 
-For execution-time progress updates, follow [brief-execution.md](../../rules/brief-execution.md).
+Keep execution-time commentary to one short sentence about status, next action
+or a blocker. Keep the final response separate.
 
 ## Precedence
 

@@ -16,6 +16,9 @@ Optional convenience alias:
 alias pwcli="$PWCLI"
 ```
 
+Inspect `list` and choose a unique task-owned `PLAYWRIGHT_CLI_SESSION` before
+running the examples. Do not inherit another task's session name blindly.
+
 ## Core
 
 ```bash
@@ -101,7 +104,7 @@ pwcli tracing-stop
 
 ## Sessions
 
-Use a named session to isolate work:
+Use a fresh task-owned named session to isolate work; replace `todo` if it exists:
 
 ```bash
 pwcli --session todo open https://demo.playwright.dev/todomvc
@@ -120,6 +123,7 @@ Lifecycle commands:
 ```bash
 pwcli list
 pwcli close
-pwcli close-all
-pwcli kill-all
 ```
+
+`close` targets the verified task session. Global `close-all` and `kill-all`
+require explicit authorization; never use them as routine cleanup or recovery.

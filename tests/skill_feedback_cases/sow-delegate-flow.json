@@ -70,6 +70,41 @@
           "must_not": "Use a stale hardcoded role or silently delegate to another model."
         }
       ]
+    },
+    {
+      "id": "portable-delegate-rule-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Delegate a read-only review to an available agent.",
+        "actual_behavior": "The entrypoint references an external repository rule file absent from skill-only installs.",
+        "expected_behavior": "Delegate communication instructions are self-contained.",
+        "invariant": "Delegate communication instructions are self-contained.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate a read-only review to an available agent.",
+          "context": "Only the delegate skill directory is installed.",
+          "expected_behavior": "Use packaged instructions and concise communication.",
+          "must_not": "Depend on an external brief-execution file."
+        },
+        {
+          "kind": "negative",
+          "request": "Read the delegation instructions.",
+          "context": "No historical rules folder exists.",
+          "expected_behavior": "Explain the bounded handoff without missing-file dependencies.",
+          "must_not": "Install legacy rules."
+        },
+        {
+          "kind": "boundary",
+          "request": "Delegate from an arbitrary skills root.",
+          "context": "Project policy exists separately.",
+          "expected_behavior": "Use local skill resources and respect project policy.",
+          "must_not": "Overwrite project policy."
+        }
+      ]
     }
   ]
 }

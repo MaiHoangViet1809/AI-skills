@@ -15,7 +15,7 @@ Use `registry.json` for exact files and raw download URLs.
 | `sow-delegate-flow` | Delegating SOW or plan work from Codex to a native sub-agent, including GLM5.2. |
 | `task-execution-flow` | Executing an already-approved or otherwise clear task with verification discipline. |
 | `task-poc-verification-flow` | Reviewing POC SOWs and POC plans against runtime evidence and safety gates. |
-| `task-progress-report` | Reporting plan or SOW progress in a stable, compact format. |
+| `task-progress-report` | Reporting evidence-backed execution progress or an inventory with subject-specific columns. |
 | `task-review-investigate-compare` | Reviewing plans, SOWs, ideas, root causes, or implementation approaches before execution. |
 | `task-router-flow` | Routing work into SOW, debug, code-change, or docs-only branches. |
 | `taste-skill` (`$design-taste-frontend`) | Anti-slop frontend guidance for landing pages, portfolios, and redesigns. |

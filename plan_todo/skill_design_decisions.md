@@ -7,6 +7,22 @@ This file records the main design decisions and reasons behind the custom workfl
 
 The goal is to preserve enough context that future refinements can continue from the current design without reconstructing the original conversations.
 
+## 2026-09-15 Workflow Contract Consistency (SOW_0082)
+
+- Keep the six workflow skills separate. Execution owns completion semantics;
+  progress presents evidence-backed state and remains usable standalone.
+- Treat required verification failures as blocking; non-blocking risks require
+  explicit acceptance authority and a recorded follow-up. A severity label alone
+  cannot waive a done criterion.
+- Preserve unrelated work and its staging; evaluate the candidate commit content
+  rather than assuming the dirty worktree is identical to the deliverable.
+- Inline the tiny router/delegate commentary rule instead of installing a shared
+  rule dependency. Duplication of two lines avoids external policy ownership.
+- Browser cleanup follows task-session ownership. Global cleanup is an explicit
+  user action, never an automatic recovery step.
+- Review mode is provisional until evidence supports a conclusion; inventory and
+  execution summaries use different table shapes.
+
 ## 2026-07-08 Active Distribution Decision
 
 Decision:

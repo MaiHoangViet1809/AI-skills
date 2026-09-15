@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "summary-shape-completion-001",
+      "target_skill": "task-progress-report",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Summarize skills: skill, Codex, Claude.",
+        "actual_behavior": "Every summary routes into SOW progress and done omits an explicit verification gate.",
+        "expected_behavior": "Match summary subject and base completion on evidence.",
+        "invariant": "Match summary subject and base completion on evidence.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Summarize skills: skill, Codex, Claude.",
+          "context": "Inventory: Alpha installed only in Codex; Beta installed only in Claude.",
+          "expected_behavior": "Use the requested inventory columns.",
+          "must_not": "Invent SOW rows."
+        },
+        {
+          "kind": "negative",
+          "request": "Summarize deployment inventory.",
+          "context": "No plan or SOW exists.",
+          "expected_behavior": "Use subject-appropriate inventory rows.",
+          "must_not": "Invent overall x/y SOW progress."
+        },
+        {
+          "kind": "boundary",
+          "request": "Show task status now.",
+          "context": "Implementation is patched but runtime verification is pending; execution skill is unavailable.",
+          "expected_behavior": "Report pending verification without requiring another skill.",
+          "must_not": "Report done from patch completion."
+        }
+      ]
+    },
+    {
+      "id": "final-progress-frequency-001",
+      "target_skill": "task-progress-report",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Finish this multi-step task.",
+        "actual_behavior": "The skill defaults to reporting after each meaningful block.",
+        "expected_behavior": "Default invocation is once at final closeout; user status requests remain supported.",
+        "invariant": "Default invocation is once at final closeout; user status requests remain supported.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Finish this multi-step task.",
+          "context": "All work, verification and closeout handling are complete.",
+          "expected_behavior": "Emit one final progress summary.",
+          "must_not": "Emit one summary per mini-task."
+        },
+        {
+          "kind": "negative",
+          "request": "Continue implementing the next mini-task.",
+          "context": "A prior mini-task just finished; the overall task is active.",
+          "expected_behavior": "Continue with concise ordinary commentary when useful.",
+          "must_not": "Invoke progress reporting just for mini-task completion."
+        },
+        {
+          "kind": "boundary",
+          "request": "Give me current progress.",
+          "context": "The task is midway through verification.",
+          "expected_behavior": "Answer the explicit status request accurately.",
+          "must_not": "Suppress the requested update or report completion early."
+        }
+      ]
+    }
+  ]
+}

@@ -41,6 +41,16 @@ export PWCLI="$CODEX_HOME/skills/playwright-flow/scripts/playwright_cli.sh"
 
 User-scoped skills install under `$CODEX_HOME/skills` (default: `~/.codex/skills`).
 
+Before opening a browser, use `list` to inspect existing sessions, choose a
+unique name for this task, and record its ownership. Set that name for all
+commands below (replace the example if it already exists):
+
+```bash
+export PLAYWRIGHT_CLI_SESSION=task-browser-unique
+```
+
+Do not attach to a pre-existing session without explicit user authorization.
+
 ## Quick start
 
 Use the wrapper script:
@@ -77,7 +87,7 @@ Minimal loop:
 "$PWCLI" snapshot
 "$PWCLI" click e3
 "$PWCLI" snapshot
-"$PWCLI" close-all
+"$PWCLI" close
 ```
 
 ## Session lifecycle
@@ -85,15 +95,14 @@ Minimal loop:
 - `open` creates or attaches to a live browser session that can persist across later commands.
 - Session state lives beyond a single command; if you walk away without cleanup, stale headed browsers can accumulate.
 - Use `list` to inspect active sessions before reusing or closing them.
-- Use named sessions when you need isolation across separate tasks.
+- Use a unique task-owned named session for every task. An inherited session
+  variable is not ownership evidence; check it before opening or closing.
 
 Core lifecycle commands:
 
 ```bash
 "$PWCLI" list
 "$PWCLI" close
-"$PWCLI" close-all
-"$PWCLI" kill-all
 ```
 
 ## When to snapshot again
@@ -136,30 +145,34 @@ Refs can go stale. When a command fails due to a missing ref, snapshot again.
 "$PWCLI" tab-list
 "$PWCLI" tab-select 0
 "$PWCLI" snapshot
-"$PWCLI" close-all
+"$PWCLI" close
 ```
 
 ## Session cleanup
 
 Default cleanup policy:
 
-- After browser review or UI debugging ends, run `close-all`.
-- If you intentionally used a named session, close that session or run `close-all` before switching tasks.
-- If a headed browser is stale, stuck, or `close-all` does not recover cleanly, run `kill-all`.
+- After browser review or UI debugging ends, close only the session owned by
+  this task using its explicit `--session` name or verified session variable.
+- Leave all other sessions intact. If owned cleanup fails, inspect that session
+  and report the remaining cleanup; a stuck browser does not authorize global kill.
+- `close-all` and `kill-all` affect other sessions and require explicit user
+  authorization for that global action. Never use them as automatic recovery.
+- If ownership is unknown, inspect `list` and establish ownership before cleanup.
 - Before starting a fresh debugging task, run `list` if you suspect old sessions may still exist.
 
 Typical cleanup tail:
 
 ```bash
 "$PWCLI" screenshot
-"$PWCLI" close-all
+"$PWCLI" close
 ```
 
 Escalation for stale sessions:
 
 ```bash
 "$PWCLI" list
-"$PWCLI" kill-all
+"$PWCLI" --session "$PLAYWRIGHT_CLI_SESSION" close
 ```
 
 ## Wrapper script

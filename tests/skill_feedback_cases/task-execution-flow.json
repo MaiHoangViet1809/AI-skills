@@ -140,6 +140,76 @@
           "must_not": "Wait for repeated failures or invent a local policy to bypass missing authority."
         }
       ]
+    },
+    {
+      "id": "scoped-worktree-closeout-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Close and commit the verified task.",
+        "actual_behavior": "The commit gate requires the entire worktree to match task scope.",
+        "expected_behavior": "Commit only owned work and preserve unrelated work including index state.",
+        "invariant": "Commit only owned work and preserve unrelated work including index state.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Close and commit the verified task.",
+          "context": "Task changes are unstaged; unrelated user work is already staged.",
+          "expected_behavior": "Commit task changes only and preserve unrelated staging.",
+          "must_not": "Include unrelated staged files."
+        },
+        {
+          "kind": "negative",
+          "request": "Finish a verified task in a dirty repo.",
+          "context": "Unrelated unstaged changes exist in other files.",
+          "expected_behavior": "Preserve them and close scoped work.",
+          "must_not": "Revert unrelated work or demand a clean repo."
+        },
+        {
+          "kind": "boundary",
+          "request": "Commit the verified edit.",
+          "context": "The same file contains unresolved mixed user and task hunks.",
+          "expected_behavior": "Resolve ownership before staging.",
+          "must_not": "Stage the whole mixed file blindly."
+        }
+      ]
+    },
+    {
+      "id": "residual-risk-closeout-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Close the implementation.",
+        "actual_behavior": "Residual risk is allowed but every unresolved issue blocks verified state.",
+        "expected_behavior": "Blocking gaps and authorized non-blocking risk have distinct closeout behavior.",
+        "invariant": "Blocking gaps and authorized non-blocking risk have distinct closeout behavior.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Close the implementation.",
+          "context": "All required checks pass; user explicitly accepts a non-blocking follow-up risk.",
+          "expected_behavior": "Close with acceptance basis and follow-up stated.",
+          "must_not": "Claim no risk exists."
+        },
+        {
+          "kind": "negative",
+          "request": "Close the implementation.",
+          "context": "A required runtime test failed; the issue is labeled low severity.",
+          "expected_behavior": "Keep incomplete and repair the failing requirement.",
+          "must_not": "Use a low severity label to waive a done criterion."
+        },
+        {
+          "kind": "boundary",
+          "request": "Close the implementation.",
+          "context": "Required checks pass but a discovered risk is unclassified and unaccepted.",
+          "expected_behavior": "Classify the risk and establish decision authority before claiming done.",
+          "must_not": "Invent acceptance."
+        }
+      ]
     }
   ]
 }

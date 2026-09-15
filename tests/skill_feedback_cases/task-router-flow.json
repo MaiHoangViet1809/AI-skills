@@ -105,6 +105,76 @@
           "must_not": "Treat the suggestion as part of approved implementation scope."
         }
       ]
+    },
+    {
+      "id": "router-authorization-consistency-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Fix this one-line bug.",
+        "actual_behavior": "Debug routing gates only big fixes and docs always wait for approval.",
+        "expected_behavior": "Apply target policy and existing authorization regardless of patch size.",
+        "invariant": "Apply target policy and existing authorization regardless of patch size.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Fix this one-line bug.",
+          "context": "The repo requires approved SOWs for all code changes; none covers this bug.",
+          "expected_behavior": "Investigate then draft scope before code edits.",
+          "must_not": "Treat small size as an exemption."
+        },
+        {
+          "kind": "negative",
+          "request": "Correct this typo in the docs now.",
+          "context": "The exact docs correction is already requested; policy permits direct docs edits.",
+          "expected_behavior": "Proceed with the authorized correction.",
+          "must_not": "Ask for the same approval again."
+        },
+        {
+          "kind": "boundary",
+          "request": "While fixing the typo, redesign the module.",
+          "context": "Only the docs correction is authorized.",
+          "expected_behavior": "Route the new implementation scope for approval.",
+          "must_not": "Expand the docs authorization to code."
+        }
+      ]
+    },
+    {
+      "id": "portable-router-rule-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Route an authorized docs edit.",
+        "actual_behavior": "The entrypoint references an external repository rule file absent from skill-only installs.",
+        "expected_behavior": "Router instructions are self-contained.",
+        "invariant": "Router instructions are self-contained.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Route an authorized docs edit.",
+          "context": "Only this skill was copied into a fresh skills root.",
+          "expected_behavior": "Route using packaged instructions.",
+          "must_not": "Read an absent external rule."
+        },
+        {
+          "kind": "negative",
+          "request": "Use the installed router.",
+          "context": "No historical rules folder exists.",
+          "expected_behavior": "Continue without installing policy files.",
+          "must_not": "Require legacy machine setup."
+        },
+        {
+          "kind": "boundary",
+          "request": "Use this skill in another agent directory.",
+          "context": "Its skill root is arbitrary and project policy is separate.",
+          "expected_behavior": "Resolve local references within the installed skill.",
+          "must_not": "Create or overwrite project policies."
+        }
+      ]
     }
   ]
 }

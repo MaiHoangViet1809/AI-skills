@@ -245,6 +245,41 @@
           "must_not": "Treat evidence of the failure as permission for a new subsystem or implementation work."
         }
       ]
+    },
+    {
+      "id": "evidence-first-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Review the existing plan.",
+        "actual_behavior": "The initial mode table permits a clean conclusion before evidence gathering.",
+        "expected_behavior": "Review conclusions follow sufficient evidence.",
+        "invariant": "Review conclusions follow sufficient evidence.",
+        "evidence_ref": "sanitized:sow-0082-source-review-2026-09-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review the existing plan.",
+          "context": "Evidence is available but has not been inspected.",
+          "expected_behavior": "Inspect first and then conclude.",
+          "must_not": "Declare clean before inspection."
+        },
+        {
+          "kind": "negative",
+          "request": "Is this plan correct?",
+          "context": "A required external contract is unavailable.",
+          "expected_behavior": "Report the unverified premise and next investigation step.",
+          "must_not": "Conclude no actionable findings means fully verified."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review the plan's acceptance criteria.",
+          "context": "A proposed edit changes required output rather than clarifying wording.",
+          "expected_behavior": "Route a scope change.",
+          "must_not": "Write changed acceptance into approved scope as clarification."
+        }
+      ]
     }
   ]
 }

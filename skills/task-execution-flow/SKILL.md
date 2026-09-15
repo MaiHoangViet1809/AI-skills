@@ -104,6 +104,8 @@ Phase 4: gap-finding pass
       or optional/out-of-scope improvement
    -> repair only the authorized defect; gather required evidence at the
       cheapest correct stage; report or route optional/out-of-scope work
+   -> classify remaining risks using Completion And Risk Acceptance below;
+      accepted non-blocking risks do not become mandatory repair loops
 -> challenge each added mechanism against the approved outcome and nearest
    fitting baseline; report unsupported responsibility and remove it only when
    the approved scope permits, without weakening required correctness or safety
@@ -120,15 +122,15 @@ Phase 5: closeout
    -> set the top-level SOW finish_dttm only when no owned scope remains open
    -> preserve completed extension timestamps
    -> move that completed planning file into the repo's `finished/` planning directory before commit
--> produce the final summary
-   -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
-   -> use a progress/closeout summary shape, not a findings table, unless actionable issues remain
 -> commit
-   -> verify the worktree only contains changes covered by the approved scope
-   -> stage only the relevant files with `git add`
-   -> commit with a descriptive summary message using `git commit -m "<summary>"`
+   -> review task-owned changes against scope; preserve unrelated dirty work
+   -> follow Scoped Commit Safety below, including pre-existing staged changes
+   -> commit only owned changes with a descriptive summary message
    -> if the task is not fully verified, do not commit it as done; only use an explicit checkpoint commit that says verification is still pending
    -> if the user explicitly deferred commits, skip the commit and note that in the final response
+-> produce the final summary after commit handling
+   -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
+   -> use a progress/closeout summary shape, not a findings table, unless actionable issues remain
 
 Escalate immediately when required information or decision authority is
 missing. For recoverable technical failures already within scope, escalate when
@@ -279,9 +281,10 @@ Do not escalate merely because the work is hard or needs one bounded repair.
 - `implemented but not fully verified`:
   the patch exists, but required implementation verification or gap-finding is still incomplete.
 - `verified`:
-  implementation verification passed and gap-finding found no unresolved issue.
+  required implementation verification passed and no blocking gap remains;
+  accepted non-blocking risks are explicitly recorded.
 - `closed`:
-  final summary is complete, worktree matches scope, and commit handling is complete.
+  final summary is complete, task-owned changes match scope, and commit handling is complete.
 
 Only `closed` may be presented as done.
 
@@ -291,18 +294,37 @@ Only close out when all of these are true:
 
 - mini-task work is complete
 - implementation verification passed at the required severity for the task
-- gap-finding found no unresolved gap
+- gap-finding found no blocking gap; remaining risks meet the acceptance rule below
 - final quality check passed
-- the worktree still matches the approved scope
+- task-owned changes still match approved scope; unrelated work remains intact
 - any SOW or plan completed by this task has been moved into the repo's `finished/` planning directory
 - the active extension and top-level SOW have their correct completion
   timestamps before a finished move
 
-Commit discipline:
+## Completion And Risk Acceptance
 
-- verify the worktree only contains changes covered by the approved scope
-- stage only the relevant files with `git add`
-- commit with a descriptive summary message using `git commit -m "<summary>"`
+- Failed done criteria, missing required verification and open required repairs
+  block completion regardless of severity labels. Keep the task `implemented
+  but not fully verified` until those gates pass.
+- A non-blocking risk may remain only when all required criteria pass and its
+  acceptance follows explicit user acceptance, an approved scope allowance or
+  a repository policy delegating that decision. The agent cannot invent consent.
+- Record the risk, impact, acceptance basis and follow-up owner or action.
+  Unclassified or unaccepted risks require a decision before claiming completion.
+- Do not convert optional/out-of-scope improvements into required repairs or
+  use risk acceptance to waive verification, change scope or lower done criteria.
+
+## Scoped Commit Safety
+
+- Inspect both staged and unstaged changes before staging. Unrelated dirty work
+  does not block task completion and must remain intact.
+- Stage only task-owned files or hunks. Resolve ambiguous mixed ownership before
+  staging; never stage an entire mixed file merely because its path is in scope.
+- If unrelated work was already staged, use isolated commit staging or an
+  equivalent scoped commit preserving those original index entries. Merely adding
+  selected files then running ordinary `git commit` can include unrelated work.
+- Inspect the actual commit diff against scope and preserve unrelated staged and
+  unstaged changes. Use a descriptive commit summary and follow repo git policy.
 - do not commit as done before implementation verification and gap-finding are complete
 - if you need a checkpoint commit before full verification, label it explicitly as not yet fully verified
 - if the user explicitly deferred commits, skip the commit and note that in the final response
