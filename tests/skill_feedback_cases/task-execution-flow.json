@@ -210,6 +210,41 @@
           "must_not": "Invent acceptance."
         }
       ]
+    },
+    {
+      "id": "public-api-consumer-contract-execution-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Execution begins for an approved SOW that changes a public entrypoint.",
+        "actual_behavior": "The executor follows the SOW's task-specific function and verifies internals without comparing it with the latest explicit generic caller contract.",
+        "expected_behavior": "Reconstruct the latest user-facing call before editing, stop on SOW mismatch, and verify behavior through the intended public surface.",
+        "invariant": "Approved internal scope cannot override a newer explicit consumer contract or substitute lower-level genericity for a generic public API.",
+        "evidence_ref": "sanitized:user-feedback-generic-dashboard-delete-2026-09-16"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Implement the approved dashboard deletion SOW.",
+          "context": "The SOW exposes delete_mvp1, but the latest explicit user requirement is delete_dashboard with caller-supplied name, label and URL.",
+          "expected_behavior": "Stop before implementation, reopen the SOW for the public contract mismatch, then verify the corrected generic entrypoint from a consumer-shaped call.",
+          "must_not": "Implement and close the stale task-specific API because the underlying lifecycle method is generic."
+        },
+        {
+          "kind": "negative",
+          "request": "Implement an approved internal refactor with no public caller-visible surface.",
+          "context": "All callers are repository-internal and the refactor preserves their contract.",
+          "expected_behavior": "Use normal scope and behavior verification without requiring a public invocation example.",
+          "must_not": "Apply the consumer-contract gate to every private helper change."
+        },
+        {
+          "kind": "boundary",
+          "request": "Implement a generic public operation whose first real use is one dashboard.",
+          "context": "The function has a generic name, but its identity and rollback behavior may still be hardcoded to that first dashboard.",
+          "expected_behavior": "Inspect the public path for fixed product identity and gather proportional evidence that caller-supplied identity reaches the generic engine.",
+          "must_not": "Treat a generic function name or one passing product case as proof of genericity."
+        }
+      ]
     }
   ]
 }

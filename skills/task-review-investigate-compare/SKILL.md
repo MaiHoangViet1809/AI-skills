@@ -147,6 +147,27 @@ Before deep investigation, restate the task in working terms:
 
 If the question is still ambiguous after this pass, narrow the ambiguity before doing broad analysis.
 
+### Consumer Contract Gate
+
+When the reviewed work creates or changes a public API, CLI, UI action, SDK, or
+other caller-visible entrypoint:
+
+- reconstruct the latest explicit caller interaction: abstraction level,
+  identifier meaning, required and optional inputs, result, and exposed owner;
+- treat a concrete user invocation as acceptance evidence unless the user marks
+  it as illustrative;
+- compare the proposed SOW and public surface with that interaction, not only
+  with lower-level implementation mechanics;
+- do not accept a task-specific entrypoint as a generic capability merely
+  because it delegates to generic internals;
+- require verification through the intended public surface. For a genericity
+  claim, check that caller-supplied identity reaches the generic owner rather
+  than being fixed to the first product case.
+
+If an approved SOW conflicts with the latest explicit consumer contract, report
+a material scope change and route it instead of recommending approval. Skip
+this gate for internal-only changes and explicitly product-specific APIs.
+
 ## Evidence Rules
 
 Build evidence from the right source first.

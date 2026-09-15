@@ -280,6 +280,41 @@
           "must_not": "Write changed acceptance into approved scope as clarification."
         }
       ]
+    },
+    {
+      "id": "public-api-consumer-contract-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review covers a new or changed public operation and the user provides a concrete generic invocation shape.",
+        "actual_behavior": "The review proves generic internal mechanics but approves a public function fixed to one product identity.",
+        "expected_behavior": "Compare the proposed public entrypoint with the user's caller-visible abstraction, identifiers, arguments and result before approval.",
+        "invariant": "Internal genericity does not satisfy a generic consumer API when the exposed entrypoint remains task-specific.",
+        "evidence_ref": "sanitized:user-feedback-generic-dashboard-delete-2026-09-16"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a plan for a generic dashboard deletion operation shaped as delete_dashboard with caller-supplied name, label and URL.",
+          "context": "The plan instead exposes delete_mvp1 while calling a generic lifecycle engine internally.",
+          "expected_behavior": "Flag the public abstraction mismatch, write it into the SOW as a material contract correction, and block a clean approval until the generic caller surface is specified.",
+          "must_not": "Accept a task-specific entrypoint merely because its lower-level engine is generic."
+        },
+        {
+          "kind": "negative",
+          "request": "Review an MVP1-only convenience operation requested explicitly for MVP1.",
+          "context": "The user did not request reuse across dashboards and the public name clearly states its scope.",
+          "expected_behavior": "Assess the product-specific contract normally without inventing a generic registry or name parameter.",
+          "must_not": "Turn every public function into a generic framework."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a request to delete old dashboards more easily.",
+          "context": "No caller example or stable identity meaning is provided, and the project has both generic lifecycle code and product-specific releases.",
+          "expected_behavior": "Inspect existing authority, keep the abstraction decision explicit, and request or route the missing caller-contract decision before approval.",
+          "must_not": "Assume either a generic API or a product-specific wrapper from implementation convenience."
+        }
+      ]
     }
   ]
 }

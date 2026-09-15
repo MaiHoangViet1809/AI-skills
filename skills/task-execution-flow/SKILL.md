@@ -26,6 +26,10 @@ If branch or scope is still unclear, use `task-router-flow` first.
 - When concept authority exists, run Concept Preflight before implementation
   and Concept Closeout before completion.
 - Confirm the approved SOW covers the exact task before code changes begin.
+- For a public API, CLI, UI action, SDK, or other caller-visible entrypoint,
+  reconstruct the latest explicit consumer call and compare its abstraction,
+  identifiers, inputs and result with the SOW. Stop and reopen scope when they
+  differ; earlier approval does not override a later explicit correction.
 - When the SOW contract includes lifecycle timestamps, confirm the base SOW and
   active extension each have `create_dttm`, `approve_dttm`, and `finish_dttm`.
   Every known timestamp must include clock time to seconds and a numeric
@@ -46,6 +50,9 @@ If branch or scope is still unclear, use `task-router-flow` first.
 ```text
 Phase 0: scope check
 -> confirm the approved SOW covers the exact task
+-> for caller-visible work, compare the latest explicit consumer contract with
+   the SOW; a task-specific surface does not satisfy a generic request merely
+   because its internals are generic
 -> confirm the base SOW and active extension lifecycle metadata is consistent:
    -> creation and approval timestamps exist for approved current scope
    -> finish timestamps remain null while their scope is open
@@ -69,6 +76,8 @@ Phase 1: context and experiment
 -> read the relevant code paths first
 -> run at least one direct inspection or experiment to confirm the likely root cause or implementation shape before editing
 -> sharpen success criteria and behavior locks
+-> when changing a public surface, write down the consumer-shaped invocation
+   and trace each caller-supplied identity/input to its actual owner
 -> inspect adjacent scope only to confirm impact or the same proven defect;
    inspection does not expand authorized implementation scope
 -> break the work into the smallest meaningful mini-tasks
@@ -83,6 +92,8 @@ Phase 3: implementation verification
 -> run implementation verification proportional to task severity
 -> do not rely on syntax or compile checks alone
 -> verify the changed behavior in the real runtime path when feasible
+-> exercise the intended public entrypoint; when genericity is required, verify
+   that the first product identity is not hardcoded behind a generic name
 -> inspect frontend and backend evidence when the task crosses that boundary
 -> record verification evidence
 -> if verification fails or remains incomplete:
@@ -176,6 +187,8 @@ Implementation verification must include, when applicable:
 After implementation, answer this checklist:
 
 - contract complete?
+- caller-visible abstraction, identifiers, inputs and result match the latest
+  explicit user contract?
 - edge cases covered?
 - old behavior preserved?
 - race or cancellation path safe?
