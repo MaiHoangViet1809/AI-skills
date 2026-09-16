@@ -140,7 +140,7 @@
     },
     {
       "name": "skill-evolution-flow",
-      "description": "Turn explicit skill feedback into a guarded canonical update, regression case, and exact local sync.",
+      "description": "Diagnose task mismatches and unapplied instructions; evolve skills from evidence within authorized scope.",
       "files": [
         {
           "path": "skills/skill-evolution-flow/SKILL.md",

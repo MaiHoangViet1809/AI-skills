@@ -1,132 +1,72 @@
 ---
 name: skill-evolution-flow
-description: Evolve an AISkills-owned skill from explicit real-usage feedback. Use when a user says a skill triggered incorrectly, chose the wrong mode, followed the wrong procedure, needs a durable behavioral correction, or should be merged back into the canonical AISkills repository and synced to one local agent environment.
+description: Diagnose misunderstood user intent, unexpected output, user corrections or frustration, and instructions not applied; evolve AISkills-owned skills when evidence and authorization support a change. Use for agent-detected mismatches or explicit evolution requests, not routine clarification or unrelated frustration.
 ---
 
 # Skill Evolution Flow
 
-Turn explicit user feedback into a canonical, regression-backed skill update without bypassing repository governance or editing installed copies as source.
+Diagnose the failure, repair the task, then decide whether a reusable skill correction is justified. Diagnosis is not permission to edit or deploy.
 
-## Invariants
+## 1. Establish The Mismatch
 
-- Treat `AISkills/skills/<skill>/` as source of truth.
-- Treat installed skill directories as deployment targets only.
-- Require explicit user feedback or a direct evolution request; do not infer permission from ordinary task friction.
-- Obey the target repository's `AGENTS.md`, SOW, approval, and git rules before editing.
-- Never vendor or mutate system, plugin-owned, or installed-only skills as though AISkills owned them.
-- Sanitize regression evidence. Exclude secrets, private transcript content, and machine-specific absolute paths.
+Compare user intent and acceptance with observed behavior using nearby task evidence. A target skill need not be known yet.
 
-## Workflow
+- Work-directed anger, profanity, or repeated corrections prompt inspection, not proof of a skill defect or an emotional profile. Quoted profanity and intentional scope changes alone are not failures.
+- Triage tool/test errors proportionally; environment faults alone do not warrant evolution.
+- If the mismatch is unclear, keep it unresolved. Ask only what is needed to continue the requested work; do not force skill attribution or broad scanning.
 
-### 1. Normalize The Feedback
+Diagnose enough to repair the current task within its existing approval. Honor scope changes and user stops. A blocked repair can still yield a lesson; do not claim it succeeded or wait for full task completion to learn.
 
-Capture:
+## 2. Find The Cause
 
-- target skill
-- triggering request and relevant context
-- observed behavior
-- expected behavior
-- reusable invariant behind the correction
-- evidence reference when available
+Correct instructions can fail in selection, recovery, or application. Inspect available evidence rather than treating correct wording as success.
 
-Do not copy a user comment literally into a skill when a narrower general rule explains the failure.
-
-### 2. Verify Ownership
-
-Locate the canonical AISkills checkout and read `skills/registry.json`.
-
-- Continue only when the target is registered and its canonical folder exists.
-- Stop and report ownership when the target exists only under an installed, system, or plugin path.
-- Do not import an unowned skill into AISkills merely to make it editable.
-
-### 3. Apply The Repository Policy Gate
-
-When the installed path that produced the behavior is known, compare it with canonical source before rewriting anything.
-
-- If the installed copy is stale and canonical already expresses the expected behavior, sync the canonical skill and retest instead of patching it.
-- Continue diagnosis only when parity is confirmed or the canonical source itself is still wrong.
-
-Then read repository instructions and inspect git status.
-
-- Continue when an approved scope covers the change.
-- Route or draft the required SOW when repository policy requires one.
-- Wait for approval before behavior-bearing edits when the policy requires approval.
-- Do not classify `SKILL.md` as docs-only merely because it is Markdown.
-
-### 4. Classify The Cause
-
-| Cause | Change surface |
+| Evidence-backed cause | Smallest useful response |
 | --- | --- |
-| Skill did not trigger or triggered too broadly | YAML frontmatter `description` |
-| Skill chose the wrong mode or decision | `SKILL.md` decision rules |
-| Skill followed an incomplete procedure | `SKILL.md` workflow |
-| Repeated deterministic operation failed | bundled script or resource |
-| UI metadata no longer matches behavior | `agents/openai.yaml` |
-| Higher-priority system or project policy caused the result | no skill patch; explain the conflict |
+| Skill not selected or selected too broadly | Clarify frontmatter discovery cues |
+| Relevant instruction lost during continuation | Use existing recovery to reread it; assess the missing recovery step |
+| Available rule skipped | Repair the action; consider moving the rule to the decision point if evidence supports it |
+| Rule misinterpreted or procedure incomplete | Clarify the decision or procedure |
+| Repeated deterministic operation fails | Inspect the bundled script/resource |
+| Interface metadata is stale | Align `agents/openai.yaml` |
+| Environment or higher-priority policy explains the result | Address/report that cause; no skill patch |
 
-Choose one update mode:
+Wrong output alone does not prove non-loading, compaction, or disregard. Mark the cause unknown when evidence cannot distinguish them. Do not repeat a clear rule or strengthen MUST wording without a supported reason that the change will help.
 
-- `authorized correction`: low ambiguity, preserves purpose, and approved scope permits the edit
-- `material change`: changes purpose, authority, safety, or major scope; request approval
-- `abstain`: ownership, expected behavior, or evidence is insufficient
+Keep no-patch findings in the existing discussion. Do not add telemetry, checkpoints, a failure store, or recursive evolution; revisit only with new evidence. Discovery cues cannot guarantee host selection.
 
-### 5. Record A Regression Case
+## 3. Gate The Change
 
-Before patching, add or update the target's sanitized JSON fixture under `tests/skill_feedback_cases/`.
+For a supported reusable correction, identify the target skill, expected/observed behavior, evidence, and general invariant.
 
-Include one scenario of each kind:
+- Resolve ownership through `AISkills/skills/registry.json` and its canonical folder. Never vendor or edit system, plugin-owned, or installed-only skills as AISkills sources.
+- Compare a known installed origin with canonical before blaming the source. If canonical already fixes deployment drift, sync and retest only with an authorized target. Unknown origin permits diagnosis but not version attribution or guessed mutation.
+- Read the target repo's instructions and git status. Reuse approval covering the exact edit; route new scope through its SOW gate. Behavior-bearing `SKILL.md` edits are not docs-only exemptions.
 
-- `expected`: behavior that must occur
-- `negative`: request that must not trigger or apply the new rule
-- `boundary`: nearby ambiguous case and its safe handling
+Proceed with an authorized correction; seek approval for uncovered material changes; abstain from mutation when ownership, evidence, or expected behavior is insufficient. Do not patch merely to improve wording.
 
-Use a stable case ID and report it at closeout. Structural fixture tests do not prove model behavior.
+## 4. Record And Patch
 
-### 6. Patch The Canonical Skill
+Before patching, add a sanitized case with a stable ID to `tests/skill_feedback_cases/`: expected, negative, and boundary scenarios. Exclude secrets, private transcript content, and machine-specific paths.
 
-Use `skill-creator` for the target skill. Make the smallest general correction that satisfies the invariant.
+Use `skill-creator` to make the smallest general correction in canonical source. Keep instructions concise: concrete trigger cues, one decision flow, and each rule at its action point. Align stale UI/discovery metadata; do not add changelogs or duplicate guidance.
 
-- Update `agents/openai.yaml` when interface text becomes stale.
-- Do not add changelogs or auxiliary documentation to the skill folder.
-- If this skill updates itself, finish the current run with the start-of-turn instructions. The revised version applies only on a later invocation.
+When updating this skill itself, finish the current run under its initial instructions. The revision applies on a later invocation.
 
-### 7. Validate Before Commit
+## 5. Validate, Commit, And Optionally Deploy
 
-Run:
+- Run the available skill-creator structural validator and `uv run python -m unittest tests.test_skill_feedback_cases tests.test_skill_sync_scripts`.
+- Review diff/scope and expected, negative, and boundary behavior. Use isolated forward-tests when available and authorized; do not require parallel candidates or repeated benchmarks. Structural tests and scenario review do not prove model behavior; report it unverified without behavioral evidence.
+- Do not commit or sync failed validation. Otherwise commit only approved files; never push unless requested.
 
-- the available `skill-creator` structural validator for every changed skill
-- `uv run python -m unittest tests.test_skill_feedback_cases tests.test_skill_sync_scripts`
-- targeted positive, negative, and boundary forward-tests when a clean isolated context is available
-- git diff and scope review
+For one explicitly selected, authorized environment, sync only the changed skill using existing sync tooling:
 
-Report forward-test evidence separately from deterministic checks. Mark behavior unverified when isolated testing is unavailable.
+1. Fix agent, scope, target, and skill; use `--overwrite` for replacements and preview with `--dry-run`.
+2. Execute the same command, removing only `--dry-run`.
+3. Run `scripts/skills/verify_skill_copy.py --skill <name> --target-root <skills-root>`; report missing, extra, or changed files.
 
-Do not commit or sync when validation fails.
-
-### 8. Commit Then Deploy One Skill
-
-Commit only the exact approved AISkills files, including the canonical skill, regression fixture, and aligned test or metadata changes. Do not push unless explicitly requested.
-
-For one explicitly selected agent environment:
-
-1. Build the exact sync command with agent, scope, target, `--skill <name>`, and `--overwrite` when replacing an existing target.
-2. Preview that exact command by adding `--dry-run`.
-3. Execute the same command by removing only `--dry-run`.
-4. Run `scripts/skills/verify_skill_copy.py --skill <name> --target-root <skills-root>`.
-5. Report missing, extra, or changed relative paths if parity fails.
-
-Never use `--all` or sync multiple environments from one feedback event.
-
-If commit succeeds but deployment fails, keep the canonical commit, report partial deployment, and leave unrelated installed skills untouched.
+Never use `--all` or sync multiple environments per feedback event. If deployment fails after commit, retain the commit and report partial deployment; leave unrelated installed skills untouched. With no authorized target, finish at the canonical commit.
 
 ## Closeout
 
-Report:
-
-- target skill and regression case ID
-- generalized behavior correction
-- deterministic validation results
-- forward-test status
-- canonical commit
-- selected sync target and parity result
-- anything not verified
+Briefly report the finding/correction, target and case IDs if applicable, validation versus behavioral evidence, commit, deployment/parity status, and remaining uncertainty. A no-change outcome needs only the finding and reason.

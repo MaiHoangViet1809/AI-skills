@@ -11,7 +11,7 @@ Use `registry.json` for exact files and raw download URLs.
 | `extract-design-mirror` | Extracting a UI design language into `DESIGN.md` plus evidence for later reuse. |
 | `playwright-flow` | Automating Playwright CLI browser work with explicit session lifecycle and cleanup. |
 | `project-concept-governance-flow` | Creating, reviewing, updating, or enforcing a project's local `docs/concept` authority. |
-| `skill-evolution-flow` | Turning explicit real-usage feedback into a guarded canonical skill update, regression case, and exact local sync. |
+| `skill-evolution-flow` | Diagnosing task mismatches and unapplied instructions; evidence-backed, authorized skill evolution. |
 | `sow-delegate-flow` | Delegating SOW or plan work from Codex to a native sub-agent, including GLM5.2. |
 | `task-execution-flow` | Executing an already-approved or otherwise clear task with verification discipline. |
 | `task-poc-verification-flow` | Reviewing POC SOWs and POC plans against runtime evidence and safety gates. |
