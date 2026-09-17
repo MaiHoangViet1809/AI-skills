@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spark Connect Debug"
+  short_description: "Diagnose Spark Connect failures with metadata-first evidence"
+  default_prompt: "Use $spark-connect-debug to check exact SQL/source metadata first, then classify remaining Spark Connect failures from runtime evidence."

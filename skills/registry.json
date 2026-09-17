@@ -167,6 +167,20 @@
       ]
     },
     {
+      "name": "spark-connect-debug",
+      "description": "Diagnose Spark Connect failures with an exact SQL/source metadata fast path and runtime evidence.",
+      "files": [
+        {
+          "path": "skills/spark-connect-debug/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/spark-connect-debug/SKILL.md"
+        },
+        {
+          "path": "skills/spark-connect-debug/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/spark-connect-debug/agents/openai.yaml"
+        }
+      ]
+    },
+    {
       "name": "task-execution-flow",
       "description": "Execute already-routed work with context gathering, implementation, verification, and closeout discipline.",
       "files": [

@@ -13,6 +13,7 @@ Use `registry.json` for exact files and raw download URLs.
 | `project-concept-governance-flow` | Creating, reviewing, updating, or enforcing a project's local `docs/concept` authority. |
 | `skill-evolution-flow` | Diagnosing task mismatches and unapplied instructions; evidence-backed, authorized skill evolution. |
 | `sow-delegate-flow` | Delegating SOW or plan work from Codex to a native sub-agent, including GLM5.2. |
+| `spark-connect-debug` | Checking exact SQL/source metadata first, then diagnosing remaining Spark Connect failures from runtime evidence. |
 | `task-execution-flow` | Executing an already-approved or otherwise clear task with verification discipline. |
 | `task-poc-verification-flow` | Reviewing POC SOWs and POC plans against runtime evidence and safety gates. |
 | `task-progress-report` | Reporting evidence-backed execution progress or an inventory with subject-specific columns. |

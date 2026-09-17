@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "metadata-first-spark-connect-001",
+      "target_skill": "spark-connect-debug",
+      "cause_class": "metadata",
+      "feedback": {
+        "trigger": "A Spark Connect SQL or source execution returns a generic 502 or gRPC failure.",
+        "actual_behavior": "The investigation starts with retries, timeout changes, or broad runtime checks before checking the exact SQL/source metadata.",
+        "expected_behavior": "Inspect exact catalog, schema, object, column, and relevant type references immediately; conclude missing metadata when explicitly reported, otherwise continue only after the metadata result is known.",
+        "invariant": "Spark Connect transport status never replaces the exact SQL/source metadata gate.",
+        "evidence_ref": "sanitized:spark-connect-metadata-first-incident"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Diagnose a Spark Connect 502 while a query references a mapping table.",
+          "context": "The exact SQL and environment are available; a read-only catalog check reports that the mapping table does not exist.",
+          "expected_behavior": "Report the missing table as the metadata/analysis root cause with its exact identifier and stop before proposing retries.",
+          "must_not": "Start by increasing the Spark Connect timeout or retrying the query."
+        },
+        {
+          "kind": "negative",
+          "request": "Diagnose a Spark Connect error after a task was terminated by OOMKilled with exit 137.",
+          "context": "Exact SQL/source metadata checks pass and the application identity changed after a driver restart.",
+          "expected_behavior": "Classify the evidence as lifecycle/memory and investigate the restart path rather than calling it a metadata failure.",
+          "must_not": "Conclude missing metadata solely from the presence of a generic transport error."
+        },
+        {
+          "kind": "boundary",
+          "request": "Diagnose a Spark Connect 502 when the SQL/source artifact is unavailable and the metadata probe also returns 502.",
+          "context": "No exact object references can be reconstructed from the available task evidence.",
+          "expected_behavior": "Mark metadata preflight unverified, request the exact SQL/source or a bounded authoritative probe, and avoid a root-cause claim.",
+          "must_not": "Invent table references or jump directly to a broad runtime remediation."
+        }
+      ]
+    }
+  ]
+}
