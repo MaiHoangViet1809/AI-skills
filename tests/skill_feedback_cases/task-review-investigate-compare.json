@@ -315,6 +315,41 @@
           "must_not": "Assume either a generic API or a product-specific wrapper from implementation convenience."
         }
       ]
+    },
+    {
+      "id": "outcome-path-trace-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review claims that only eligible entities or states may appear in the final consumer output.",
+        "actual_behavior": "The review validates the source selector but does not inspect persisted, recovered, retried, or unioned state that can reintroduce an excluded item.",
+        "expected_behavior": "Trace the eligibility rule from authoritative selector to final consumer and report a gap or verify the complete outcome.",
+        "invariant": "Include/exclude behavior is reviewed across every applicable path that can affect the final output.",
+        "evidence_ref": "sanitized:de-project-monitor-eligibility-reentry-2026-09-17"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a SOW that promises only currently eligible items appear in the published output.",
+          "context": "The source inventory excludes an ineligible item, but the publisher unions persisted outstanding items before rendering the output.",
+          "expected_behavior": "Trace selector, state union, and publisher; flag the re-entry gap and route a material scope change if the SOW covers only the selector.",
+          "must_not": "Approve the SOW because the source filter passes while the final output can still contain the excluded item."
+        },
+        {
+          "kind": "negative",
+          "request": "Review a local value filter used only inside a pure function.",
+          "context": "The function has no persisted state, recovery path, downstream consumer, or published output.",
+          "expected_behavior": "Review the local filter normally and skip the outcome-path gate as not applicable.",
+          "must_not": "Invent a persistence or consumer audit for a self-contained function."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a request to hide all currently ineligible items from a history view.",
+          "context": "Existing historical items may intentionally remain visible, but the owner and requested retention semantics are not specified.",
+          "expected_behavior": "Mark the outcome unverified, surface the current-versus-historical semantic decision, and do not recommend clean approval until the path and semantics are explicit.",
+          "must_not": "Assume that current eligibility automatically overrides historical visibility or silently preserve it."
+        }
+      ]
     }
   ]
 }

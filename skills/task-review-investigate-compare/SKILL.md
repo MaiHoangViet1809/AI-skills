@@ -147,6 +147,23 @@ Before deep investigation, restate the task in working terms:
 
 If the question is still ambiguous after this pass, narrow the ambiguity before doing broad analysis.
 
+### Outcome Path Gate
+
+When the reviewed behavior includes, excludes, filters, selects, or exposes
+entities or states:
+
+- trace the authoritative selector and eligibility rule through each applicable
+  transform, union, retry/reconciliation, persisted/recovered state, and final
+  consumer, publisher, or UI;
+- check both an included path and an excluded path, including whether existing
+  state can reintroduce an excluded item; a source-only pass is insufficient
+  when downstream state can change the result;
+- ensure the SOW Task and Done Criteria cover the path that determines the
+  stated outcome. If the authoritative selector or downstream owner cannot be
+  identified, mark the outcome `unverified` and do not recommend clean
+  approval; do not infer the missing path;
+- skip this gate when no downstream state or consumer exists.
+
 ### Consumer Contract Gate
 
 When the reviewed work creates or changes a public API, CLI, UI action, SDK, or
