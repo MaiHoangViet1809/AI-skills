@@ -105,6 +105,41 @@
           "must_not": "Overwrite project policy."
         }
       ]
+    },
+    {
+      "id": "custom-agent-fresh-session-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user asks to delegate a task to a custom agent that is not exposed as a native Codex sub-agent.",
+        "actual_behavior": "The delegate flow only defines the native Codex lifecycle and does not require a new external provider session, so an old task conversation or session could be reused.",
+        "expected_behavior": "Classify transport first; native agents use the native lifecycle, while every new logical task delegated to a non-native custom agent starts a fresh provider or CLI session with no old task history.",
+        "invariant": "Non-native custom delegation never reuses a prior task session or historical chat; same-task continuation is explicitly bounded to the fresh session created for that task.",
+        "evidence_ref": "sanitized:user-feedback-custom-agent-fresh-session-2026-09-18"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate this approved SOW to an external custom agent through its CLI.",
+          "context": "The agent is not in the native Codex catalog and the provider documents a new-session mechanism.",
+          "expected_behavior": "Initialize a unique fresh provider session, send a self-contained bounded prompt, and return session lifecycle plus verification evidence to the coordinator.",
+          "must_not": "Resume or continue an old task session, attach historical chat, or pass a prior transcript."
+        },
+        {
+          "kind": "negative",
+          "request": "Delegate this approved SOW to native GLM5.2.",
+          "context": "The current native agent catalog exposes the registered GLM5.2 role.",
+          "expected_behavior": "Use the native `spawn_agent` lifecycle and keep the coordinator's independent review gates.",
+          "must_not": "Create an external CLI session or treat a native child as a non-native agent."
+        },
+        {
+          "kind": "boundary",
+          "request": "Send a follow-up after the external custom agent asks a question.",
+          "context": "The follow-up belongs to the same logical task and the just-created fresh session identity remains provable.",
+          "expected_behavior": "Continue only that fresh task session with the minimum approved clarification; if history is compacted, stale, or uncertain, start another fresh session with a concise handoff.",
+          "must_not": "Silently attach an older task conversation or reuse a session whose task identity cannot be proved."
+        }
+      ]
     }
   ]
 }

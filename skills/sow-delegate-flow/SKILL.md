@@ -1,14 +1,16 @@
 ---
 name: sow-delegate-flow
-description: Use when the user asks to delegate a task, SOW, or plan to a Codex sub-agent, especially GLM5.2. Keep approved SOWs authoritative, give each sub-agent a bounded ownership slice, then review and verify locally.
+description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, especially GLM5.2 when registered natively. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, initialize fresh non-native sessions, then review and verify locally.
 ---
 
 # Sow Delegate Flow
 
-Use this skill for Codex-native delegation:
+Use this skill for native Codex or custom/external delegation:
 
 ```text
-Codex coordinator -> classify mode -> native sub-agent -> local review and verification -> repair or closeout
+coordinator -> classify mode + transport
+    -> native child lifecycle OR fresh external task session
+    -> local review and verification -> repair or closeout
 ```
 
 Keep execution-time commentary to one short sentence about status, next action
@@ -22,26 +24,49 @@ or a blocker. Keep the final response separate.
 ## Trigger And Routing
 
 Activate when the user explicitly asks to delegate, assign, or hand off a task,
-SOW, or plan to a sub-agent. Treat these as direct triggers:
+SOW, or plan to a native or custom/external agent. Treat these as direct
+triggers:
 
 - `delegate task ... cho GLM5.2`
 - `delegate SOW ... cho GLM5.2`
 - `delegate plan ... cho GLM5.2`
-- an equivalent request naming a registered Codex sub-agent
+- `delegate task ... cho custom agent via CLI`
+- an equivalent request naming a native or external agent
 
 Do not activate for ordinary single-agent execution or a request merely
 mentioning another model.
 
-- When the user names `GLM5.2`, resolve it against the native agent catalog for
-  the current session. When `router_custom_greennode_glm_5_2` is exposed, pass
-  that registered role as `agent_type`; do not assume the role name exists in
-  every environment or silently replace it with another model.
-- When the user names another available sub-agent, honor that selection.
-- When no model is named, choose an available native sub-agent appropriate to
-  the work and state the selection briefly.
+- Resolve the requested target against the current native agent catalog first.
+  A custom-named role is native when the catalog exposes it; use the native
+  lifecycle in that case. For `GLM5.2`, pass the currently registered role such
+  as `router_custom_greennode_glm_5_2` as `agent_type`; never assume a role name
+  is portable across environments.
+- If the target is not native and the user selects a custom/external agent, use
+  an available documented provider transport such as a CLI or process. Do not
+  silently substitute another agent or transport.
+- If the requested target or transport is unavailable, report it and stop; do
+  not reuse an old session as a fallback.
 - Delegating an implementation requires an approved SOW. A delegate may inspect
   or draft a plan/SOW before approval, but must not modify product code, tests,
   scripts, config, or runtime contracts in that mode.
+
+## Session Boundary For Non-Native Agents
+
+- Every new logical task delegated to a non-native custom agent **MUST** start a
+  brand-new provider-owned session before the task prompt is sent.
+- Use the provider's documented new-session mechanism and a unique task-owned
+  identifier when the transport supports one. Do not guess provider flags.
+- Never attach historical chat, an old task/thread/session ID, persisted task
+  context, a resume/continue operation, or a prior transcript. A new process is
+  not sufficient if it restores persisted history.
+- Keep the fresh session bounded to this logical task and record only a safe
+  session handle or lifecycle state; never persist secrets or full transcripts.
+- A same-task follow-up may reuse only the fresh session created for that task
+  while its identity and isolation remain provable. If it was compacted, has
+  stale or wrong-task history, or isolation is uncertain, start another fresh
+  session with a concise coordinator handoff.
+- Native Codex children use the native lifecycle; do not create an external
+  provider session for them.
 
 ## Rules
 
@@ -50,6 +75,8 @@ mentioning another model.
   plan drafting, and SOW drafting may be delegated before approval when they do
   not modify implementation surfaces.
 - Read local repo rules and inspect `git status --short` before delegating.
+- Classify the transport before starting and enforce the non-native session
+  boundary before sending any delegated prompt.
 - For implementation, delegate with the approved SOW path, short intent,
   explicit write scope, and verification requirements. For planning/read-only,
   provide the target question or artifact plus explicit non-implementation
@@ -67,8 +94,9 @@ mentioning another model.
   repair feedback and continue.
 - Take over locally if the sub-agent fails, drifts, cannot use required tools,
   or exhausts the two repair rounds.
-- When a child reaches a terminal, idle, or errored state, call
-  `interrupt_agent` before closeout so it is not left working.
+- When a native child reaches a terminal, idle, or errored state, call
+  `interrupt_agent`; for an external delegate, terminate only the
+  task-owned process or provider session before closeout.
 
 ## Flow
 
@@ -78,38 +106,55 @@ mentioning another model.
      scope; no approved SOW is required and implementation writes are forbidden
    - `implementation`: locate the approved SOW and verify that it covers the
      exact delegated write scope
-3. Select the requested native sub-agent; use GLM5.2 exactly when requested.
-4. Start the sub-agent with `spawn_agent`, a bounded prompt, and clear ownership.
-   Pass a registered custom role such as GLM5.2 through `agent_type`; use a model
-   override only when the current tool schema exposes that selection as a model.
-5. Wait only until a real decision point: completion, question, failure, or
+3. Resolve the target transport:
+   - native: select the requested role from the current catalog; use GLM5.2
+     exactly when requested
+   - external/custom: select an available documented CLI, process, or provider
+     transport without silently substituting another one
+4. Establish the session before sending the prompt:
+   - native: use the native lifecycle; do not create an external session
+   - external/custom: initialize a brand-new session under the Session Boundary
+     rules and stop if fresh isolation cannot be proven
+5. Start the delegate with a bounded prompt and clear ownership. Use
+   `spawn_agent` for native children; use the selected documented transport for
+   external agents and record only a safe task-owned handle.
+6. Wait only until a real decision point: completion, question, failure, or
    repair need.
-6. On a question, provide the minimum approved clarification with
-   `followup_task`; do not broaden scope.
-7. On completion, independently review the diff, run implementation verification
+7. On a question, provide the minimum approved clarification with
+   `followup_task` for native work or the equivalent same-session transport for
+   external work; do not broaden scope or attach old task history.
+8. On completion, independently review the diff, run implementation verification
    proportional to risk, record evidence, and complete a gap-finding pass.
-8. If validation fails, send targeted repair feedback. Allow at most two repair
+9. If validation fails, send targeted repair feedback. Allow at most two repair
    rounds before local completion or escalation.
-9. Interrupt the terminal child agent.
-10. If validation passes, close the SOW and move it to the repo's `finished/`
+10. Clean up the delegate: interrupt the native child, or terminate only the
+    task-owned external process/session.
+11. If validation passes, close the SOW and move it to the repo's `finished/`
     planning directory when it is complete.
-11. If the owning plan has no active SOW left and the plan itself is complete,
+12. If the owning plan has no active SOW left and the plan itself is complete,
     move that plan to the same `finished/` directory.
 
 ## Delegate Prompt Contract
 
-Every implementation-delegate prompt must include:
+Every delegated prompt must include:
 
-- absolute SOW path and a direction to read it
 - one-sentence intent
-- exact write scope
-- explicit out-of-scope paths or behavior
-- required verification and evidence to return
+- transport and lifecycle instruction:
+  - native: use the selected native role and lifecycle only
+  - external/custom: start a fresh session with no historical task context
 - instruction to stop and ask when scope, approval, or required evidence is
   missing
 
-Require the sub-agent to return: changed files, verification performed,
-remaining risks, and any decision that needs coordinator or user approval.
+Implementation-delegate prompts must also include:
+
+- absolute SOW path and a direction to read it
+- exact write scope
+- explicit out-of-scope paths or behavior
+- required verification and evidence to return
+
+Require the delegate to return: transport used, safe session lifecycle state,
+changed files, verification performed, remaining risks, and any decision that
+needs coordinator or user approval. Do not request raw historical transcripts.
 
 ## Validation Matrix
 
@@ -120,6 +165,9 @@ replace the `task-execution-flow` hard gates:
 - `frontend`: targeted build, test, or route/component check for the touched surface
 - `backend`: targeted module test or `uv run pytest ...` for the changed area
 - `migration`: backward-compat check plus one scan for legacy markers or old paths
+- `external-custom`: execute a real task scenario when behavior changes, verify
+  fresh-session evidence and absence of prior task context, then clean up only
+  the task-owned process or session
 
 Do not close delegated implementation when any of these are missing:
 
@@ -139,5 +187,7 @@ If required verification is unavailable, stop at
 - `uncertainty`: answer once; if the task is still ambiguous, stop and escalate
 - `unavailable requested model`: report the model unavailability; do not silently
   substitute another model
+- `unavailable requested transport or fresh-session guarantee`: report it and do
+  not reuse an old session or historical task context
 - `scope drift`: interrupt the sub-agent, preserve valid scoped work, and repair
   locally or stop for a SOW update

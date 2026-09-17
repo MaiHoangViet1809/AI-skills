@@ -154,7 +154,7 @@
     },
     {
       "name": "sow-delegate-flow",
-      "description": "Coordinate approved SOW or plan execution with Codex native sub-agents and local verification.",
+      "description": "Coordinate approved SOW or plan execution with native or custom external agents, fresh non-native sessions, and local verification.",
       "files": [
         {
           "path": "skills/sow-delegate-flow/SKILL.md",

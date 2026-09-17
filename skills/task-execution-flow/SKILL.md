@@ -358,4 +358,4 @@ Final response must include:
 - Choose any available inspection method that provides sufficient codebase
   evidence; CodeGraph and a separate search-policy skill are optional, never
   required setup or invocation.
-- Use `sow-delegate-flow` when the user explicitly delegates a task, SOW, or plan to a native sub-agent.
+- Use `sow-delegate-flow` when the user explicitly delegates a task, SOW, or plan to a native or custom external agent.

@@ -1,4 +1,4 @@
 interface:
   display_name: "SowDelegateFlow"
-  short_description: "SOW-first native sub-agent delegation"
-  default_prompt: "Use $sow-delegate-flow to delegate this approved SOW to GLM5.2, then independently review and verify the result."
+  short_description: "SOW-first delegation with fresh external sessions"
+  default_prompt: "Use $sow-delegate-flow to delegate this approved SOW through the requested native or external agent; start a fresh session for non-native agents, then independently review and verify the result."

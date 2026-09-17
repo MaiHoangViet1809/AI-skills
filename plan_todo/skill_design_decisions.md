@@ -127,13 +127,17 @@ Reason:
 
 Decision:
 - `sow-delegate-flow` activates when the user explicitly delegates a task, SOW,
-  or plan to a native Codex sub-agent, including GLM5.2.
+  or plan to a native Codex sub-agent or a custom/external agent through a
+  supported transport, including GLM5.2 when registered natively.
 - Implementation delegation requires an approved SOW. Review, investigation,
   plan drafting, and SOW drafting may be delegated before approval without
   implementation writes.
 - The coordinator must classify `planning/read-only` versus `implementation`
   before spawning the child, so planning delegation does not inherit an
   implementation-only approval gate.
+- The coordinator must classify native versus external transport before
+  starting the delegate and enforce a fresh session for every new logical task
+  on a non-native custom agent.
 
 Reason:
 - Explicit user delegation is the authority to use a sub-agent.
@@ -159,16 +163,20 @@ Decision:
 Reason:
 - Without an explicit precedence rule, conflicts between repo rules and delegate context become ambiguous.
 
-## 11. Native Sub-Agent Handoff Contract
+## 11. Delegate Handoff Contract
 
 Decision:
-- A native sub-agent handoff should report changed files, verification performed,
-  remaining risks, and decisions needing coordinator or user approval.
+- Every delegate handoff should report the transport used, safe session lifecycle
+  state, changed files, verification performed, remaining risks, and decisions
+  needing coordinator or user approval.
+- Native child status and final handoff are the normal evidence source for the
+  native branch; external transports should return an equivalent bounded status.
 - The coordinator must independently inspect the diff and verification evidence.
 
 Reason:
 - Native child-agent status and final responses already provide the lifecycle
-  boundary; provider-specific CLI schemas are unnecessary.
+  boundary. External transports may expose a different status shape, so the
+  contract stays semantic rather than adopting a provider-specific schema.
 - Delegate completion does not prove SOW completion.
 
 ## 12. Advice Loop And Feedback Loop
@@ -202,6 +210,7 @@ Decision:
   - frontend
   - backend
   - migration
+  - external-custom, including fresh-session and task-owned cleanup evidence
 - Delegated implementation must also satisfy `task-execution-flow` runtime
   verification, evidence, gap-finding, and closeout hard gates.
 
@@ -216,34 +225,49 @@ Decision:
 - `infra`: if scope is clear, finish locally
 - `uncertainty`: answer once; if still ambiguous, stop/escalate
 - `unavailable requested model`: report it without silent model substitution
+- `unavailable requested transport or fresh-session guarantee`: report it
+  without reusing an old session or historical task context
 - `scope drift`: interrupt the child and repair locally or update the SOW
 
 Reason:
 - Explicit stop conditions reduce ceremonial loops and make the workflow more predictable.
 
-## 16. Native Sub-Agent Lifecycle
+## 16. Delegate Transport And Session Lifecycle
 
 Decision:
 - Use native Codex sub-agent tools for spawn, wait, follow-up, and interrupt.
 - Resolve user-named agents from the current session's catalog.
 - When GLM5.2 is exposed as `router_custom_greennode_glm_5_2`, pass that role as
   `agent_type`; do not treat that role name as globally portable.
+- A custom-named role is still native when it is exposed in that catalog; the
+  transport, not the display name, determines the lifecycle.
+- For a custom/external agent that is not native, use the requested documented
+  CLI, process, or provider transport. Every new logical task must initialize a
+  brand-new provider-owned session with no old task history, resume, continue,
+  inherited session ID, or prior transcript.
+- A same-task follow-up may reuse only that just-created session while its
+  identity and isolation remain provable; otherwise start another fresh session.
 
 Reason:
 - Native lifecycle tools avoid provider-specific CLI, transcript, and parser
-  coupling.
+  coupling, while the external branch permits the user's selected transport
+  without making one provider's command syntax canonical.
 - Catalog resolution preserves the requested model while tolerating role-name
-  changes across environments.
+  changes across environments. Fresh external sessions prevent compaction and
+  historical chat from contaminating a new delegated task.
 
-## 17. Native Progress And Repair
+## 17. Delegate Progress And Repair
 
 Decision:
-- Wait until completion, an advice request, failure, or repair need.
-- Use follow-up on the same child for clarification or targeted repair.
+- Wait until completion, an advice request, failure, or repair need on either
+  native or external transport.
+- Use follow-up on the same native child or the same-task fresh external session
+  for clarification or targeted repair; never attach an older task session.
 - Allow at most two quality repair rounds.
 
 Reason:
-- The coordinator needs actionable state, not provider transport noise.
+- The coordinator needs actionable state, not provider transport noise, while
+  external follow-up remains bounded by the fresh-session rule.
 
 ## 18. No Provider-Specific Delegate Log Pipeline
 
@@ -251,16 +275,23 @@ Decision:
 - Do not require Claude CLI, stream JSON, raw delegate logs, or a parser for the
   native sub-agent flow.
 - Child-agent status and final handoff are the normal evidence source.
+- The external/custom branch may use a provider CLI, process, or session
+  lifecycle when the user selects one, but the generic skill must not require a
+  specific provider, command syntax, log format, or parser.
 
 Reason:
 - Provider-specific transport artifacts duplicate the native coordinator
-  lifecycle and create stale maintenance surfaces.
+  lifecycle and create stale maintenance surfaces. Keeping external transport
+  selection explicit preserves portability while still requiring fresh-session
+  isolation.
 
-## 19. Child-Agent Hygiene
+## 19. Delegate Hygiene
 
 Decision:
 - Give each child one bounded SOW or non-overlapping ownership slice.
-- Interrupt terminal, idle, or errored children before closeout.
+- Interrupt terminal, idle, or errored native children before closeout.
+- Terminate only the task-owned external process or provider session before
+  closeout; never perform global provider cleanup.
 
 Reason:
 - Bounded ownership prevents conflicting writes.
