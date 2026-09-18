@@ -18,7 +18,9 @@ Use RFC2119 keywords: **MUST**, **SHOULD**, **MAY**, **NEVER**.
 
 Before proposing or changing anything, agents **MUST** inspect the current repository state:
 
-- Read this `AGENTS.md` and any nested `AGENTS.md` in the target path.
+- Read this policy file and any applicable ancestor or nested instruction files
+  recognized by the active agent, such as `AGENTS.md`, `CLAUDE.md`, or a
+  provider-specific equivalent.
 - Read relevant code, docs, plans, and existing tests before drawing conclusions.
 - Check `git status --short` before editing so user changes are not overwritten.
 - Prefer existing project patterns and helpers over introducing new structure.
@@ -31,13 +33,22 @@ Before code, design, architecture, refactor, or runtime-contract work, agents **
 - `PRODUCT_PRINCIPLE_DESIGN.md` at the repository root.
 - `.agents/rules/*.md`:
   - if `README.md` or `INDEX.md` exists, read it first;
+  - read rules declared there as globally applicable, plus rules relevant to the
+    task scope;
   - if there are only a few rule files, read all of them;
-  - if there are many, read the files whose names match the task scope and state which files were read.
+  - if there are many, inspect their index or content before selecting by name
+    and state which files were read.
 
 `PRODUCT_PRINCIPLE_DESIGN.md` is the design source of truth when it exists.
-If the requested change conflicts with it, stop and ask for explicit user approval.
+When instructions conflict, apply the active agent or tool's documented
+instruction hierarchy and the repository-declared authority. Do not invent a
+universal root-versus-nested precedence rule. If the requested change conflicts
+with the principle design, or another material conflict remains unresolved,
+stop and ask for explicit user approval.
 When a task is governed by that document, agents **MUST** state the relevant principle in the SOW, plan, or closeout summary.
 Agents **MUST NOT** silently drift from the principle design through hybrid ownership, transitional adapters, or local convenience changes.
+Agents **MUST NOT** re-ask for an exception that the user or authorized approver
+has already approved in the current task context.
 
 ---
 
@@ -80,17 +91,27 @@ They do not require a SOW unless they change approved implementation scope.
 
 ## Strict SOW-First For Code Changes
 
-For any code-changing work, agents **MUST NOT** edit source code, tests, scripts, config, runtime contracts, or generated code until an approved SOW covers the exact task.
+For any code or implementation-changing work, agents **MUST NOT** edit source
+code, tests, scripts, configuration, dependency manifests or lockfiles, runtime
+contracts, API or schema contracts, migrations, CI or deployment configuration,
+or generated code until an approved SOW covers the exact task.
+
+An SOW is executable only when explicit approval from the user or an authorized
+approver is recorded. `Status: IN_PROGRESS` may describe approved active work;
+neither a status value nor an approval-looking marker without evidence grants
+authority. Review or plan approval, and editing a policy or SOW, do not authorize
+implementation. Any scope extension, including regression work, requires
+explicit approval before edits begin.
 
 An approved SOW **MUST** include:
 
-- **Status**: approved or in progress
-- **Approval**: approved marker and approver when available
+- **Status**: `APPROVED` or `IN_PROGRESS` for an explicitly approved SOW
+- **Approval**: approval evidence and approver or approval reference when available
 - **Task**: one-sentence change
 - **Location**: exact files or folders allowed to change
 - **Why**: business or technical driver
-- **As-Is Diagram (ASCII)**: current state when behavior or architecture changes
-- **To-Be Diagram (ASCII)**: target state when behavior or architecture changes
+- **As-Is Diagram (ASCII)**: current state when behavior or architecture changes; otherwise `N/A` with rationale
+- **To-Be Diagram (ASCII)**: target state when behavior or architecture changes; otherwise `N/A` with rationale
 - **Deliverables**: files, exports, behavior, or artifacts changed
 - **Done Criteria**: checks, tests, smoke path, or review criteria
 - **Out-of-Scope**: what must not be changed
@@ -112,8 +133,10 @@ When concept authority is active, an approved SOW **MUST** also include:
 rationale after concept authority has already been detected.
 
 Agents **MUST** re-check the active SOW at each major task switch.
-If scope expands, stop and update the SOW before continuing.
-If a bug or regression is caused by a previous SOW, extend that same SOW instead of creating an unrelated standalone SOW.
+If scope expands, stop and update the SOW and obtain explicit approval for the
+extension before continuing.
+If a bug or regression is caused by a previous SOW, extend that same SOW instead
+of creating an unrelated standalone SOW, subject to approval of the extension.
 Closeout summaries for code work **MUST** include the SOW reference so reviewers can trace the change.
 
 ---
@@ -147,10 +170,10 @@ Practical rules:
 - Do not create facade, wrapper, adapter, compatibility shim, or workaround layers unless the SOW explicitly requires them.
 - Do not keep old and new ownership paths alive by default; prefer one clear source of truth.
 - When APIs evolve, update call sites directly instead of adding temporary aliases.
-- Abstractions must earn their place by removing real duplication, hiding genuine complexity, or enabling necessary tests.
-- Avoid single-use helper functions that only move code around without clarifying behavior.
-- Do not create a function, class, wrapper, or adapter that is only used once unless it hides genuine complexity or is required for testing.
-- Apply the 2+ rule: extract reusable code only after the same logic exists in at least two places.
+- Create abstractions only to remove real duplication, hide genuine complexity,
+  or enable necessary tests. Apply the 2+ rule for reusable extraction; a
+  single-use helper, function, class, wrapper, or adapter is allowed only when
+  it hides genuine complexity or is required for testing.
 - Do not wrap an API just to rename parameters, provide defaults, or pass arguments through.
 - Prefer fail-fast ownership cuts over prolonged hybrid compatibility paths when the approved target architecture is clear.
 - NEVER create empty files.
@@ -167,7 +190,11 @@ Agents **MUST** keep ownership boundaries clean:
 - Repo-local validation and one-off probes belong in docs, tests, or clearly marked tooling locations.
 - Public APIs, CLI commands, storage schemas, and shared contracts must not change without explicit SOW coverage.
 - Do not move business logic into UI, glue, or wrapper layers for convenience.
-- Do not write runtime artifacts outside the repository unless the user explicitly approves it.
+- Do not create or deploy task-controlled persistent runtime artifacts outside
+  the repository unless the user explicitly approves it. Ordinary tool-managed
+  caches or temporary files created by authorized checks are not task runtime
+  outputs; they do not authorize global installs, configuration changes, or
+  skill synchronization.
 
 Before adding a route, command, hook, config key, or shared type, ask:
 
@@ -187,6 +214,10 @@ If it is only validation/tooling, keep it out of product-facing surfaces.
 - Keep comments and docstrings synchronized with the code when touched.
 - Do not introduce new dependencies without checking existing alternatives and updating the lockfile/tooling as required.
 - Never hardcode secrets, tokens, private paths, or machine-specific credentials.
+- Never print, persist, commit, or transmit secrets or raw credential-bearing
+  content in logs, command output, diagnostics, or review artifacts. Redact
+  evidence, and do not inspect secret-bearing file contents without explicit
+  authorization.
 
 Package management should follow the repository's existing toolchain.
 If the repo uses `uv`, use `uv` for Python dependency and script workflows.
@@ -200,8 +231,11 @@ Agents **MUST** verify at the right abstraction layer before claiming completion
 Minimum verification discipline:
 
 - Run targeted checks matching the changed files and SOW done criteria.
-- For UI-visible behavior, verify through the real UI or API path when feasible.
+- For UI-visible behavior, verify through the real UI path when feasible; API
+  checks are supplemental and do not establish rendered UI correctness.
 - For architecture changes, verify ownership and boundary correctness, not only passing tests.
+- Record the commands or manual checks used, their outcomes, failures, and
+  unavailable checks in the governing SOW or closeout summary.
 - Perform one negative check before closeout:
 
 ```text
@@ -213,6 +247,10 @@ Closeout summaries **MUST** separate:
 - definitely implemented
 - approximated or simulated
 - not implemented or not verified
+
+Include only applicable outcome categories; do not create empty closeout sections.
+Text review alone does not prove provider or tool behavior; mark that behavior
+unverified unless the relevant path was exercised.
 
 If tests or checks were not run, say so directly and explain why.
 
@@ -260,7 +298,9 @@ Rules:
 - Do not create numbered SOWs directly under `plan_todo/` root when namespaced folders exist.
 - Completed SOWs and plans should move to the matching `finished/` folder using `git mv`.
 - Research, investigation, and handoff docs should go under `plan_todo/finding/`.
-- A SOW is approved only when it has an explicit approval marker such as `Status: APPROVED` or `Approved-By: <name>`.
+- A SOW is executable only when explicit approval evidence from the user or an
+  authorized approver is recorded. `Status: APPROVED` or `Approved-By` is a
+  record format, not a substitute for approval.
 - When moving or renaming planning files, update markdown references in the same change.
 
 ---

@@ -356,6 +356,32 @@ Reason:
 - Keeping one shared `AGENTS.md` policy plus tool entrypoint files reduces drift across Codex, OpenCode, and Claude Code.
 - Skill installation should not mutate policy files unless a future approved SOW reintroduces a dedicated project-policy bootstrap flow.
 
+## 26. Portable Agent Policy Hardening
+
+Date: 2026-09-18
+
+Related SOW:
+- `finished/SOW_0090_template_agents_hardening_review.md`
+
+Decision:
+- `TEMPLATE_AGENTS.md` remains the canonical policy source and `AGENTS.md`
+  remains its exact repository copy.
+- Policy discovery follows the active agent's documented instruction hierarchy
+  and repository-declared authority; the template does not invent a universal
+  root-versus-nested precedence rule.
+- Code and implementation-changing artifacts require recorded user or authorized
+  approval before an exact-scope SOW can be executed. Docs-only work remains
+  exempt unless it changes approved implementation scope.
+- Verification records applicable checks, outcomes, failures, and unavailable
+  checks; API evidence does not establish rendered UI correctness.
+
+Reason:
+- The review found ambiguity between editable SOW metadata and actual approval,
+  incomplete discovery of globally applicable rules, and overly broad wording
+  around UI evidence and external runtime artifacts.
+- The hardening preserves the repository's strict SOW gate, full SOW fields,
+  empty-file and `__init__.py` prohibitions, and docs-only routing boundary.
+
 ## Related SOW Trail
 
 The following finished SOWs capture the main implementation trail behind the current design:
