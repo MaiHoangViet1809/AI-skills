@@ -71,6 +71,24 @@
       ]
     },
     {
+      "name": "model-escalation-flow",
+      "description": "Escalate genuinely stuck Luna, GLM-high, Sonnet, or Haiku executors through isolated Sol and Astra advisor tiers.",
+      "files": [
+        {
+          "path": "skills/model-escalation-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/model-escalation-flow/SKILL.md"
+        },
+        {
+          "path": "skills/model-escalation-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/model-escalation-flow/agents/openai.yaml"
+        },
+        {
+          "path": "skills/model-escalation-flow/references/baseline-test-case.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/model-escalation-flow/references/baseline-test-case.md"
+        }
+      ]
+    },
+    {
       "name": "playwright-flow",
       "description": "Automate Playwright CLI browser flows with explicit session lifecycle and cleanup.",
       "files": [

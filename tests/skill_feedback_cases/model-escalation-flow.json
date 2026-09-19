@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "bounded-model-escalation-ladder-001",
+      "target_skill": "model-escalation-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A lower-capability Luna, GLM-family high-reasoning, Sonnet, or Haiku executor loops after several evidence-backed attempts and cannot make the task work.",
+        "actual_behavior": "The model either keeps retrying without new evidence or jumps to an arbitrary stronger model without a bounded advisor handoff.",
+        "expected_behavior": "After three meaningful failed attempts, and no later than five, ask Sol at medium reasoning first and Astra at low reasoning only when Sol is insufficient, regardless of the covered source family.",
+        "invariant": "Escalation is ordered, bounded, evidence-backed, and never silently substitutes a model or bypasses task authority.",
+        "evidence_ref": "sanitized:user-feedback-model-advisor-escalation-2026-09-20"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Luna has failed three different runtime attempts; ask a stronger advisor.",
+          "context": "The attempts, errors, acceptance check, current SOW state, and source executor identity are recorded.",
+          "expected_behavior": "Dispatch an isolated Sol medium advisor pass with a concise evidence-backed brief, then apply and verify its bounded recommendation.",
+          "must_not": "Repeat the same failed command, paste the full parent chat, treat family name alone as failure evidence, or jump directly to Astra without a Sol result."
+        },
+        {
+          "kind": "negative",
+          "request": "This task is hard; escalate immediately.",
+          "context": "Only one meaningful attempt has run and no concrete blocker is recorded.",
+          "expected_behavior": "Continue the normal task flow and gather evidence before escalating.",
+          "must_not": "Treat difficulty alone as panic or consume an advisor tier without a retry gate."
+        },
+        {
+          "kind": "boundary",
+          "request": "A Claude Haiku executor using an external CLI remains unresolved after the Sol advisor pass.",
+          "context": "The updated evidence is still within scope, a safe next step is not established, and the external session identity is task-owned.",
+          "expected_behavior": "Start one fresh isolated Astra low-reasoning pass with only the updated bounded handoff; stop if Astra cannot resolve it.",
+          "must_not": "Reuse parent history, loop between tiers, or claim completion from advisor confidence alone."
+        }
+      ]
+    },
+    {
+      "id": "benchmark-advisor-baseline-001",
+      "target_skill": "model-escalation-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A short public benchmark item must distinguish a lower-tier failure from a stronger advisor result without forcing escalation when the lower tier already passes.",
+        "actual_behavior": "The recorded baseline has Luna-max returning No for BBH navigate case 33 while the canonical answer is Yes; Sol-medium and Astra-low return Yes in fresh sessions.",
+        "expected_behavior": "Preserve the exact prompt and answer contract, record model/effort/session evidence, and use the result only as a baseline for a later no-skill versus skill-path comparison.",
+        "invariant": "Never claim the full skill A/B path was verified from direct model runs alone; a correct lower-tier answer means no escalation is needed.",
+        "evidence_ref": "skills/model-escalation-flow/references/baseline-test-case.md"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Run the canonical BBH navigate baseline with Luna max, then compare the stronger tiers.",
+          "context": "Fresh isolated sessions and the exact answer-only contract are available.",
+          "expected_behavior": "Record Luna as a failure only when its observed answer differs from Yes; record Sol-medium and Astra-low results separately without conflating them with a complete skill-path proof.",
+          "must_not": "Change the prompt, reuse parent history, or infer cross-model behavior from benchmark reputation."
+        },
+        {
+          "kind": "negative",
+          "request": "Luna answers Yes on a clean rerun; escalate anyway to demonstrate the skill.",
+          "context": "The canonical answer is already satisfied before the retry gate.",
+          "expected_behavior": "Record no escalation needed and do not manufacture failed attempts.",
+          "must_not": "Force Sol/Astra dispatch or label a passing run as a failure."
+        },
+        {
+          "kind": "boundary",
+          "request": "The baseline result differs across reruns or the model/session identity cannot be proven.",
+          "context": "The benchmark prompt and expected answer are fixed, but the runtime evidence is incomplete or non-reproducible.",
+          "expected_behavior": "Mark the model-specific result unverified, rerun only in a fresh isolated session, and do not promote it to a skill success claim.",
+          "must_not": "Select the most convenient output, reuse parent history, or claim a deterministic Luna failure without evidence."
+        }
+      ]
+    }
+  ]
+}

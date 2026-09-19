@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Escalation Flow"
+  short_description: "Escalate stuck Luna, GLM, or Claude executors through a bounded advisor ladder"
+  default_prompt: "Use $model-escalation-flow when a Luna, GLM-high, Sonnet, or Haiku executor is genuinely stuck; record bounded attempts, ask Sol medium first, then Astra light only if needed, with isolated context and explicit verification."
