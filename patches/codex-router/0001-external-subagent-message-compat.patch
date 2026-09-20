@@ -1,0 +1,130 @@
+diff --git a/docs/HOW-IT-WORKS.md b/docs/HOW-IT-WORKS.md
+index de8934e..a79bdb0 100644
+--- a/docs/HOW-IT-WORKS.md
++++ b/docs/HOW-IT-WORKS.md
+@@ -358,8 +358,12 @@ Codex collaboration messages can place a delegated subagent task in native
+ OpenAI `encrypted_content`. External providers cannot read that opaque item. For
+ routed subagents only, the router uses the already-authenticated native Codex
+ backend to relay the exact task payload through a constrained function call,
+-replaces the opaque item with plaintext, and then sends the task to the selected
+-external model. Ordinary routed prompts do not use this relay.
++replaces the opaque item with plaintext, converts the private `agent_message`
++item into a standard Responses `message` with `role: "user"`, and then sends
++the task to the selected external model. The conversion applies at the
++non-direct routed-provider boundary and is shared by ordinary turns and routed
++compaction; direct/native Responses traffic keeps its native envelope.
++Ordinary routed prompts do not use this relay.
+ The relay requires an active ChatGPT sign-in because only the native Codex
+ backend can open its own opaque payload. In login-free mode the router fails
+ closed instead of forwarding unreadable ciphertext to an external provider.
+diff --git a/src/namespace-relay.mjs b/src/namespace-relay.mjs
+index fa6229b..892dd8b 100644
+--- a/src/namespace-relay.mjs
++++ b/src/namespace-relay.mjs
+@@ -916,7 +916,12 @@ export function agentMessagesAsUserMessages(input) {
+   const converted = input.map((item) => {
+     if (item?.type !== "agent_message" || !Array.isArray(item.content)) return item;
+     changed = true;
+-    return { type: "message", role: "user", content: item.content };
++    return {
++      ...(typeof item.id === "string" ? { id: item.id } : {}),
++      type: "message",
++      role: "user",
++      content: item.content,
++    };
+   });
+   return changed ? converted : input;
+ }
+diff --git a/src/router.mjs b/src/router.mjs
+index 3fcba67..806e8de 100644
+--- a/src/router.mjs
++++ b/src/router.mjs
+@@ -1782,7 +1782,10 @@ async function normalizeRoutedAgentInput(request, input, signal) {
+       ],
+     });
+   }
+-  return output;
++  // External routed providers do not implement Codex's private
++  // `agent_message` item. After relay/decryption, expose the same content as
++  // a standard user message before any provider-specific shaping or replay.
++  return agentMessagesAsUserMessages(output);
+ }
+ 
+ // Which bill a bridged read lands on. A registry engine names its own provider;
+diff --git a/test/namespace-relay.test.mjs b/test/namespace-relay.test.mjs
+index 1fa71e3..c094fc1 100644
+--- a/test/namespace-relay.test.mjs
++++ b/test/namespace-relay.test.mjs
+@@ -3821,6 +3821,7 @@ test("OpenCode input repair preserves collaboration text and inherited images",
+   };
+   const publicInput = agentMessagesAsUserMessages([agent]);
+   assert.deepEqual(publicInput[0], {
++    id: "amsg_1",
+     type: "message",
+     role: "user",
+     content: agent.content,
+diff --git a/test/routing.test.mjs b/test/routing.test.mjs
+index 26752cd..ce44edf 100644
+--- a/test/routing.test.mjs
++++ b/test/routing.test.mjs
+@@ -1523,9 +1523,15 @@ test("router relays encrypted Codex subagent payloads before external routing",
+     assert.equal(nativeRequests[0].body.stream, true);
+     assert.equal(nativeRequests[0].body.tool_choice.name, "relay_external_agent_payload");
+     assert.equal(gatewayRequests.length, 1);
++    assert.equal(gatewayRequests[0].body.input[0].type, "message");
++    assert.equal(gatewayRequests[0].body.input[0].role, "user");
+     const content = gatewayRequests[0].body.input[0].content;
+     assert.equal(content.some((part) => part.type === "encrypted_content"), false);
+     assert.equal(content.at(-1).text, "Inspect /tmp/capture.png harshly.");
++    assert.equal(
++      gatewayRequests[0].body.input.some((item) => item.type === "agent_message"),
++      false,
++    );
+ 
+     const cachedResponse = await fetch(`${routerBase(routerPort)}/responses`, {
+       method: "POST",
+@@ -1583,6 +1589,8 @@ test("router relays encrypted Codex subagent payloads before external routing",
+     });
+     assert.equal(plaintextResponse.status, 200, await plaintextResponse.text());
+     assert.equal(nativeRequests.length, 1);
++    assert.equal(gatewayRequests[2].body.input[0].type, "message");
++    assert.equal(gatewayRequests[2].body.input[0].role, "user");
+     const plaintextContent = gatewayRequests[2].body.input[0].content;
+     assert.equal(plaintextContent.some((part) => part.type === "encrypted_content"), false);
+     assert.equal(
+@@ -2939,6 +2947,7 @@ test("router inlines an external parent's plaintext task before replaying to nat
+     const sentExternal = sent.find((item) => item?.id === "amsg_external");
+     const sentNative = sent.find((item) => item?.id === "amsg_native");
+     // The unreadable field is gone and the task survives as ordinary text.
++    assert.equal(sentExternal.type, "agent_message");
+     assert.equal(
+       sentExternal.content.some((part) => part?.type === "encrypted_content"),
+       false,
+@@ -7652,6 +7661,8 @@ test("routed compaction resolves subagent handoffs before summarizing", async ()
+     const sent = gatewayRequests[0].input;
+ 
+     const routed = sent.find((item) => item?.id === "amsg_routed");
++    assert.equal(routed.type, "message");
++    assert.equal(routed.role, "user");
+     assert.equal(routed.content.some((part) => part.type === "encrypted_content"), false);
+     assert.equal(routed.content.at(-1).type, "input_text");
+     assert.equal(routed.content.at(-1).text, "Summarize the routed subagent handoff.");
+@@ -7659,6 +7670,8 @@ test("routed compaction resolves subagent handoffs before summarizing", async ()
+     // The Fernet-shaped payload proves the request itself is threaded through:
+     // resolving it needs the caller's native session for the relay.
+     const relayed = sent.find((item) => item?.id === "amsg_native");
++    assert.equal(relayed.type, "message");
++    assert.equal(relayed.role, "user");
+     assert.equal(relayed.content.some((part) => part.type === "encrypted_content"), false);
+     assert.equal(relayed.content.at(-1).text, "Review the routed diff.");
+     assert.equal(nativeRequests.length, 1);
+@@ -10802,7 +10815,8 @@ test("Go Chat/Messages, paid Zen, and other Free routes keep compatibility-sensi
+         forwarded.tools.find((tool) => tool.type === "web_search").search_content_types,
+         ["text", "image"],
+       );
+-      assert.equal(forwarded.input[0].type, "agent_message");
++      assert.equal(forwarded.input[0].type, "message");
++      assert.equal(forwarded.input[0].role, "user");
+       assert.equal(forwarded.input[0].content[1].detail, "original");
+       assert.deepEqual(forwarded.input[1], customCall);
+       assert.equal(forwarded.input[2].type, "custom_tool_call_output");
