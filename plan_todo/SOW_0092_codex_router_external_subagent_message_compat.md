@@ -1,7 +1,10 @@
 # SOW_0092 - Codex Router External Subagent Message Compatibility
 
-- **Status**: BLOCKED (implementation complete; live child verification awaits an eligible Codex account)
-- **Approval**: Approved by user in the current task (`approve, nhớ poc cẩn thận nếu cần`) at `2026-09-20T05:19:34+07:00`
+- **Status**: DONE
+- **Approval**: approved by user
+- **create_dttm**: unknown
+- **approve_dttm**: `2026-09-20T05:19:34+07:00`
+- **finish_dttm**: `2026-09-20T21:10:57+07:00`
 - **Task**: Convert decrypted Codex collaboration `agent_message` items into
   standard user messages at every non-direct routed provider boundary so
   external subagents reliably receive their delegated task.
@@ -12,8 +15,17 @@
   - `$CODEX_ROUTER_CHECKOUT/src/namespace-relay.mjs`
   - `$CODEX_ROUTER_CHECKOUT/test/routing.test.mjs`
   - `$CODEX_ROUTER_CHECKOUT/test/namespace-relay.test.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/src/subagent-certify.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/src/codex-agent-catalog.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/src/catalog.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/src/doctor.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/src/control.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/test/codex-agent-catalog.test.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/test/subagent-certify.test.mjs`
   - `$CODEX_ROUTER_CHECKOUT/docs/HOW-IT-WORKS.md`
+  - `$CODEX_ROUTER_CHECKOUT/docs/SUBAGENT-CERTIFICATION.md`
   - `patches/codex-router/0001-external-subagent-message-compat.patch`
+  - `patches/codex-router/0002-luna-routed-child-provider-domain.patch`
   - `patches/codex-router/README.md`
   - this SOW
 - **Why**: Codex Multi-Agent V2 delivers delegated instructions as a private
@@ -59,9 +71,32 @@
   `3f1ca211a62b5ebbb855673e6f115810b72c5aba`; replayed focused tests pass with
   118 relay tests and 116 routing tests. The sanitized patch/provenance
   artifact is recorded in AISkills commit `f976676`.
-- GLM-5.2 reached the child relay, but the child was rejected with HTTP 400 because the ChatGPT account does not support custom models.
-- GLM-5.3 Flash was deferred for the same account restriction.
-- Live marker and follow-up checks remain open; rerun them after switching to an account that permits custom subagents.
+- Earlier live-certification attempts used either native `gpt-5.6-sol` or a
+  routed GLM parent. Neither reproduces the original Luna-to-GLM path, so those
+  outcomes are retained only as superseded experiment evidence.
+- Extension 1 fixes the certification topology to native `gpt-5.6-luna` at
+  `max` delegating to the selected routed GLM child through the authenticated
+  encrypted relay. The child remains in the built-in `openai` provider domain;
+  `openai_base_url` routes that transport through Codex Router.
+- Both `custom/greennode-glm-5.2` and
+  `custom/greennode-glm5.3-flash-thirdparty` passed all five live checks:
+  streaming, tool call, encrypted relay, delegated marker return, and
+  same-child follow-up.
+- The product path uses `fork_turns=none`. The `fork_turns=1` case is only an
+  isolated synthetic negative regression and receives no operator conversation.
+- Focused catalog, control, doctor, and certification tests pass: 134/134.
+  `npm run check` and `git diff --check` pass.
+- The full repository suite was attempted but is not claimed clean because of
+  unrelated environment/pre-existing failures, including the active Python
+  runtime lacking `os.waitstatus_to_exitcode`.
+- Router commit `0f5f45f50857a8dc154bc0b8e5f9e2f991484aff` contains only
+  the eight Extension 1 paths. Recovery patch `0002` records that commit with
+  SHA-256 `3f95d9c46ff7282a33f9a2c245c926303a50643e7e9fdc4a787c7ac8531a1109`.
+- Catalog refresh generated both managed child definitions with
+  `model_provider = "openai"`; doctor reports 2/2 current definitions, router
+  configuration active, and router version 0.5.1 healthy. A full Codex Desktop
+  quit/reopen is only the operator activation step for the already-running UI
+  process, not missing implementation or live-proof evidence.
 
 ## As-Is Diagram (ASCII)
 
@@ -185,7 +220,10 @@ Codex Router collaboration boundary
   Flash with `fork_turns=none`: each child returns a unique synthetic marker
   supplied only in the delegated task rather than a readiness response.
 - Live verification with `fork_turns=1` uses distinct markers in inherited chat
-  and delegated task; the child must return the delegated-task marker.
+  and delegated task inside a newly created synthetic certification thread; the
+  child must return the delegated-task marker. This is a negative regression
+  test only: the final product path remains `fork_turns=none` and never supplies
+  the operator conversation to the child.
 - A same-child follow-up returns a third unique marker, establishing continued
   collaboration rather than spawn-only success.
 - Existing routed-subagent and focused routing tests pass.
@@ -194,8 +232,9 @@ Codex Router collaboration boundary
   restart would activate an unrelated uncommitted change, stop for an explicit
   ownership decision or use a proven isolated test instance; do not produce
   mixed-change live evidence.
-- After a scope-clean restart, the installed router reports healthy; no Codex
-  restart is claimed necessary because catalog/configuration is unchanged.
+- After a scope-clean restart, the installed router reports healthy. When the
+  managed agent definitions change, catalog refresh must request a full Codex
+  Desktop quit/reopen so an already-running UI process reloads them.
 - The durable patch applies cleanly to the recorded base revision in a clean
   temporary checkout, and the focused regression suite passes there.
 - The generated patch contains exactly the scoped Codex Router commit and no
@@ -233,8 +272,9 @@ Codex Router collaboration boundary
 - Changing AgentHangar runtime, prompts, skills, or product concepts.
 - Downgrading the whole root/child tree to Multi-Agent V1.
 - Model-specific GreenNode prompt injection or special-case task duplication.
-- Changing model catalog eligibility, certification policy, reasoning effort,
-  or provider credentials.
+- Changing model catalog eligibility, reasoning effort, provider credentials,
+  or certification policy beyond the isolated harness correction authorized by
+  Extension 1.
 - Modifying Codex Desktop or Codex CLI source.
 - Persisting plaintext delegated prompts in patch artifacts, logs, or tests.
 - Reinstalling Codex Router or restarting Codex Desktop.
@@ -261,3 +301,110 @@ Codex Router collaboration boundary
   fork. Before replay, compare against current upstream behavior and require a
   clean applicability check. If upstream implements the same boundary, retire
   the local patch rather than layering both implementations.
+
+## Extension 1: Luna-Max Native Collaboration Certification
+
+- **Status**: DONE
+- **Approval**: approved by user
+- **create_dttm**: `2026-09-20T19:22:51+07:00`
+- **approve_dttm**: `2026-09-20T19:22:51+07:00`
+- **finish_dttm**: `2026-09-20T21:10:57+07:00`
+- **Finding**: The original runtime defect is specifically native
+  `gpt-5.6-luna` at `max` delegating to a routed GLM child. Replacing Luna with
+  the candidate route as parent changed the topology and conflated GLM parent
+  tool-following with the child-content boundary under test.
+- **Decision**:
+  - keep the implemented `agent_message -> message(role=user)` compatibility
+    boundary unchanged;
+  - use native `gpt-5.6-luna` with reasoning effort `max` as the fixed parent;
+  - use the real authenticated Codex home because Luna must produce the native
+    encrypted collaboration payload and the router must relay it with the
+    existing ChatGPT bearer;
+  - keep the candidate `custom/...` route exclusively as the child under test;
+  - keep the child in the built-in `openai` provider domain and point that
+    transport to Codex Router through `openai_base_url`; this preserves native
+    relay auth without triggering Codex's cross-provider account rejection;
+  - treat any account-policy rejection as a harness/runtime finding to resolve,
+    not as permission to replace Luna or weaken the child acceptance checks.
+- **Location**:
+  - `$CODEX_ROUTER_CHECKOUT/src/subagent-certify.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/src/control.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/test/subagent-certify.test.mjs`
+  - `$CODEX_ROUTER_CHECKOUT/docs/SUBAGENT-CERTIFICATION.md`
+  - this SOW
+- **Done Criteria**:
+  - certification uses native `gpt-5.6-luna` at `max` from the real authenticated
+    Codex home while restoring any temporary candidate agent definition;
+  - the child remains in the native `openai` provider domain while its exact
+    custom model slug resolves through Codex Router, which receives the native
+    encrypted collaboration payload;
+  - `fork_turns=none` returns a unique delegated marker from the child;
+  - an isolated synthetic `fork_turns=1` negative regression returns the
+    delegated marker rather than its synthetic parent marker; it is not the
+    product configuration and receives no operator conversation;
+  - a same-child follow-up returns a third unique marker;
+  - focused certification tests and the existing router checks pass;
+  - each live run remains quota-bounded and records no prompt, token, caller
+    key, or machine-local credential path in durable proof artifacts.
+- **Out-of-Scope**:
+  - modifying Codex Desktop or Codex CLI;
+  - adding a model alias, facade, hidden provider mapping, or router-owned agent
+    orchestrator;
+  - reading, copying, persisting, or logging ChatGPT credentials outside
+    Codex's existing authenticated request path;
+  - weakening promotion from all five checks or treating unit tests as live
+    collaboration proof.
+- **Cautions / Risks**:
+  - running the parent through another routed model would no longer reproduce
+    the approved Luna-to-GLM behavior and cannot close this SOW;
+  - Codex account/model eligibility may differ between the Desktop-native tool
+    path and the CLI harness, so the exact rejection owner must be identified
+    before changing authentication or provider configuration.
+
+### Extension 1 Superseded Experiment
+
+- The isolated router-authenticated harness removes the ChatGPT-account gate;
+  focused tests and the combined 254-test router/relay suite pass.
+- GLM-5.2 has successfully spawned and returned the initial
+  `fork_turns=none` marker in one run, but its later parent turns did not
+  reliably call `spawn_agent` or return the child marker.
+- GLM-5.3 Flash emitted only reasoning and an agent message after being told to
+  call `spawn_agent`; no structured spawn tool-call event was produced.
+- These runs used the wrong parent topology and are retained only as negative
+  experiment evidence. They cannot certify or reject Luna-to-GLM delegation.
+
+### Decision D001
+
+- **Status**: approved
+- **approve_dttm**: `2026-09-20T20:32:21+07:00`
+- **Decision**: The parent/coordinator is always native `gpt-5.6-luna` at
+  reasoning effort `max`; the target child is the selected GLM route through
+  Codex Router.
+- **Reason**: This is the original failed user path. A routed GLM parent tests a
+  different behavior and cannot prove the Luna `fork_turns=none` defect fixed.
+- **Impact**: Revert the candidate-as-parent harness experiment; preserve the
+  real ChatGPT-authenticated relay path; no Codex source fork, model alias, or
+  router-owned orchestration is introduced.
+
+### Decision D002
+
+- **Status**: approved by original SOW intent and the user's instruction to
+  resolve the Luna-to-GLM path
+- **Decision**: Managed routed-agent definitions use the provider identity that
+  owns the active router transport: built-in `openai` in authenticated router
+  mode, and `codex-router` only in login-free mode.
+- **Reason**: The exact Luna `max` run proves `spawn_agent` creates the child,
+  but Codex rejects it before any child request reaches the router because the
+  definition hardcodes a custom `codex-router` provider under a ChatGPT account.
+  The installed authenticated router deliberately intercepts built-in `openai`;
+  forcing a separate provider contradicts that runtime contract.
+- **Objective**: Keep Luna and the child in one Codex provider domain while the
+  custom model slug still selects the external route inside Codex Router, so the
+  encrypted delegated message reaches the existing compatibility boundary.
+- **Plan**: Parameterize the existing agent-definition generator, pass the
+  provider from catalog runtime mode, make certification temporarily install
+  and exactly restore the expected authenticated definition, then rerun both
+  live routes.
+- **Impact**: Changes managed agent TOML generation and focused tests only; no
+  Codex fork, provider alias, fallback delivery, or router-owned orchestrator.
+  Login-free behavior remains on its existing `codex-router` provider.

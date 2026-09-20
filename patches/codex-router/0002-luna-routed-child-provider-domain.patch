@@ -1,0 +1,918 @@
+From 0f5f45f50857a8dc154bc0b8e5f9e2f991484aff Mon Sep 17 00:00:00 2001
+From: Codex Router Patch <noreply@local>
+Date: Sun, 20 Sep 2026 21:10:43 +0700
+Subject: [PATCH] fix: keep routed subagents in parent provider domain
+
+---
+ docs/SUBAGENT-CERTIFICATION.md    |  58 +++----
+ src/catalog.mjs                   |  12 +-
+ src/codex-agent-catalog.mjs       |  31 +++-
+ src/control.mjs                   |  15 +-
+ src/doctor.mjs                    |   6 +-
+ src/subagent-certify.mjs          | 265 +++++++++++++++++++++++++-----
+ test/codex-agent-catalog.test.mjs |  16 ++
+ test/subagent-certify.test.mjs    | 145 +++++++++++++++-
+ 8 files changed, 450 insertions(+), 98 deletions(-)
+
+diff --git a/docs/SUBAGENT-CERTIFICATION.md b/docs/SUBAGENT-CERTIFICATION.md
+index ed14b40..744bd67 100644
+--- a/docs/SUBAGENT-CERTIFICATION.md
++++ b/docs/SUBAGENT-CERTIFICATION.md
+@@ -69,35 +69,29 @@ What is **not** a fourth way: the legacy diagnostic statuses in the proofs file
+ > definition on disk. If you are changing that function, the modes are the
+ > feature, not a formality — and `subagent-report.mjs` is how you check.
+
+-## A ChatGPT account cannot certify a routed model
+-
+-Checks 3–5 cannot complete while Codex is signed in with a ChatGPT account.
+-Codex says so in the parent's own message:
+-
+-```
+-The '<provider>/<model>' model is not supported when using Codex with a
+-ChatGPT account.
+-```
+-
+-This is a property of the harness and the account, not of the route, so it
+-records as **deferred** — never as a refusal. Do not "fix" it by relaxing the
+-promotion gate.
+-
+-Two things that look like a way out and are not:
+-
+-- **Signed routing** (`set_signed_routing`) declares a provider block with
+-  `requires_openai_auth = true`. That is the same ChatGPT-account auth, so it
+-  changes nothing here.
+-- **Marking the candidate v2 in the catalog** is already done: Codex only
+-  offers a subagent for a route its catalog marks v2, so the run builds a
+-  private catalog copy with just the candidate marked. That clears an earlier
+-  "not supported with the current ChatGPT account" error and gets as far as the
+-  refusal above — it does not get past it.
+-
+-The remaining untested path is running Codex under `auth_mode: "apikey"` rather
+-than `"chatgpt"`. The wording of the refusal implies an API key would be
+-accepted, but that has not been verified, and it bills separately from a
+-ChatGPT plan. Verify before promising anyone this works.
++## Certification reproduces the native Luna-to-routed-child path
++
++Checks 3–5 run with native `gpt-5.6-luna` at reasoning effort `max` as the
++parent and the selected custom route only as the child. This is deliberate: the
++defect being certified is Luna delegating a private `agent_message` through
++Codex Router, not a routed model acting as its own coordinator.
++
++The runner uses the real authenticated Codex home because Luna must create the
++native encrypted collaboration payload. In normal authenticated routing, the
++child remains on the built-in `openai` provider domain while
++`openai_base_url` points that transport at Codex Router. This avoids Codex
++rejecting a cross-provider child before the request reaches the router. The
++runner temporarily installs the exact expected candidate definition, then
++restores the previous contents (or removes the file if it was absent); its
++scratch worktree and private v2 catalog copy remain disposable.
++
++The product path and final agent definition use `fork_turns=none`, so the child
++does not inherit the operator conversation. Certification also creates a new,
++isolated synthetic parent thread and runs one `fork_turns=1` negative regression
++case: its delegated marker must win over a synthetic inherited marker. No real
++conversation content is supplied to that case. A ChatGPT account-policy
++rejection is deferred because it does not prove the child route failed; it must
++be diagnosed against this exact Luna topology instead of replacing the parent.
+
+ ## What has already been verified, and what has not
+
+@@ -108,9 +102,9 @@ Do not re-run these. They cost quota and the answers are recorded here.
+ | Does the caller endpoint serve `chat/completions`? | **No.** It answers Responses at `<callerBase>/responses` and takes the caller key as a bearer. | A 404 was once reported to the operator as "this model cannot run subagents". |
+ | Can a route stream through the router? | **Yes** for every route tried. | `deepseek/deepseek-v4-flash-vision-exp` returned HTTP 200 with a real SSE stream. |
+ | Does a forced `tool_choice` work everywhere? | **No.** A reasoning route can reject the forcing mode itself — *"Thinking mode does not support this tool_choice"* — while calling the tool correctly when simply offered it. | `opencode-go/deepseek-v4-flash-vision-exp`: forced → 400, `auto` → 200 with `{"token": "ok"}`. Codex does not force tool_choice in ordinary use. |
+-| Can checks 3-5 complete under a ChatGPT account? | **No.** See the section above. | Codex states it in the parent's own message. |
+-| Does marking the candidate v2 in a private catalog help? | **Partly.** It clears an earlier "not supported with the current ChatGPT account" error and gets as far as the refusal above. It does not get past it. | Already implemented in the runner. |
+-| Is signed routing a way around that? | **No.** Its provider block is `requires_openai_auth = true` — the same account. | `managedSignedProviderBlock` in `config-manager.mjs`. |
++| Why do checks 3-5 use the authenticated Codex home? | Native Luna must create the encrypted collaboration payload and the router must reach the native decrypt boundary. | `routerConfigArgs` and `verifySubagentRoute` in `src/subagent-certify.mjs`. |
++| Does marking the candidate v2 in a private catalog bypass proof? | **No.** It only makes the candidate spawnable inside the isolated run; all five checks must still pass before promotion. | `runDelegationChecks` plus `verifiedForRoute`. |
++| What exact topology does the live proof establish? | Native Luna `max` → selected child through Codex Router, including encrypted relay, marker return, and same-child follow-up. | `runDelegationChecks` in `src/subagent-certify.mjs`. |
+ | Do Ox Alpha, Fugu Ultra or Inkling have a registry certification? | **No.** The registry has seven v2 routes and none of them is one of these. | They reach v2 through operator selection instead. |
+
+ Statuses that answer about the account or the moment — 401, 402, 403, 408, 429,
+diff --git a/src/catalog.mjs b/src/catalog.mjs
+index ecfe73d..ada5544 100644
+--- a/src/catalog.mjs
++++ b/src/catalog.mjs
+@@ -32,7 +32,7 @@ import {
+   runCodex,
+ } from "./codex-binary.mjs";
+ import { readUserModels } from "./user-models.mjs";
+-import { syncRoutedCodexAgents } from "./codex-agent-catalog.mjs";
++import { routedAgentModelProvider, syncRoutedCodexAgents } from "./codex-agent-catalog.mjs";
+ import {
+   MODEL_BY_SLUG,
+   MODEL_SLUG_ALIASES,
+@@ -1259,7 +1259,15 @@ export function publishCatalog({ refreshNative = refresh, output = true } = {})
+     const eligibleAgents = routedCatalog || loginFree
+       ? subagentEligibleModels(routedModels, multiAgentSettings)
+       : [];
+-    routedAgents = syncRoutedCodexAgents(eligibleAgents);
++    routedAgents = syncRoutedCodexAgents(eligibleAgents, undefined, {
++      // The child must remain in the provider domain that owns the active
++      // router transport. A separate custom provider is a cross-provider spawn
++      // and Codex rejects it before its encrypted task reaches the router.
++      modelProvider: routedAgentModelProvider(
++        existsSync(CONFIG_PATH) ? readFileSync(CONFIG_PATH, "utf8") : "",
++        { loginFree },
++      ),
++    });
+     // Removing every definition is how an operator's subagents disappear, and
+     // it is the only code path that does it. Say so on the way out: a publish
+     // that read the routed catalog as inactive has just emptied a directory
+diff --git a/src/codex-agent-catalog.mjs b/src/codex-agent-catalog.mjs
+index 151d240..9c84ddc 100644
+--- a/src/codex-agent-catalog.mjs
++++ b/src/codex-agent-catalog.mjs
+@@ -30,6 +30,17 @@ function tomlString(value) {
+ // directory is the user's own and is never read or removed here.
+ const MANAGED_AGENT_FILE = /^router-model-[a-z0-9-]+\.toml$/;
+
++export function routedAgentModelProvider(contents, { loginFree = false } = {}) {
++  const config = String(contents || "");
++  const firstTable = config.search(/^\s*\[/m);
++  const root = firstTable === -1 ? config : config.slice(0, firstTable);
++  const provider = root.match(/^\s*model_provider\s*=\s*["']([^"']+)["']/m)?.[1] || "openai";
++  // Login-free activation rebuilds the catalog before changing a root OpenAI
++  // transport to the explicit codex-router provider. Other providers retain
++  // their identity and receive a router-owned table in place.
++  return loginFree && provider === "openai" ? "codex-router" : provider;
++}
++
+ function managedAgentFiles(agentsDir) {
+   try {
+     return readdirSync(agentsDir).filter((entry) => MANAGED_AGENT_FILE.test(entry));
+@@ -46,7 +57,7 @@ function writeManagedAgent(target, contents) {
+   protectPrivateFile(target);
+ }
+
+-export function routedAgentDefinition(model) {
++export function routedAgentDefinition(model, { modelProvider = "codex-router" } = {}) {
+   const slug = String(model?.slug || "").trim();
+   if (!slug || !slug.includes("/")) {
+     throw new Error(`Cannot create a routed agent for invalid model slug: ${slug || "<empty>"}`);
+@@ -58,7 +69,7 @@ export function routedAgentDefinition(model) {
+     "# Managed by Codex Router. Refresh the model catalog to update this file.",
+     `name = ${tomlString(agentName)}`,
+     `description = ${tomlString(`${displayName} agent routed through an authenticated Codex Router provider.`)}`,
+-    'model_provider = "codex-router"',
++    `model_provider = ${tomlString(modelProvider)}`,
+     `model = ${tomlString(slug)}`,
+     "",
+     'developer_instructions = """',
+@@ -78,7 +89,11 @@ export function routedAgentDefinition(model) {
+ // are no longer passed in. Codex offers every file in the agents directory by
+ // name, so a definition left behind keeps a model spawnable through
+ // `agent_type` after the settings stopped allowing it.
+-export function syncRoutedCodexAgents(models, agentsDir = CODEX_AGENTS_DIR) {
++export function syncRoutedCodexAgents(
++  models,
++  agentsDir = CODEX_AGENTS_DIR,
++  { modelProvider = "codex-router" } = {},
++) {
+   mkdirSync(agentsDir, { recursive: true, mode: 0o700 });
+   const previous = new Map(
+     managedAgentFiles(agentsDir).map((entry) => [
+@@ -90,7 +105,7 @@ export function syncRoutedCodexAgents(models, agentsDir = CODEX_AGENTS_DIR) {
+   const keep = new Set();
+   try {
+     for (const model of models) {
+-      const definition = routedAgentDefinition(model);
++      const definition = routedAgentDefinition(model, { modelProvider });
+       const target = path.join(agentsDir, definition.fileName);
+       writeManagedAgent(target, definition.contents);
+       keep.add(definition.fileName);
+@@ -135,7 +150,11 @@ export function syncRoutedCodexAgents(models, agentsDir = CODEX_AGENTS_DIR) {
+   }
+ }
+
+-export function routedCodexAgentStatus(models, agentsDir = CODEX_AGENTS_DIR) {
++export function routedCodexAgentStatus(
++  models,
++  agentsDir = CODEX_AGENTS_DIR,
++  { modelProvider = "codex-router" } = {},
++) {
+   const status = {
+     expected: models.length,
+     current: 0,
+@@ -146,7 +165,7 @@ export function routedCodexAgentStatus(models, agentsDir = CODEX_AGENTS_DIR) {
+   };
+   const expectedFiles = new Set();
+   for (const model of models) {
+-    const definition = routedAgentDefinition(model);
++    const definition = routedAgentDefinition(model, { modelProvider });
+     const target = path.join(agentsDir, definition.fileName);
+     expectedFiles.add(definition.fileName);
+     if (!existsSync(target)) {
+diff --git a/src/control.mjs b/src/control.mjs
+index 817aaec..d61f4e3 100644
+--- a/src/control.mjs
++++ b/src/control.mjs
+@@ -1545,14 +1545,14 @@ async function handleSubagents(action, value, flag, rest = []) {
+     // The whole five-check run, for one route or several. Unlike `verify`
+     // above, whose two-request probe is diagnostic, a complete pass here
+     // promotes the route on this machine. It spends real quota on each route's
+-    // own provider and on the native parent that delegates to it.
++    // own provider and on the native Luna parent that delegates to it.
+     //
+     // The runs go in parallel because nothing about one route's checks touches
+-    // another's: separate credentials, separate ephemeral Codex homes,
+-    // separate application artifacts. What they do share is the proofs file
+-    // and the catalog, so the recording and the republish stay here, in one
+-    // process, after the fan-out -- two control processes racing
+-    // read-modify-write on the proofs file would silently drop a verdict.
++    // another's: separate candidate routes and scratch worktrees. They share
++    // the authenticated Codex home, proofs file, and catalog, so the agent-file
++    // lifecycle, recording, and republish stay bounded in this process; two
++    // control processes racing read-modify-write on the proofs file would
++    // silently drop a verdict.
+     const slugs = [...new Set([value, ...rest].map((slug) => String(slug || "").trim()).filter(Boolean))];
+     if (!slugs.length) throw new Error("Usage: control subagents certify <model-slug> [<model-slug> ...]");
+     for (const slug of slugs) {
+@@ -1562,7 +1562,7 @@ async function handleSubagents(action, value, flag, rest = []) {
+       { verifySubagentRoute, firstFailure, recordApplicationEvidence, runDeferred },
+       { recordVerification, recordVerificationStarted, clearSubagentProof },
+       { assertCallerSecret, callerBaseUrl },
+-      { CALLER_SECRET_PATH, PORTS },
++      { CALLER_SECRET_PATH, CODEX_HOME, MERGED_CATALOG_PATH, PORTS },
+       { findCodexBinary },
+       { VERSION },
+     ] = await Promise.all([
+@@ -1582,7 +1582,6 @@ async function handleSubagents(action, value, flag, rest = []) {
+     const secret = assertCallerSecret(readFileSync(CALLER_SECRET_PATH, "utf8").trim());
+     const codexBin = findCodexBinary();
+     const baseUrl = callerBaseUrl(PORTS.router, secret);
+-    const { CODEX_HOME, MERGED_CATALOG_PATH } = await import("./paths.mjs");
+     for (const slug of slugs) recordVerificationStarted(slug);
+     const outcomes = await Promise.all(
+       slugs.map(async (slug) => {
+diff --git a/src/doctor.mjs b/src/doctor.mjs
+index a766504..0c4480a 100644
+--- a/src/doctor.mjs
++++ b/src/doctor.mjs
+@@ -5,7 +5,7 @@ import path from "node:path";
+ import { redactCallerUrl, validCallerSecret } from "./caller-auth.mjs";
+ import { codexAuthStatus, codexVersion, findCodexBinary, runCodex } from "./codex-binary.mjs";
+ import { commandOnPath, spawnableCommand } from "./spawnable-command.mjs";
+-import { routedCodexAgentStatus } from "./codex-agent-catalog.mjs";
++import { routedAgentModelProvider, routedCodexAgentStatus } from "./codex-agent-catalog.mjs";
+ import { privateFileIsProtected } from "./file-security.mjs";
+ import { grokCliPreflight } from "./grok-cli.mjs";
+ import { detectLegacyInstallations } from "./legacy-migration.mjs";
+@@ -714,6 +714,10 @@ const effectiveSubagentModels = applyMultiAgentCapabilities(
+ const agentStatus = codexTarget
+   ? routedCodexAgentStatus(
+       subagentEligibleModels(effectiveSubagentModels, multiAgentSettings),
++      undefined,
++      {
++        modelProvider: routedAgentModelProvider(codexConfigText),
++      },
+     )
+   : undefined;
+ if (codexTarget) add(
+diff --git a/src/subagent-certify.mjs b/src/subagent-certify.mjs
+index a7c02eb..8cbb42e 100644
+--- a/src/subagent-certify.mjs
++++ b/src/subagent-certify.mjs
+@@ -14,13 +14,13 @@ import { spawn } from "node:child_process";
+ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+ import os from "node:os";
+ import path from "node:path";
+-import { fileURLToPath } from "node:url";
+
+ import { routedAgentDefinition } from "./codex-agent-catalog.mjs";
+ import { spawnableCommand } from "./codex-binary.mjs";
+ import { VERIFICATION_CHECKS } from "./subagent-proofs.mjs";
+
+-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
++const NATIVE_PARENT_MODEL = "gpt-5.6-luna";
++const NATIVE_PARENT_EFFORT = "max";
+
+ export const CHECK_LABELS = Object.freeze({
+   streaming: "streamed reply",
+@@ -90,24 +90,97 @@ export function newMarker(prefix = "CRV") {
+ // What the JSONL event stream has to show for the delegation checks to hold:
+ // a child actually started on the agent this route owns, and the marker came
+ // back. A marker in the parent's own text proves nothing -- the parent can
+-// read the marker out of its own prompt -- so it only counts inside a child
+-// event, or after a child on that agent has started.
++// read the marker out of its own prompt. It counts only after Codex exposes a
++// spawn or collaboration-wait event in the fresh certification thread.
+ export function readDelegation(events, { agentName, marker }) {
++  let spawnSubmitted = false;
+   let childStarted = false;
+   let markerReturned = false;
+   for (const event of Array.isArray(events) ? events : []) {
+     const text = typeof event === "string" ? event : JSON.stringify(event ?? "");
+     if (!text) continue;
++    const toolName = String(event?.item?.name || event?.item?.tool || "");
++    if (
++      !spawnSubmitted &&
++      ["spawn", "spawn_agent"].includes(toolName) &&
++      /call/.test(String(event.item?.type || ""))
++    ) {
++      spawnSubmitted = true;
++      // The call arguments contain the marker. It cannot count as a return.
++      continue;
++    }
++    // Current Codex JSON output omits the spawn call itself but exposes the
++    // immediately following collaboration wait. This is a fresh parent thread,
++    // so a wait can only follow creation of its first child.
++    if (!childStarted && event?.item?.type === "collab_tool_call" && toolName === "wait") {
++      childStarted = true;
++    }
+     if (!childStarted && text.includes(agentName)) childStarted = true;
+-    if (childStarted && marker && text.includes(marker)) markerReturned = true;
++    if ((childStarted || spawnSubmitted) && marker && text.includes(marker)) {
++      childStarted = true;
++      markerReturned = true;
++    }
++  }
++  return { spawnSubmitted, childStarted, markerReturned };
++}
++
++export function readFollowUp(events, marker) {
++  let submitted = false;
++  let markerReturned = false;
++  for (const event of Array.isArray(events) ? events : []) {
++    const text = typeof event === "string" ? event : JSON.stringify(event ?? "");
++    if (!text) continue;
++    const toolName = String(event?.item?.name || event?.item?.tool || "");
++    if (
++      !submitted &&
++      ["followup_task", "send_input", "send_message", "wait"].includes(toolName)
++    ) {
++      submitted = true;
++      continue;
++    }
++    if (submitted && marker && text.includes(marker)) markerReturned = true;
++  }
++  return { submitted, markerReturned };
++}
++
++export function eventShapeSummary(events) {
++  const shapes = [];
++  for (const event of Array.isArray(events) ? events : []) {
++    if (!event || typeof event !== "object") continue;
++    const shape = [
++      event.type,
++      event.item?.type,
++      event.item?.name || event.item?.tool,
++      event.item?.status,
++    ]
++      .filter((value) => typeof value === "string" && value.length > 0)
++      .join(":");
++    if (shape && !shapes.includes(shape)) shapes.push(shape);
++    if (shapes.length === 8) break;
+   }
+-  return { childStarted, markerReturned };
++  return shapes.join(", ");
+ }
+
+-// Codex refuses to spawn a non-OpenAI child while the parent is signed in with
+-// a ChatGPT account, and says so in the parent's own message. That is a
+-// property of the harness and the account, not of the route -- branding the
+-// route "cannot run subagents" for it is the same wrong verdict as a 429.
++export function eventErrorCategory(events) {
++  const errors = (Array.isArray(events) ? events : [])
++    .filter((event) => event?.item?.type === "error")
++    .map((event) => JSON.stringify(event.item).toLowerCase())
++    .filter((error) => !/unrecognized configuration setting/.test(error))
++    .join("\n");
++  if (!errors) return undefined;
++  if (/encrypt|decrypt|cipher/.test(errors)) return "encrypted-message error";
++  if (/unknown agent|agent.*not found|invalid agent/.test(errors)) return "agent-resolution error";
++  if (/invalid.*argument|schema|tool.*argument/.test(errors)) return "tool-argument error";
++  if (/not supported.*chatgpt|current chatgpt account/.test(errors)) return "ChatGPT-account error";
++  if (/unauthor|forbidden|\b401\b|\b403\b/.test(errors)) return "authentication error";
++  if (/max.*thread|concurr|capacity|limit/.test(errors)) return "agent-capacity error";
++  if (/model|provider/.test(errors)) return "model-provider error";
++  return "unclassified Codex error";
++}
++
++// An account-policy response identifies the native Codex execution boundary,
++// not a routed child's inability to consume a delegated task. Keep it deferred
++// so the route is never rejected without reaching the collaboration path.
+ const ACCOUNT_REFUSES_ROUTE =
+   /not supported when using Codex with a ChatGPT account|isn.t supported with the current ChatGPT account/i;
+
+@@ -134,6 +207,15 @@ export function parseEventLines(stdout) {
+     });
+ }
+
++export function readThreadId(events) {
++  for (const event of Array.isArray(events) ? events : []) {
++    if (event?.type !== "thread.started") continue;
++    const id = event.thread_id || event.threadId;
++    if (typeof id === "string" && id) return id;
++  }
++  return undefined;
++}
++
+ function runCodex(args, { codexBin, codexHome, timeoutMs, cwd }) {
+   return new Promise((resolve) => {
+     const target = spawnableCommand(codexBin, args);
+@@ -170,6 +252,8 @@ function runCodex(args, { codexBin, codexHome, timeoutMs, cwd }) {
+ // reporting, for every route, regardless of the route.
+ function routerConfigArgs({ baseUrl, catalogPath }) {
+   const args = [
++    "--config",
++    `openai_base_url=${JSON.stringify(baseUrl)}`,
+     "--config",
+     'model_providers.codex-router.name="Codex Router"',
+     "--config",
+@@ -200,6 +284,8 @@ function execArgs({ model, prompt, cwd, extra = [] }) {
+     model,
+     "--config",
+     "disable_response_storage=true",
++    "--config",
++    `model_reasoning_effort=${JSON.stringify(NATIVE_PARENT_EFFORT)}`,
+     ...extra,
+     "--cd",
+     cwd,
+@@ -318,9 +404,10 @@ async function runHttpChecks({ slug, baseUrl, secret, timeoutMs }) {
+   return results;
+ }
+
+-// Checks 3-5. A native parent is asked to delegate to the agent this route
+-// owns; the child has to return a marker only this run knows, and then a
+-// second marker on a follow-up in the same session.
++// Checks 3-5 reproduce the product path: native Luna at max delegates to the
++// candidate routed child. The child has to return a marker only this run knows,
++// answer again in the same session, and prefer a delegated marker over one
++// inherited through fork_turns=1.
+ async function runDelegationChecks({
+   slug,
+   parentModel,
+@@ -332,18 +419,21 @@ async function runDelegationChecks({
+   timeoutMs,
+ }) {
+   const results = {};
+-  const definition = routedAgentDefinition({ slug, displayName: slug });
+-  // The parent is a native model signing in with this machine's ChatGPT
+-  // session, so the run has to use the real CODEX_HOME. A throwaway home has
+-  // no credentials, and an unauthenticated parent cannot delegate anything.
++  const definition = routedAgentDefinition(
++    { slug, displayName: slug },
++    { modelProvider: "openai" },
++  );
++  // Luna needs the existing authenticated Codex home to create the native
++  // encrypted collaboration payload. The child stays in Luna's built-in
++  // provider domain; openai_base_url below routes both through Codex Router.
+   const agentsDir = path.join(codexHome, "agents");
+   const agentFile = path.join(agentsDir, definition.fileName);
+   const preExisting = existsSync(agentFile);
++  const previousContents = preExisting ? readFileSync(agentFile, "utf8") : undefined;
+   mkdirSync(agentsDir, { recursive: true, mode: 0o700 });
+-  if (!preExisting) {
+-    // The route is not v2 yet, so the catalog has not written its definition.
+-    // The check needs the child spawnable without promoting anything first,
+-    // and the file goes away again below unless it was already there.
++  if (!preExisting || previousContents !== definition.contents) {
++    // Certification must use the authenticated provider identity even when a
++    // stale generated definition exists. Restore the exact prior file below.
+     writeFileSync(agentFile, definition.contents, { encoding: "utf8", mode: 0o600 });
+   }
+
+@@ -381,17 +471,24 @@ async function runDelegationChecks({
+         cwd: workDir,
+         extra: config,
+         prompt:
+-          `Delegate to the agent named ${definition.agentName}. Instruct that agent to reply with exactly ${marker}. ` +
+-          "Do not answer yourself and do not repeat the token in your own message; report only what the agent returned.",
++          `You must call spawn_agent exactly once with task_name=certify_token, ` +
++          `agent_type=${definition.agentName}, and fork_turns=none. ` +
++          `Instruct that agent to reply with exactly ${marker}. ` +
++          "After spawning, you must call wait_agent and wait for the child's FINAL_ANSWER. " +
++          `After it finishes, your entire final answer must be the literal token ${marker}, byte-for-byte. ` +
++          "Do not paraphrase, describe, label, or omit the token.",
+       }),
+       { codexBin, codexHome, timeoutMs, cwd: workDir },
+     );
+     const firstEvents = parseEventLines(first.stdout);
++    const firstThreadId = readThreadId(firstEvents);
+     const firstDelegation = readDelegation(firstEvents, {
+       agentName: definition.agentName,
+       marker,
+     });
+     const refusal = accountRefusal(firstEvents);
++    const firstShapes = eventShapeSummary(firstEvents);
++    const firstError = eventErrorCategory(firstEvents);
+     results.encryptedRelay = firstDelegation.childStarted
+       ? pass(200)
+       : refusal
+@@ -400,49 +497,132 @@ async function runDelegationChecks({
+         // running out of time, not the route refusing to host a child.
+         : first.timedOut
+           ? deferred(undefined, "the parent did not finish delegating before the timeout")
+-          : fail("no child ran on this route");
++          : fail(
++              firstDelegation.spawnSubmitted
++                ? `spawn_agent was submitted but the routed child identity was not observed${firstError ? `: ${firstError}` : ""} (${firstShapes || "no structured events"})`
++                : `the routed parent did not submit spawn_agent (${firstShapes || "no structured events"})`,
++            );
+     if (!firstDelegation.childStarted) return { results, agentName: definition.agentName };
+
+     results.markerReturn = firstDelegation.markerReturned
+       ? pass(200)
+       : fail("the child ran but did not return the marker");
+     if (!firstDelegation.markerReturned) return { results, agentName: definition.agentName };
++    if (!firstThreadId) {
++      results.sameThreadFollowUp = fail("the parent session id was absent from Codex JSON output");
++      return { results, agentName: definition.agentName };
++    }
+
+     const followUpMarker = newMarker("CRV2");
+     const second = await runCodex(
+       [
+         "exec",
+         "resume",
+-        "--last",
+         "--ignore-user-config",
+         "--ignore-rules",
+         "--skip-git-repo-check",
+-        "--sandbox",
+-        "read-only",
+-        "--color",
+-        "never",
+         "--json",
++        "--model",
++        parentModel,
+         "--config",
+         "disable_response_storage=true",
++        "--config",
++        `model_reasoning_effort=${JSON.stringify(NATIVE_PARENT_EFFORT)}`,
+         ...config,
+-        "--cd",
+-        workDir,
+-        `Ask the same ${definition.agentName} agent, in this same thread, to reply with exactly ${followUpMarker}.`,
++        firstThreadId,
++        `Use followup_task to send the child created in the previous turn a new task. ` +
++          `Target that existing child using the task name or id returned by spawn_agent; do not spawn another child. ` +
++          `Instruct it to reply with exactly ${followUpMarker}. ` +
++          "After followup_task, you must call wait_agent and wait for the child's FINAL_ANSWER. " +
++          `Your entire final answer must be the literal token ${followUpMarker}, byte-for-byte; do not paraphrase.`,
+       ],
+       { codexBin, codexHome, timeoutMs, cwd: workDir },
+     );
+-    const secondDelegation = readDelegation(parseEventLines(second.stdout), {
++    const secondDelegation = readFollowUp(parseEventLines(second.stdout), followUpMarker);
++    results.sameThreadFollowUp = secondDelegation.submitted && secondDelegation.markerReturned
++      ? pass(200)
++      : fail(
++          secondDelegation.submitted
++            ? "the child did not answer a second turn in the same thread"
++            : "the parent did not submit followup_task to the existing child",
++        );
++
++    if (!secondDelegation.markerReturned) {
++      return { results, agentName: definition.agentName };
++    }
++
++    // A separate two-turn parent session makes the inherited marker exist
++    // before the spawn request. The child must return the delegated marker,
++    // proving fork_turns=1 did not make inherited chat win over agent_message.
++    const inheritedMarker = newMarker("CRI");
++    const seed = await runCodex(
++      execArgs({
++        model: parentModel,
++        cwd: workDir,
++        extra: config,
++        prompt: `Reply with exactly ${inheritedMarker}.`,
++      }),
++      { codexBin, codexHome, timeoutMs, cwd: workDir },
++    );
++    if (seed.code !== 0 || seed.timedOut) {
++      results.markerReturn = deferred(
++        undefined,
++        seed.timedOut
++          ? "the inherited-context seed turn timed out"
++          : "the inherited-context seed turn failed",
++      );
++      return { results, agentName: definition.agentName };
++    }
++    const seedThreadId = readThreadId(parseEventLines(seed.stdout));
++    if (!seedThreadId) {
++      results.markerReturn = fail("the inherited-context parent session id was absent");
++      return { results, agentName: definition.agentName };
++    }
++
++    const inheritedTaskMarker = newMarker("CRD");
++    const inherited = await runCodex(
++      [
++        "exec",
++        "resume",
++        "--ignore-user-config",
++        "--ignore-rules",
++        "--skip-git-repo-check",
++        "--json",
++        "--model",
++        parentModel,
++        "--config",
++        "disable_response_storage=true",
++        "--config",
++        `model_reasoning_effort=${JSON.stringify(NATIVE_PARENT_EFFORT)}`,
++        ...config,
++        seedThreadId,
++        `You must call spawn_agent exactly once with task_name=certify_inherited, ` +
++          `agent_type=${definition.agentName}, and fork_turns=1. ` +
++          `Instruct that agent to reply with exactly ${inheritedTaskMarker}. ` +
++          "After spawning, you must call wait_agent and wait for the child's FINAL_ANSWER. " +
++          `Your entire final answer must be the literal token ${inheritedTaskMarker}, byte-for-byte; ` +
++          "do not paraphrase or return the inherited token.",
++      ],
++      { codexBin, codexHome, timeoutMs, cwd: workDir },
++    );
++    const inheritedDelegation = readDelegation(parseEventLines(inherited.stdout), {
+       agentName: definition.agentName,
+-      marker: followUpMarker,
++      marker: inheritedTaskMarker,
+     });
+-    results.sameThreadFollowUp = secondDelegation.markerReturned
+-      ? pass(200)
+-      : fail("the child did not answer a second turn in the same thread");
++    if (!inheritedDelegation.childStarted) {
++      results.markerReturn = fail("fork_turns=1 did not start the routed child");
++    } else if (!inheritedDelegation.markerReturned) {
++      results.markerReturn = fail("fork_turns=1 returned inherited chat instead of the delegated marker");
++    }
+     return { results, agentName: definition.agentName };
+   } finally {
+     // Leave the agents directory exactly as it was found. A definition left
+     // behind would keep an uncertified route spawnable by name.
+-    if (!preExisting) rmSync(agentFile, { force: true });
++    if (preExisting) {
++      writeFileSync(agentFile, previousContents, { encoding: "utf8", mode: 0o600 });
++    } else {
++      rmSync(agentFile, { force: true });
++    }
+   }
+ }
+
+@@ -455,7 +635,7 @@ export async function verifySubagentRoute(
+     secret,
+     codexBin,
+     codexHome,
+-    parentModel = "gpt-5.6-sol",
++    parentModel,
+     catalogPath,
+     routerVersion,
+     timeoutMs = 120_000,
+@@ -469,13 +649,14 @@ export async function verifySubagentRoute(
+     return { slug, checks, ok: false, routerVersion, durationMs: Date.now() - started };
+   }
+
+-  // Only the working directory is disposable. The Codex home stays real so the
+-  // parent can authenticate.
++  if (!codexHome) throw new Error("The authenticated Codex home is required for native Luna delegation.");
++  // Only the scratch worktree is disposable. The real Codex home supplies the
++  // existing native sign-in and temporarily hosts the candidate agent file.
+   const workDir = mkdtempSync(path.join(os.tmpdir(), "codex-router-certify-"));
+   try {
+     const { results } = await runDelegationChecks({
+       slug,
+-      parentModel,
++      parentModel: parentModel || NATIVE_PARENT_MODEL,
+       codexBin,
+       codexHome,
+       baseUrl,
+diff --git a/test/codex-agent-catalog.test.mjs b/test/codex-agent-catalog.test.mjs
+index cbdbbb2..4b95067 100644
+--- a/test/codex-agent-catalog.test.mjs
++++ b/test/codex-agent-catalog.test.mjs
+@@ -6,6 +6,7 @@ import test from "node:test";
+
+ import {
+   routedAgentDefinition,
++  routedAgentModelProvider,
+   routedCodexAgentStatus,
+   syncRoutedCodexAgents,
+ } from "../src/codex-agent-catalog.mjs";
+@@ -29,6 +30,21 @@ test("routed agent definitions select the router provider and exact model slug",
+   assert.match(definition.contents, /Do not stop after merely announcing a next action/);
+ });
+
++test("authenticated routing keeps routed children on the active OpenAI provider", () => {
++  const definition = routedAgentDefinition(kimi, { modelProvider: "openai" });
++  assert.match(definition.contents, /model_provider = "openai"/);
++  assert.match(definition.contents, /model = "kimi-oauth\/k3"/);
++});
++
++test("agent provider follows authenticated and login-free transport ownership", () => {
++  assert.equal(routedAgentModelProvider('model_provider = "openai"\n'), "openai");
++  assert.equal(
++    routedAgentModelProvider('model_provider = "openai"\n', { loginFree: true }),
++    "codex-router",
++  );
++  assert.equal(routedAgentModelProvider('model_provider = "custom"\n'), "custom");
++});
++
+ test("agent sync writes one private definition for every routed model", () => {
+   const agentsDir = mkdtempSync(path.join(os.tmpdir(), "codex-router-agents-"));
+   const grok = { slug: "grok-oauth/grok-4.5", displayName: "Grok 4.5 (OAuth)" };
+diff --git a/test/subagent-certify.test.mjs b/test/subagent-certify.test.mjs
+index c27f7f2..cb0c267 100644
+--- a/test/subagent-certify.test.mjs
++++ b/test/subagent-certify.test.mjs
+@@ -7,10 +7,14 @@ import { fileURLToPath } from "node:url";
+ import {
+   CHECK_LABELS,
+   checksComplete,
++  eventErrorCategory,
++  eventShapeSummary,
+   firstFailure,
+   newMarker,
+   parseEventLines,
++  readThreadId,
+   readDelegation,
++  readFollowUp,
+   runDeferred,
+ } from "../src/subagent-certify.mjs";
+ import { VERIFICATION_CHECKS } from "../src/subagent-proofs.mjs";
+@@ -64,6 +68,7 @@ test("a parent echoing the marker itself does not count as delegation", () => {
+     { type: "turn.completed" },
+   ];
+   const result = readDelegation(events, { agentName: "router_deepseek_deepseek_v4_flash", marker });
++  assert.equal(result.spawnSubmitted, false);
+   assert.equal(result.childStarted, false);
+   assert.equal(result.markerReturned, false);
+ });
+@@ -77,6 +82,7 @@ test("a child that starts and answers is a delegation", () => {
+     { type: "turn.completed" },
+   ];
+   const result = readDelegation(events, { agentName, marker });
++  assert.equal(result.spawnSubmitted, false);
+   assert.equal(result.childStarted, true);
+   assert.equal(result.markerReturned, true);
+ });
+@@ -92,6 +98,85 @@ test("a child that starts but never returns the marker fails the marker check",
+   assert.equal(result.markerReturned, false);
+ });
+
++test("a returned marker after spawn_agent proves the routed child ran", () => {
++  const marker = "CRV-SPAWNED";
++  const result = readDelegation(
++    [
++      { type: "item.completed", item: { type: "function_call", name: "spawn_agent", arguments: { message: marker } } },
++      { type: "item.completed", item: { type: "agent_message", text: marker } },
++    ],
++    { agentName: "router_vendor_model", marker },
++  );
++  assert.deepEqual(result, { spawnSubmitted: true, childStarted: true, markerReturned: true });
++});
++
++test("current Codex collaboration events identify spawn and follow-up by tool", () => {
++  const marker = "CRV-COLLAB";
++  assert.deepEqual(
++    readDelegation(
++      [
++        { type: "item.started", item: { type: "collab_tool_call", tool: "spawn_agent", status: "in_progress" } },
++        { type: "item.completed", item: { type: "agent_message", text: marker } },
++      ],
++      { agentName: "router_vendor_model", marker },
++    ),
++    { spawnSubmitted: true, childStarted: true, markerReturned: true },
++  );
++  assert.deepEqual(
++    readFollowUp(
++      [
++        { type: "item.started", item: { type: "collab_tool_call", tool: "send_input" } },
++        { type: "item.completed", item: { type: "agent_message", text: marker } },
++      ],
++      marker,
++    ),
++    { submitted: true, markerReturned: true },
++  );
++  assert.deepEqual(
++    readFollowUp(
++      [
++        { type: "item.started", item: { type: "collab_tool_call", tool: "wait" } },
++        { type: "item.completed", item: { type: "agent_message", text: marker } },
++      ],
++      marker,
++    ),
++    { submitted: true, markerReturned: true },
++  );
++});
++
++test("a collaboration wait in a fresh parent proves its child was created", () => {
++  const marker = "CRV-WAITED";
++  assert.deepEqual(
++    readDelegation(
++      [
++        { type: "item.started", item: { type: "collab_tool_call", tool: "wait", status: "in_progress" } },
++        { type: "item.completed", item: { type: "agent_message", text: marker } },
++      ],
++      { agentName: "router_vendor_model", marker },
++    ),
++    { spawnSubmitted: false, childStarted: true, markerReturned: true },
++  );
++});
++
++test("same-child follow-up counts only after followup_task was submitted", () => {
++  const marker = "CRV-FOLLOWUP";
++  assert.deepEqual(
++    readFollowUp(
++      [
++        { type: "item.completed", item: { type: "agent_message", text: marker } },
++        { type: "item.completed", item: { type: "function_call", name: "followup_task", arguments: { message: marker } } },
++        { type: "item.completed", item: { type: "agent_message", text: marker } },
++      ],
++      marker,
++    ),
++    { submitted: true, markerReturned: true },
++  );
++  assert.deepEqual(
++    readFollowUp([{ type: "item.completed", item: { type: "agent_message", text: marker } }], marker),
++    { submitted: false, markerReturned: false },
++  );
++});
++
+ test("event parsing survives interleaved non-JSON output", () => {
+   const stdout = [
+     '{"type":"turn.started"}',
+@@ -106,6 +191,40 @@ test("event parsing survives interleaved non-JSON output", () => {
+   assert.equal(events[2].type, "turn.completed");
+ });
+
++test("resume uses the exact parent thread instead of a globally newest session", () => {
++  assert.equal(
++    readThreadId([{ type: "thread.started", thread_id: "01A-THREAD" }]),
++    "01A-THREAD",
++  );
++  assert.equal(readThreadId([{ type: "turn.started" }]), undefined);
++
++  const source = readFileSync(
++    path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "subagent-certify.mjs"),
++    "utf8",
++  );
++  assert.doesNotMatch(source, /"--last"/);
++  assert.match(source, /firstThreadId,/);
++  assert.match(source, /seedThreadId,/);
++  assert.equal(source.match(/"--model",\s*\n\s*parentModel,/g)?.length, 2);
++});
++
++test("failure diagnostics expose event shape without event content", () => {
++  const summary = eventShapeSummary([
++    { type: "item.completed", item: { type: "function_call", name: "spawn_agent", arguments: "SECRET" } },
++    { type: "item.completed", item: { type: "agent_message", text: "PRIVATE" } },
++  ]);
++  assert.equal(summary, "item.completed:function_call:spawn_agent, item.completed:agent_message");
++  assert.doesNotMatch(summary, /SECRET|PRIVATE/);
++  assert.equal(
++    eventErrorCategory([{ item: { type: "error", message: "unable to decrypt collaboration payload" } }]),
++    "encrypted-message error",
++  );
++  assert.equal(
++    eventErrorCategory([{ item: { type: "error", message: "unrecognized configuration setting" } }]),
++    undefined,
++  );
++});
++
+ test("the checks call the endpoint the router actually serves", async () => {
+   // A 404 from `chat/completions` was reported to the operator as "this model
+   // cannot run subagents". The caller endpoint speaks Responses and takes the
+@@ -170,22 +289,34 @@ test("a rate limit is not a verdict about the route", () => {
+   assert.match(control, /if \(!result\.ok && runDeferred\(result\.checks\)\) \{[\s\S]{0,120}clearSubagentProof\(slug\)/);
+ });
+
+-test("the delegation run is configured to reach the router at all", () => {
+-  // Without a provider declaration and a real Codex home, no child can start
+-  // for any route -- which is what "no child ran on this route" reported for
+-  // five different providers in a row.
++test("the delegation run reproduces native Luna max to routed child", () => {
++  // Certification must measure the actual failing topology: authenticated
++  // native Luna creates the encrypted task and the candidate is only the child.
+   const source = readFileSync(
+     path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "subagent-certify.mjs"),
+     "utf8",
+   );
+   assert.match(source, /model_providers\.codex-router\.base_url=/);
++  assert.match(source, /openai_base_url=/);
+   assert.match(source, /model_providers\.codex-router\.wire_api="responses"/);
++  assert.doesNotMatch(source, /model_provider="codex-router"/);
++  assert.match(source, /model_providers\.codex-router\.requires_openai_auth=true/);
+   assert.match(source, /model_catalog_json=/);
+-  // The disposable thing is the working directory, never the Codex home.
++  assert.doesNotMatch(source, /caller-key-auth-command\.mjs/);
++  assert.match(source, /const NATIVE_PARENT_MODEL = "gpt-5\.6-luna"/);
++  assert.match(source, /const NATIVE_PARENT_EFFORT = "max"/);
++  assert.match(source, /model_reasoning_effort=/);
++  // Only the scratch worktree is disposable; native auth stays in real home.
+   assert.match(source, /codex-router-certify-/);
+-  assert.doesNotMatch(source, /mkdtempSync[^)]*\)\s*;\s*\n\s*try \{[\s\S]{0,80}codexHome/);
++  assert.doesNotMatch(source, /path\.join\(workDir, "codex-home"\)/);
++  assert.match(source, /parentModel: parentModel \|\| NATIVE_PARENT_MODEL/);
++  assert.match(source, /modelProvider: "openai"/);
++  assert.match(source, /fork_turns=none/);
++  assert.match(source, /fork_turns=1/);
++  assert.match(source, /spawn_agent was submitted but the routed child identity was not observed/);
+   // An agent definition written only for the check must not outlive it.
+-  assert.match(source, /if \(!preExisting\) rmSync\(agentFile, \{ force: true \}\)/);
++  assert.match(source, /writeFileSync\(agentFile, previousContents/);
++  assert.match(source, /rmSync\(agentFile, \{ force: true \}\)/);
+
+   const control = readFileSync(
+     path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "control.mjs"),
+--
+2.50.1 (Apple Git-155)

@@ -17,6 +17,23 @@ derived artifact, not a replacement runtime checkout.
   - `test/namespace-relay.test.mjs`
   - `docs/HOW-IT-WORKS.md`
 
+The native Luna certification correction is recorded separately so the
+provider-boundary fix can still be reviewed or retired on its own:
+
+- Parent revision: `c8deaaa569c396b86620cc60e5ff70cb095883f4`
+- Scoped source commit: `0f5f45f50857a8dc154bc0b8e5f9e2f991484aff`
+- Patch: `0002-luna-routed-child-provider-domain.patch`
+- Patch SHA-256: `3f95d9c46ff7282a33f9a2c245c926303a50643e7e9fdc4a787c7ac8531a1109`
+- Affected paths:
+  - `src/codex-agent-catalog.mjs`
+  - `src/catalog.mjs`
+  - `src/control.mjs`
+  - `src/doctor.mjs`
+  - `src/subagent-certify.mjs`
+  - `test/codex-agent-catalog.test.mjs`
+  - `test/subagent-certify.test.mjs`
+  - `docs/SUBAGENT-CERTIFICATION.md`
+
 ## Verification
 
 - `npm run check` passed.
@@ -24,9 +41,17 @@ derived artifact, not a replacement runtime checkout.
 - `node --test test/routing.test.mjs` passed: 116 tests.
 - The installed router service reported healthy after the scoped runtime
   restart/readiness check.
-- Live GreenNode marker checks remain deferred: the active ChatGPT account
-  rejects custom-model subagent creation before a child turn starts. No live
-  success is claimed here.
+- Native `gpt-5.6-luna` at `max` passed all five certification checks with each
+  routed child: `custom/greennode-glm-5.2` and
+  `custom/greennode-glm5.3-flash-thirdparty`.
+- The product-path check uses `fork_turns=none`. The additional
+  `fork_turns=1` check runs only in a new synthetic certification thread and
+  receives no operator conversation.
+- The focused catalog, control, doctor, and certification suite passed all 134
+  tests; `npm run check` passed.
+- The full repository suite was also attempted but is not claimed clean: it
+  includes unrelated environment/pre-existing failures, including the active
+  Python runtime lacking `os.waitstatus_to_exitcode`.
 
 ## Replay and retirement
 
