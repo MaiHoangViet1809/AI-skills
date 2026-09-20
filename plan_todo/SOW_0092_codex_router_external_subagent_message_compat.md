@@ -42,8 +42,8 @@
   `type: agent_message`.
 - `agentMessagesAsUserMessages()` already implements the required standard
   conversion, but the ordinary non-direct routed path does not call it.
-- Current relay tests assert plaintext recovery but do not assert that the
-  provider receives a public Responses `message` item.
+- Before the scoped change, relay tests asserted plaintext recovery but did not
+  assert that the provider receives a public Responses `message` item.
 - With `fork_turns=none`, the routed model sees no ordinary task and asks for
   one. With `fork_turns=1`, it sees the inherited parent user message and
   answers that instead. This is deterministic transport behavior, not random
@@ -53,6 +53,12 @@
 
 - Router restarted successfully and reports healthy.
 - Focused tests and `npm run check` pass.
+- Scoped router commit `c8deaaa569c396b86620cc60e5ff70cb095883f` contains only
+  the five SOW-owned router, test, and documentation paths.
+- The recovery patch applies cleanly to base
+  `3f1ca211a62b5ebbb855673e6f115810b72c5aba`; replayed focused tests pass with
+  118 relay tests and 116 routing tests. The sanitized patch/provenance
+  artifact is recorded in AISkills commit `f976676`.
 - GLM-5.2 reached the child relay, but the child was rejected with HTTP 400 because the ChatGPT account does not support custom models.
 - GLM-5.3 Flash was deferred for the same account restriction.
 - Live marker and follow-up checks remain open; rerun them after switching to an account that permits custom subagents.
