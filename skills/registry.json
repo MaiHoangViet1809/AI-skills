@@ -71,20 +71,20 @@
       ]
     },
     {
-      "name": "model-escalation-flow",
+      "name": "task-escalation-flow",
       "description": "Escalate genuinely stuck Luna, GLM-high, Sonnet, or Haiku executors through isolated Sol and Astra advisor tiers.",
       "files": [
         {
-          "path": "skills/model-escalation-flow/SKILL.md",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/model-escalation-flow/SKILL.md"
+          "path": "skills/task-escalation-flow/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-escalation-flow/SKILL.md"
         },
         {
-          "path": "skills/model-escalation-flow/agents/openai.yaml",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/model-escalation-flow/agents/openai.yaml"
+          "path": "skills/task-escalation-flow/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-escalation-flow/agents/openai.yaml"
         },
         {
-          "path": "skills/model-escalation-flow/references/baseline-test-case.md",
-          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/model-escalation-flow/references/baseline-test-case.md"
+          "path": "skills/task-escalation-flow/references/baseline-test-case.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-escalation-flow/references/baseline-test-case.md"
         }
       ]
     },

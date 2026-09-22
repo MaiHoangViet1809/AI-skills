@@ -13,7 +13,7 @@
 
 ## Task
 
-Add `model-escalation-flow` to guide a lower-capability executor such as OpenAI
+Add `task-escalation-flow` to guide a lower-capability executor such as OpenAI
 Luna, a GLM-family model running at high reasoning, or Claude Sonnet/Haiku
 through a bounded advisor escalation: record three to five meaningful failed
 attempts, ask `gpt-5.6-sol` at medium reasoning first, then ask `gpt-6-astra`
@@ -42,12 +42,12 @@ distribution of this verified skill to the requested Codex and Claude targets.
 
 ## Location
 
-- `skills/model-escalation-flow/SKILL.md`
-- `skills/model-escalation-flow/agents/openai.yaml`
-- `skills/model-escalation-flow/references/baseline-test-case.md`
+- `skills/task-escalation-flow/SKILL.md`
+- `skills/task-escalation-flow/agents/openai.yaml`
+- `skills/task-escalation-flow/references/baseline-test-case.md`
 - `skills/INDEX.md`
 - `skills/registry.json`
-- `tests/skill_feedback_cases/model-escalation-flow.json`
+- `tests/skill_feedback_cases/task-escalation-flow.json`
 - `plan_todo/finished/SOW_0091_model_escalation_advisor_flow.md`
 
 No other files are in scope. Existing dirty changes in `INSTALL_FOR_AGENTS.md`,
@@ -80,7 +80,7 @@ lower-capability executor
 
 ## Deliverables
 
-1. A discoverable `model-escalation-flow` skill with:
+1. A discoverable `task-escalation-flow` skill with:
    - explicit trigger and retry gate;
    - source-executor coverage for OpenAI Luna, GLM-family high reasoning, and
      Claude Sonnet/Haiku without treating family name alone as failure evidence;
@@ -147,11 +147,11 @@ lower-capability executor
 
 ## Implementation Verification
 
-- `uv run /Users/maihoangviet/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/model-escalation-flow`: passed.
+- `uv run /Users/maihoangviet/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/task-escalation-flow`: passed.
 - `uv run python tests/test_skill_feedback_cases.py`: passed (`1` test).
 - `uv run python tests/test_skill_sync_scripts.py`: passed (`12` tests).
 - `uv run python -m json.tool skills/registry.json`: passed.
-- `uv run python -m json.tool tests/skill_feedback_cases/model-escalation-flow.json`: passed.
+- `uv run python -m json.tool tests/skill_feedback_cases/task-escalation-flow.json`: passed.
 - Registry parity check for the new skill: passed; three listed files equal
   three actual files.
 - `git diff --check` for tracked task-owned edits: passed.
@@ -196,7 +196,7 @@ runtime evidence rather than an extrapolated benchmark statistic.
 | Baseline, no skill | `gpt-5.6-luna` / `max` | `A` | `B` | **not-ok** |
 | Isolated advisor | `gpt-5.6-sol` / `medium` | `A` | `A` | **ok** |
 
-**Finding:** `model-escalation-flow` can recover a concrete wrong answer from a
+**Finding:** `task-escalation-flow` can recover a concrete wrong answer from a
 covered weak executor through a fresh, read-only Sol advisor handoff. The check
 stopped after Sol resolved the item; no repeated skill run or Astra pass was
 needed. This is behavioral evidence that the strategy supports an unresolved
@@ -207,14 +207,14 @@ of scope.
 
 | SOW requirement | Implementation evidence | Result |
 | --- | --- | --- |
-| New skill with retry gate and Sol-to-Astra ladder | `skills/model-escalation-flow/SKILL.md` defines 3 meaningful attempts, maximum 5, Sol `medium`, then Astra `low` | Matched |
+| New skill with retry gate and Sol-to-Astra ladder | `skills/task-escalation-flow/SKILL.md` defines 3 meaningful attempts, maximum 5, Sol `medium`, then Astra `low` | Matched |
 | Source executor family coverage | Skill trigger and source-family section cover OpenAI Luna, GLM-family high reasoning, and Claude Sonnet/Haiku | Matched after approved scope extension |
 | Evidence-backed advisor handoff | `Advisor Handoff Contract` and `Final Response Contract` sections | Matched |
 | Clean context for native and external advisors | `Context Isolation` requires `fork_turns: "none"` and fresh external sessions | Matched in text; runtime isolation unverified |
 | Read-only and SOW authority boundary | `Trigger`, `Escalation Ladder`, and `Coordinator Loop` sections | Matched |
 | Registry/index/metadata distribution | `SKILL.md`, `agents/openai.yaml`, `skills/INDEX.md`, and `skills/registry.json` | Matched |
-| Regression coverage | `tests/skill_feedback_cases/model-escalation-flow.json` with expected/negative/boundary scenarios | Matched structurally |
-| Short public model-escalation baseline | `skills/model-escalation-flow/references/baseline-test-case.md` records the initial BBH seed and the BrainBench Q31 failure-to-Sol recovery | Matched; one bounded runtime recovery verified, no statistical failure-rate claim |
+| Regression coverage | `tests/skill_feedback_cases/task-escalation-flow.json` with expected/negative/boundary scenarios | Matched structurally |
+| Short public model-escalation baseline | `skills/task-escalation-flow/references/baseline-test-case.md` records the initial BBH seed and the BrainBench Q31 failure-to-Sol recovery | Matched; one bounded runtime recovery verified, no statistical failure-rate claim |
 | No unrelated implementation changes | Current worktree contains unrelated pre-existing dirty files; task-owned new files are isolated in Location | No SOW scope gap found |
 
 ## Review Summary

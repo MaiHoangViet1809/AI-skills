@@ -3,7 +3,7 @@
   "cases": [
     {
       "id": "bounded-model-escalation-ladder-001",
-      "target_skill": "model-escalation-flow",
+      "target_skill": "task-escalation-flow",
       "cause_class": "decision_procedure",
       "feedback": {
         "trigger": "A lower-capability Luna, GLM-family high-reasoning, Sonnet, or Haiku executor loops after several evidence-backed attempts and cannot make the task work.",
@@ -38,14 +38,14 @@
     },
     {
       "id": "benchmark-advisor-baseline-001",
-      "target_skill": "model-escalation-flow",
+      "target_skill": "task-escalation-flow",
       "cause_class": "decision_procedure",
       "feedback": {
         "trigger": "A short public benchmark item must distinguish a lower-tier failure from a stronger advisor result without forcing escalation when the lower tier already passes.",
         "actual_behavior": "The recorded baseline has Luna-max returning No for BBH navigate case 33 while the canonical answer is Yes; Sol-medium and Astra-low return Yes in fresh sessions.",
         "expected_behavior": "Preserve the exact prompt and answer contract, record model/effort/session evidence, and use the result only as a baseline for a later no-skill versus skill-path comparison.",
         "invariant": "Never claim the full skill A/B path was verified from direct model runs alone; a correct lower-tier answer means no escalation is needed.",
-        "evidence_ref": "skills/model-escalation-flow/references/baseline-test-case.md"
+        "evidence_ref": "skills/task-escalation-flow/references/baseline-test-case.md"
       },
       "scenarios": [
         {

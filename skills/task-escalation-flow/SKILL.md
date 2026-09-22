@@ -1,9 +1,9 @@
 ---
-name: model-escalation-flow
+name: task-escalation-flow
 description: Use when a lower-capability executor such as OpenAI Luna, a GLM-family model at high reasoning, or Claude Sonnet/Haiku is genuinely stuck after bounded attempts and needs a stronger read-only advisor; escalate first to gpt-5.6-sol at medium reasoning, then gpt-6-astra at low reasoning, with isolated context and evidence-backed handoff.
 ---
 
-# Model Escalation Flow
+# Task Escalation Flow
 
 Use this skill when the current executor cannot make meaningful progress on a
 concrete task and needs an advisor with a stronger reasoning tier. Covered

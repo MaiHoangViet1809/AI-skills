@@ -44,7 +44,7 @@ Expected output: `Yes`
 
 Each run used a new ephemeral, read-only session with no user configuration,
 no parent history, and an answer-only output contract. The direct runs did not
-inject `model-escalation-flow`; they establish the baseline, not the complete
+inject `task-escalation-flow`; they establish the baseline, not the complete
 skill A/B result.
 
 | Executor | Reasoning | Observed output | Result |
