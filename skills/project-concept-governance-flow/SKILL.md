@@ -103,7 +103,10 @@ When the user approves a new or changed design concept:
 - keep mature concept files short and canonical
 - update `docs/concept/README.md` design and implementation status
 - add or move inline rules only when they stay self-contained
-- record historical SOWs as provenance, not authority
+- keep concept files limited to stable, accepted design. Do not include
+  SOW-specific content: IDs, titles, links, statuses, decisions, implementation
+  evidence, or provenance. Keep task traceability in planning or decision
+  artifacts; SOWs may cite concepts.
 
 Implementation status meanings:
 

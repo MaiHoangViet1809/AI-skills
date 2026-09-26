@@ -35,6 +35,41 @@
           "must_not": "Let implementation silently override the concept catalog."
         }
       ]
+    },
+    {
+      "id": "concept-content-excludes-sow-provenance-001",
+      "target_skill": "project-concept-governance-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A project concept contains links or identifiers for historical SOWs.",
+        "actual_behavior": "The agent treats SOW history as acceptable provenance inside the concept catalog.",
+        "expected_behavior": "Keep concepts limited to stable accepted design and keep all SOW-specific content and traceability in planning or decision artifacts.",
+        "invariant": "Concepts describe durable design; SOW-specific content does not belong in concept files.",
+        "evidence_ref": "sanitized:user-feedback-concept-sow-boundary-2026-09-26"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Remove SOW references from the concept catalog while preserving the accepted design.",
+          "context": "A mature concept has a paragraph linking two finished SOWs as implementation provenance.",
+          "expected_behavior": "Remove all SOW-specific content from the concept; retain the durable design and keep any needed task traceability in planning artifacts.",
+          "must_not": "Leave the SOW links because they are described as provenance rather than authority."
+        },
+        {
+          "kind": "negative",
+          "request": "Add the applicable concept ID to a SOW's Concept Compliance section.",
+          "context": "The SOW is a planning artifact and the concept remains its design authority.",
+          "expected_behavior": "Allow the SOW to cite the concept; the no-SOW-content rule applies to concept files, not references from planning artifacts.",
+          "must_not": "Remove concept references from SOWs or prohibit planning artifacts from citing concepts."
+        },
+        {
+          "kind": "boundary",
+          "request": "Record an accepted design decision that was first discussed during a SOW.",
+          "context": "The durable design should remain in the concept, but task-specific provenance is not part of concept content.",
+          "expected_behavior": "Write the accepted design without SOW IDs, links, status, or per-task evidence; keep that traceability in the appropriate planning record.",
+          "must_not": "Omit the durable design merely because its history involved a SOW."
+        }
+      ]
     }
   ]
 }

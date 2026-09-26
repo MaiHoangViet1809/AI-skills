@@ -44,6 +44,16 @@ If branch or scope is still unclear, use `task-router-flow` first.
   scope.
 - Treat syntax or compile checks, implementation verification, and gap-finding as different steps.
 - Do not present the task as complete while any repair loop or required verification remains open.
+- Before claiming a requested sync, deploy, or packaged delivery is complete,
+  identify the exact source revision/artifact it consumes. If it consumes
+  committed Git state (for example, `HEAD`), verify the intended change is in
+  that revision; a local-only edit was not delivered. When the user requested
+  that delivery and repository policy permits it, make the required scoped
+  commit as part of the task; do not stop at local-only or ask redundantly. If
+  the user restricted commits, policy requires separate approval, or scoped
+  commit safety is blocked, stop before delivery and report the exact blocker.
+  For a local-only edit with no committed delivery requested, do not force a
+  commit.
 
 ## Execution Loop
 

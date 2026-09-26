@@ -245,6 +245,41 @@
           "must_not": "Treat a generic function name or one passing product case as proof of genericity."
         }
       ]
+    },
+    {
+      "id": "committed-artifact-delivery-check-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A requested sync, deploy, or package consumes a committed repository revision.",
+        "actual_behavior": "The agent reports a local-only edit without checking whether the downstream artifact includes it.",
+        "expected_behavior": "Check the exact source revision and include the intended change in the consumed artifact; make a scoped commit when the user requested delivery and repository policy permits it.",
+        "invariant": "A requested delivery is complete only when its consumed revision or artifact contains the intended change; commit only within user scope and repository Git policy.",
+        "evidence_ref": "sanitized:user-feedback-committed-artifact-delivery-2026-09-26"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Fix this documentation issue and make the correction available through remote sync.",
+          "context": "The sync tool creates its payload from committed `HEAD`; the documentation edit is currently uncommitted and the task contains no explicit commit authorization.",
+          "expected_behavior": "Recognize that sync consumes committed `HEAD`, make the scoped commit required by the requested delivery under repository Git rules, then verify sync consumed that revision.",
+          "must_not": "Stop at a local-only edit, report delivery complete before sync, or include unrelated changes in the commit."
+        },
+        {
+          "kind": "negative",
+          "request": "Make this documentation correction locally; do not commit or deploy it.",
+          "context": "No downstream artifact is requested, and repository policy does not require a commit for docs-only changes.",
+          "expected_behavior": "Make the local edit, leave it uncommitted, and clearly state that it was not deployed.",
+          "must_not": "Force a commit just because the task-execution flow normally has a commit closeout step."
+        },
+        {
+          "kind": "boundary",
+          "request": "Commit the approved documentation fix and sync it to the target environment.",
+          "context": "Unrelated staged and unstaged changes exist in the same worktree.",
+          "expected_behavior": "Verify the sync source revision, isolate and commit only authorized task-owned changes under repository Git rules, then verify the target consumed that revision.",
+          "must_not": "Include unrelated staged work or assume a successful local edit proves remote delivery."
+        }
+      ]
     }
   ]
 }
