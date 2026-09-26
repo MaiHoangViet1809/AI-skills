@@ -14,6 +14,11 @@ the reusable protocol and document shape, not the project's actual concepts.
 when the project declares it as authority. Historical SOWs, plans, chat logs,
 and code are evidence, but they do not override the catalog.
 
+Concept files contain stable, accepted design only. Never include SOW-specific
+content such as IDs, titles, links, statuses, decisions, implementation
+evidence, or provenance. Keep task traceability in planning or decision
+artifacts; SOWs may cite concepts.
+
 ```text
 project request
   -> read project guardrails
@@ -103,10 +108,6 @@ When the user approves a new or changed design concept:
 - keep mature concept files short and canonical
 - update `docs/concept/README.md` design and implementation status
 - add or move inline rules only when they stay self-contained
-- keep concept files limited to stable, accepted design. Do not include
-  SOW-specific content: IDs, titles, links, statuses, decisions, implementation
-  evidence, or provenance. Keep task traceability in planning or decision
-  artifacts; SOWs may cite concepts.
 
 Implementation status meanings:
 
