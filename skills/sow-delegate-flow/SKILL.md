@@ -1,6 +1,6 @@
 ---
 name: sow-delegate-flow
-description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, especially GLM5.2 when registered natively. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, initialize fresh non-native sessions, then review and verify locally.
+description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, especially GLM5.2 when registered natively. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
 ---
 
 # Sow Delegate Flow
@@ -9,6 +9,7 @@ Use this skill for native Codex or custom/external delegation:
 
 ```text
 coordinator -> classify mode + transport
+    -> clean task context (fork_turns: none for native children)
     -> native child lifecycle OR fresh external task session
     -> local review and verification -> repair or closeout
 ```
@@ -40,7 +41,8 @@ mentioning another model.
   A custom-named role is native when the catalog exposes it; use the native
   lifecycle in that case. For `GLM5.2`, pass the currently registered role such
   as `router_custom_greennode_glm_5_2` as `agent_type`; never assume a role name
-  is portable across environments.
+  is portable across environments. Catalog registration does not waive the
+  context-isolation gate below.
 - If the target is not native and the user selects a custom/external agent, use
   an available documented provider transport such as a CLI or process. Do not
   silently substitute another agent or transport.
@@ -49,6 +51,25 @@ mentioning another model.
 - Delegating an implementation requires an approved SOW. A delegate may inspect
   or draft a plan/SOW before approval, but must not modify product code, tests,
   scripts, config, or runtime contracts in that mode.
+
+## Context Isolation Gate
+
+- Every new delegated logical task **MUST** start with a task-local context.
+- For `spawn_agent`, use `fork_turns: "none"` by default. Never use
+  `fork_turns: "all"` for delegation unless the user explicitly requests
+  inherited history and accepts the exposure.
+- This rule applies to custom models that are exposed through the native catalog,
+  including GLM5.2 and GLM5.3-flash. A native lifecycle does not make parent
+  conversation history safe to pass through.
+- The delegated prompt **MUST** be self-contained and include only the bounded
+  task, required artifact paths, scope, constraints, and output contract. Do not
+  pass the full parent conversation, user request history, prior transcripts,
+  unrelated task names, or coordinator summaries.
+- If clean context cannot be proven, do not delegate. If a delegate references
+  unrelated parent context, treat isolation as failed, discard its output, and
+  interrupt or terminate that task-owned session before restarting fresh.
+- `fork_turns: "none"` isolates the native child from parent turns; it does not
+  replace the separate fresh provider session required for non-native agents.
 
 ## Session Boundary For Non-Native Agents
 
@@ -75,8 +96,9 @@ mentioning another model.
   plan drafting, and SOW drafting may be delegated before approval when they do
   not modify implementation surfaces.
 - Read local repo rules and inspect `git status --short` before delegating.
-- Classify the transport before starting and enforce the non-native session
-  boundary before sending any delegated prompt.
+- Classify the model and transport before starting. Enforce the context
+  isolation gate and, for non-native agents, the fresh-session boundary before
+  sending any delegated prompt.
 - For implementation, delegate with the approved SOW path, short intent,
   explicit write scope, and verification requirements. For planning/read-only,
   provide the target question or artifact plus explicit non-implementation
@@ -106,12 +128,13 @@ mentioning another model.
      scope; no approved SOW is required and implementation writes are forbidden
    - `implementation`: locate the approved SOW and verify that it covers the
      exact delegated write scope
-3. Resolve the target transport:
+3. Resolve the target model and transport:
    - native: select the requested role from the current catalog; use GLM5.2
      exactly when requested
    - external/custom: select an available documented CLI, process, or provider
      transport without silently substituting another one
 4. Establish the session before sending the prompt:
+   - every delegate: start with `fork_turns: "none"` and a self-contained prompt
    - native: use the native lifecycle; do not create an external session
    - external/custom: initialize a brand-new session under the Session Boundary
      rules and stop if fresh isolation cannot be proven
@@ -140,8 +163,11 @@ Every delegated prompt must include:
 
 - one-sentence intent
 - transport and lifecycle instruction:
-  - native: use the selected native role and lifecycle only
+  - native: use the selected native role and lifecycle only, with
+    `fork_turns: "none"` for the new logical task
   - external/custom: start a fresh session with no historical task context
+- a self-contained task boundary; do not rely on inherited parent conversation
+  or include unrelated user/task history
 - instruction to stop and ask when scope, approval, or required evidence is
   missing
 
@@ -168,6 +194,8 @@ replace the `task-execution-flow` hard gates:
 - `external-custom`: execute a real task scenario when behavior changes, verify
   fresh-session evidence and absence of prior task context, then clean up only
   the task-owned process or session
+- `native-custom`: verify the child was started with `fork_turns: "none"` and
+  did not rely on or reveal unrelated parent conversation context
 
 Do not close delegated implementation when any of these are missing:
 

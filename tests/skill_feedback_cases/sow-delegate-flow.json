@@ -17,8 +17,8 @@
           "kind": "expected",
           "request": "Delegate this approved SOW to GLM5.2.",
           "context": "The SOW has explicit write scope and verification criteria; GLM5.2 is registered as a native sub-agent.",
-          "expected_behavior": "Spawn the GLM5.2 sub-agent with the SOW path and bounded ownership, then review and verify locally.",
-          "must_not": "Invoke Claude CLI, create Claude logs, or substitute another model."
+          "expected_behavior": "Spawn the GLM5.2 sub-agent with fork_turns none, the SOW path, and bounded ownership, then review and verify locally.",
+          "must_not": "Invoke Claude CLI, create Claude logs, substitute another model, or pass parent turns with fork_turns all."
         },
         {
           "kind": "negative",
@@ -44,7 +44,7 @@
         "trigger": "A native sub-agent completes delegated work and the coordinator decides whether the task can close.",
         "actual_behavior": "The coordinator can accept one local check, while approval wording conflicts with pre-approval planning delegation and the GLM role is treated as globally fixed.",
         "expected_behavior": "Gate only implementation on SOW approval, resolve the requested agent from the current catalog, and independently complete runtime verification plus gap-finding.",
-        "invariant": "Native delegation preserves model intent, authorization boundaries, and the same verification standard as local execution.",
+        "invariant": "Native delegation preserves model intent, authorization boundaries, clean task context, and the same verification standard as local execution.",
         "evidence_ref": "sanitized:final-review-native-delegation-2026-08-21"
       },
       "scenarios": [
@@ -52,8 +52,8 @@
           "kind": "expected",
           "request": "Delegate this approved async UI SOW to GLM5.2 and finish it.",
           "context": "The current agent catalog exposes a GLM5.2 custom role and the delegate reports implementation complete.",
-          "expected_behavior": "Spawn the catalog-resolved GLM5.2 role, then require a multi-step runtime scenario, evidence against the SOW lock, and a gap-finding pass before closeout.",
-          "must_not": "Treat delegate completion, syntax checks, or one generic local check as task completion."
+          "expected_behavior": "Spawn the catalog-resolved GLM5.2 role with fork_turns none, then require a multi-step runtime scenario, evidence against the SOW lock, and a gap-finding pass before closeout.",
+          "must_not": "Treat delegate completion, syntax checks, one generic local check, or inherited parent turns as task completion evidence."
         },
         {
           "kind": "negative",
@@ -129,8 +129,8 @@
           "kind": "negative",
           "request": "Delegate this approved SOW to native GLM5.2.",
           "context": "The current native agent catalog exposes the registered GLM5.2 role.",
-          "expected_behavior": "Use the native `spawn_agent` lifecycle and keep the coordinator's independent review gates.",
-          "must_not": "Create an external CLI session or treat a native child as a non-native agent."
+          "expected_behavior": "Use the native `spawn_agent` lifecycle with fork_turns none and keep the coordinator's independent review gates.",
+          "must_not": "Create an external CLI session, pass fork_turns all, or treat a native child as a non-native agent."
         },
         {
           "kind": "boundary",
