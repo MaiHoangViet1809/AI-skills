@@ -47,6 +47,10 @@ no parent history, and an answer-only output contract. The direct runs did not
 inject `task-escalation-flow`; they establish the baseline, not the complete
 skill A/B result.
 
+The model IDs below are historical evidence for those exact runs, not routing
+targets. For a new escalation or benchmark run, resolve the currently available
+model ID from the active catalog and select by family and reasoning effort.
+
 | Executor | Reasoning | Observed output | Result |
 | --- | --- | --- | --- |
 | `gpt-5.6-luna` | `max` | `No` | **Fail** |

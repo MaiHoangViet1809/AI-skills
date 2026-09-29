@@ -1,6 +1,6 @@
 ---
 name: task-escalation-flow
-description: Use when a lower-capability executor such as OpenAI Luna, a GLM-family model at high reasoning, or Claude Sonnet/Haiku is genuinely stuck after bounded attempts and needs a stronger read-only advisor; escalate first to gpt-5.6-sol at medium reasoning, then gpt-6-astra at low reasoning, with isolated context and evidence-backed handoff.
+description: Use when a lower-capability executor such as OpenAI Luna, a GLM-family model at high reasoning, or Claude Sonnet/Haiku is genuinely stuck after bounded attempts and needs a stronger read-only advisor; escalate first to the currently available Sol model at medium reasoning, then the currently available Astra model at low reasoning, with isolated context and evidence-backed handoff.
 ---
 
 # Task Escalation Flow
@@ -16,8 +16,8 @@ permission to bypass SOW, approval, verification, or ownership rules.
 
 Apply the same escalation gate when the current executor is:
 
-- OpenAI Luna, such as the current catalog's `gpt-5.6-luna` or its resolved
-  equivalent.
+- OpenAI Luna at its maximum supported reasoning effort, using the currently
+  available model ID from the active catalog.
 - A GLM-family model running at high reasoning, such as a currently registered
   GLM role.
 - Claude Sonnet or Haiku through a documented native or external transport.
@@ -67,15 +67,18 @@ not manufacture retry evidence.
 
 Use one fresh advisor pass at each tier, in order:
 
-1. **Tier 1 — Sol:** resolve the currently available Sol role as
-   `gpt-5.6-sol` with reasoning effort `medium`.
+1. **Tier 1 — Sol:** inspect the active native model catalog, select a currently
+   available Sol model ID, and use reasoning effort `medium`. Do not pin or
+   assume a release/version in this skill.
 2. **Tier 2 — Astra:** if Sol cannot produce a safe, evidence-backed next step
-   or the uncertainty remains, resolve Astra as `gpt-6-astra` with reasoning
-   effort `low` (light).
+   or uncertainty remains, inspect the active catalog and select a currently
+   available Astra model ID with reasoning effort `low`.
 
-Do not silently substitute another model, skip a requested available tier, or
-loop back to a lower tier. If a requested model is unavailable, report that
-fact and stop or ask the user to choose an explicit alternative.
+Resolve model IDs from the active catalog each time; do not guess or hardcode a
+release/version. Do not silently substitute another model family or transport,
+skip an available tier, or loop back to a lower tier. If the required family or
+reasoning effort is unavailable, report that fact and stop or ask the user to
+choose an explicit alternative.
 
 The advisor is read-only by default. It diagnoses, proposes the next bounded
 step, and defines verification; it does not edit product code, tests, scripts,

@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "catalog-resolved-advisor-models-001",
+      "target_skill": "task-escalation-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A pinned advisor model version is unavailable even though the active catalog exposes the Sol and Astra families.",
+        "actual_behavior": "The escalation stops at an outdated model ID instead of resolving the requested advisor family from the current catalog.",
+        "expected_behavior": "Select a currently available Sol model ID at medium reasoning, then a currently available Astra model ID at low reasoning only if Sol is insufficient; do not pin a release/version.",
+        "invariant": "Route by advisor family and reasoning effort, resolve model IDs from the active catalog, and stop rather than silently substitute a family when the requested tier is unavailable.",
+        "evidence_ref": "sanitized:user-feedback-catalog-resolved-escalation-2026-09-29"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "The active catalog lists a current Sol model and a current Astra model; escalate after the retry gate.",
+          "context": "Both model IDs and their supported reasoning efforts are discoverable in the active catalog.",
+          "expected_behavior": "Use the currently listed Sol model at medium reasoning first, and resolve Astra from the catalog at low reasoning only if needed.",
+          "must_not": "Require a hardcoded release ID or choose a model ID not present in the active catalog."
+        },
+        {
+          "kind": "negative",
+          "request": "The active catalog has no Sol model supporting medium reasoning, but it has an Astra model.",
+          "context": "The escalation order requires Sol before Astra.",
+          "expected_behavior": "Report the unavailable Sol tier and stop or ask the user for an explicit alternative.",
+          "must_not": "Skip Sol and silently dispatch Astra or another model family."
+        },
+        {
+          "kind": "boundary",
+          "request": "The active catalog lists multiple Sol versions, but only some support medium reasoning.",
+          "context": "The family and requested effort are clear; release IDs may change over time.",
+          "expected_behavior": "Choose a currently available Sol model that supports medium reasoning, without hardcoding a release/version.",
+          "must_not": "Guess an unsupported model ID or treat a historical benchmark ID as the current routing target."
+        }
+      ]
+    },
+    {
       "id": "bounded-model-escalation-ladder-001",
       "target_skill": "task-escalation-flow",
       "cause_class": "decision_procedure",
