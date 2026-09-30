@@ -350,6 +350,41 @@
           "must_not": "Assume that current eligibility automatically overrides historical visibility or silently preserve it."
         }
       ]
+    },
+    {
+      "id": "glm53-max-independent-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review would materially benefit from an independent bounded pass while model selection is open.",
+        "actual_behavior": "The review either skips a stronger independent pass, selects a GLM-5.3 variant without exact identity evidence, or treats delegated output as authoritative.",
+        "expected_behavior": "Use exact greennode/glm-5.3 with max reasoning as the first-choice reviewer when the trigger is warranted; preserve explicit choices, context isolation, coordinator ownership, and unavailable reporting.",
+        "invariant": "Independent review is bounded, exact-model evidenced, context-isolated, and advisory; unavailable targets never become silent alternate-model execution.",
+        "evidence_ref": "sanitized:user-feedback-glm53-review-priority-2026-10-01"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Independently review this behavior-bearing SOW without naming a reviewer model.",
+          "context": "The current catalog exposes exact greennode/glm-5.3 with max reasoning and a clean native transport.",
+          "expected_behavior": "Select GLM-5.3-max first, use fork_turns none, and report exact model identity, reasoning effort, transport, availability evidence, lifecycle, isolation, and pass result before coordinator synthesis.",
+          "must_not": "Treat the delegated review as implementation authority or select a variant based only on its display name."
+        },
+        {
+          "kind": "negative",
+          "request": "Review this plan using the explicitly selected external reviewer, or summarize the wording only.",
+          "context": "The user explicitly chose a compatible documented transport for the reviewer; the wording-only branch is routine and non-issue-shaped.",
+          "expected_behavior": "Honor the explicit reviewer choice and keep the routine wording summary coordinator-only without inventing an independent pass.",
+          "must_not": "Override the explicit transport with GLM-5.3-max or require a delegate for a routine summary."
+        },
+        {
+          "kind": "boundary",
+          "request": "Run an optional independent review without naming a model when exact GLM-5.3-max is unavailable.",
+          "context": "Current catalog evidence marks the exact target unavailable; a non-native candidate would restore an old task session and the review is advisory.",
+          "expected_behavior": "Record unavailable, continue coordinator-only, and discard any unisolated delegate output; do not silently choose another model.",
+          "must_not": "Reuse historical context, report a clean review from an unisolated delegate, or convert advisory findings into execution."
+        }
+      ]
     }
   ]
 }

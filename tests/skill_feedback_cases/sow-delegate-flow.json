@@ -140,6 +140,41 @@
           "must_not": "Silently attach an older task conversation or reuse a session whose task identity cannot be proved."
         }
       ]
+    },
+    {
+      "id": "glm53-max-first-choice-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Model selection is open for an independent review or high-risk contract check.",
+        "actual_behavior": "The delegation flow treats GLM-5.3 variants as interchangeable or selects the first available model without recording exact identity and isolation.",
+        "expected_behavior": "When the bounded trigger is warranted and the exact target is available, select greennode/glm-5.3 with max reasoning first; preserve explicit overrides, fresh context, and the unavailable-target branch.",
+        "invariant": "Open model selection for a warranted independent pass deterministically chooses exact GLM-5.3-max when available and never hides unavailable or isolation failures.",
+        "evidence_ref": "sanitized:user-feedback-glm53-first-choice-2026-10-01"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate an independent review of this approved SOW without naming a model.",
+          "context": "The current catalog exposes exact greennode/glm-5.3 with max reasoning; native transport is available and the review is behavior-bearing.",
+          "expected_behavior": "Select the exact target first, start the native child with fork_turns none, and return model, transport, availability, lifecycle, and isolation evidence.",
+          "must_not": "Choose GLM-5.3 Flash, GLM5.2, or pass parent turns into the child."
+        },
+        {
+          "kind": "negative",
+          "request": "Delegate this review to the explicitly selected native GLM5.2 role, or just check the local status.",
+          "context": "The user names GLM5.2 for the delegation branch; the status branch is routine and does not need an independent pass.",
+          "expected_behavior": "Honor the explicit GLM5.2 choice and keep the routine status check coordinator-only.",
+          "must_not": "Override the explicit target with GLM-5.3-max or spawn a delegate for routine status."
+        },
+        {
+          "kind": "boundary",
+          "request": "Run an optional independent review without naming a model, but exact GLM-5.3-max is unavailable; alternatively delegate implementation to that unavailable target.",
+          "context": "Current catalog or provider evidence says the exact target is unavailable; a non-native fallback has an old session; implementation scope requires an approved SOW.",
+          "expected_behavior": "Record unavailable; continue the optional review coordinator-only; stop and ask for explicit delegation; never reuse the old session or silently select an alternate.",
+          "must_not": "Fallback to GLM5.2 or Flash, reuse old task history, or treat unavailability as success."
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 ---
 name: sow-delegate-flow
-description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, especially GLM5.2 when registered natively. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
+description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, especially GLM5.2 when registered natively or GLM-5.3-max as the first-choice independent reviewer when available. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
 ---
 
 # Sow Delegate Flow
@@ -51,6 +51,33 @@ mentioning another model.
 - Delegating an implementation requires an approved SOW. A delegate may inspect
   or draft a plan/SOW before approval, but must not modify product code, tests,
   scripts, config, or runtime contracts in that mode.
+
+## GLM-5.3-max First-Choice Rule
+
+Apply this rule only when an independent pass is warranted: an explicit
+independent-review request, a behavior-bearing or high-risk contract review, or
+ambiguity or blast radius that makes a second bounded pass materially useful.
+Do not spawn an independent delegate for a simple status, editorial
+clarification, or routine local check.
+
+- An explicit user-selected model or transport always wins. If the selected
+  model and transport are incompatible, or multiple exact transports remain
+  possible without a user choice, stop and ask.
+- When model selection is open and the trigger above is warranted, inspect the
+  current native catalog or documented provider transport. The exact
+  first-choice target is `greennode/glm-5.3` with `reasoning_effort=max`.
+  When it is available, the coordinator **MUST select it before any alternate
+  model**.
+- `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
+  names, and other providers are not exact matches. Never infer availability
+  from a display label or an earlier task.
+- If the exact target is unavailable, explicit delegation stops and asks. An
+  optional independent review may record the target as `unavailable` and
+  continue coordinator-only; it must not silently select another model.
+- For native GLM-5.3, use the native lifecycle with `fork_turns: "none"`. For
+  a non-native transport, initialize a brand-new provider-owned session with
+  no prior task history. If either isolation guarantee cannot be proven,
+  discard the delegate result and restart fresh or stop.
 
 ## Context Isolation Gate
 
@@ -133,6 +160,9 @@ mentioning another model.
      exactly when requested
    - external/custom: select an available documented CLI, process, or provider
      transport without silently substituting another one
+   - selection open plus an independent pass warranted: apply the
+     GLM-5.3-max First-Choice Rule above; otherwise keep execution
+     coordinator-only
 4. Establish the session before sending the prompt:
    - every delegate: start with `fork_turns: "none"` and a self-contained prompt
    - native: use the native lifecycle; do not create an external session
@@ -178,9 +208,11 @@ Implementation-delegate prompts must also include:
 - explicit out-of-scope paths or behavior
 - required verification and evidence to return
 
-Require the delegate to return: transport used, safe session lifecycle state,
-changed files, verification performed, remaining risks, and any decision that
-needs coordinator or user approval. Do not request raw historical transcripts.
+Require the delegate to return: selected model id, reasoning effort, transport
+used, current availability evidence, safe session lifecycle state, isolation
+status, whether an independent pass ran, changed files, verification
+performed, remaining risks, and any decision that needs coordinator or user
+approval. Do not request raw historical transcripts.
 
 ## Validation Matrix
 
@@ -196,6 +228,10 @@ replace the `task-execution-flow` hard gates:
   the task-owned process or session
 - `native-custom`: verify the child was started with `fork_turns: "none"` and
   did not rely on or reveal unrelated parent conversation context
+- `independent-review`: verify the exact model id, reasoning effort, transport,
+  availability evidence, lifecycle, isolation status, and independent-pass
+  result; if the exact GLM-5.3-max target was unavailable, verify that no
+  alternate model was selected silently
 
 Do not close delegated implementation when any of these are missing:
 
@@ -215,6 +251,9 @@ If required verification is unavailable, stop at
 - `uncertainty`: answer once; if the task is still ambiguous, stop and escalate
 - `unavailable requested model`: report the model unavailability; do not silently
   substitute another model
+- `unavailable GLM-5.3-max first-choice target`: stop explicit delegation and
+  ask; for optional independent review, record `unavailable` and continue
+  coordinator-only without selecting an alternate model
 - `unavailable requested transport or fresh-session guarantee`: report it and do
   not reuse an old session or historical task context
 - `scope drift`: interrupt the sub-agent, preserve valid scoped work, and repair

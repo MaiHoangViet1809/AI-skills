@@ -1,6 +1,6 @@
 ---
 name: task-review-investigate-compare
-description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes; or compare approaches. Default concrete, low-ambiguity findings back into a known existing plan or SOW unless the user explicitly requests discussion only; route material contract changes separately.
+description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes; or compare approaches. Default concrete, low-ambiguity findings back into a known existing plan or SOW unless the user explicitly requests discussion only; route material contract changes separately. When an independent pass is warranted and model selection is open, use available GLM-5.3-max as the first-choice reviewer.
 ---
 
 # Task Review Investigate Compare
@@ -64,6 +64,35 @@ known existing plan/SOW?
 - Do not choose `Brainstorm` merely because the user says `review`.
 - Treat `review again`, `double-check`, and `final review` as continuation of `Review And Writeback` when the same artifact has already been edited in the current workstream.
 - Override that default only when the user explicitly requests discussion-only, no-writeback, or no file edits.
+
+## Independent Review Pass
+
+This skill remains read-only and advisory even when it asks for an independent
+reviewer. A delegated reviewer supplies evidence; the coordinator owns the
+review conclusion, writeback, verification, and closeout.
+
+Use an independent pass only for an explicit independent-review request, a
+behavior-bearing or high-risk contract review, or ambiguity or blast radius
+that makes a second bounded pass materially useful. Keep simple status,
+editorial, and routine local checks coordinator-only.
+
+- An explicit user-selected model or transport always wins. If the selected
+  model and transport are incompatible, or multiple exact transports remain
+  possible without a user choice, stop and ask.
+- When model selection is open and the trigger above is warranted, inspect the
+  current native catalog or documented provider transport. The exact
+  first-choice target is `greennode/glm-5.3` with `reasoning_effort=max`; when
+  available, the coordinator **MUST select it before any alternate model**.
+- `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
+  names, and other providers are not exact matches. Do not infer availability
+  from a display label or an earlier task.
+- If the exact target is unavailable, report `unavailable`. For an optional
+  independent pass, continue coordinator-only without silently selecting an
+  alternate model; an explicit delegation request must stop and ask.
+- Native use requires `fork_turns: "none"`; a non-native transport requires a
+  brand-new provider-owned session with no prior task history. If isolation is
+  not proven, discard the delegate findings and restart fresh or continue
+  without the independent pass.
 
 ### 1. Brainstorm
 
@@ -330,6 +359,22 @@ If the user asks for a plain `summary`, `summarize`, or status recap and does no
 - `write back to existing plan/SOW`
 - `route as scope change`
 - `ready for HITL handoff`
+
+### Independent Review Evidence
+
+When an independent pass is attempted, considered, or unavailable, record:
+
+- selected model id and reasoning effort
+- exact model identity match or mismatch
+- transport and current availability evidence
+- lifecycle and isolation status
+- whether the independent pass ran, was unavailable, or was skipped by the
+  bounded trigger
+- how the coordinator used or discarded the delegated findings
+
+If the trigger is not warranted, state `coordinator-only` rather than inventing
+an unavailable delegate result. Never present an unisolated delegate output as
+review evidence.
 
 ## Writeback Decision Rule
 
