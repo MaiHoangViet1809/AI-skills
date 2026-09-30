@@ -1,6 +1,6 @@
 ---
 name: sow-delegate-flow
-description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, especially GLM5.2 when registered natively or GLM-5.3-max as the first-choice independent reviewer when available. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
+description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, or when approved task execution enters its internal automatic-delegation mode. Prefer GLM5.2 when explicitly requested and GLM-5.3-max when the first-choice rule applies. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
 ---
 
 # Sow Delegate Flow
@@ -33,9 +33,12 @@ triggers:
 - `delegate plan ... cho GLM5.2`
 - `delegate task ... cho custom agent via CLI`
 - an equivalent request naming a native or external agent
+- `task-execution-flow` enters `automatic-execution-delegation` after its
+  approved-scope suitability gate
 
-Do not activate for ordinary single-agent execution or a request merely
-mentioning another model.
+Do not activate for ordinary single-agent execution, a request merely
+mentioning another model, or an automatic delegation mode that was not entered
+by `task-execution-flow` after its suitability gate.
 
 - Resolve the requested target against the current native agent catalog first.
   A custom-named role is native when the catalog exposes it; use the native
@@ -46,24 +49,30 @@ mentioning another model.
 - If the target is not native and the user selects a custom/external agent, use
   an available documented provider transport such as a CLI or process. Do not
   silently substitute another agent or transport.
-- If the requested target or transport is unavailable, report it and stop; do
-  not reuse an old session as a fallback.
+- If the requested target or transport is unavailable, report it and stop for
+  explicit user delegation; do not reuse an old session as a fallback. When
+  called through `automatic-execution-delegation`, return the failed
+  availability or isolation check to `task-execution-flow`, which may continue
+  coordinator-only without selecting another model.
 - Delegating an implementation requires an approved SOW. A delegate may inspect
   or draft a plan/SOW before approval, but must not modify product code, tests,
   scripts, config, or runtime contracts in that mode.
 
 ## GLM-5.3-max First-Choice Rule
 
-Apply this rule only when an independent pass is warranted: an explicit
-independent-review request, a behavior-bearing or high-risk contract review, or
-ambiguity or blast radius that makes a second bounded pass materially useful.
+Apply this rule only when an independent pass is warranted or when
+`task-execution-flow` has entered the approved
+`automatic-execution-delegation` mode for a bounded implementation slice. An
+independent pass is warranted for an explicit independent-review request, a
+behavior-bearing or high-risk contract review, or ambiguity or blast radius
+that makes a second bounded pass materially useful.
 Do not spawn an independent delegate for a simple status, editorial
 clarification, or routine local check.
 
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
   possible without a user choice, stop and ask.
-- When model selection is open and the trigger above is warranted, inspect the
+- When model selection is open and one of the triggers above is active, inspect the
   current native catalog or documented provider transport. The exact
   first-choice target is `greennode/glm-5.3` with `reasoning_effort=max`.
   When it is available, the coordinator **MUST select it before any alternate
@@ -72,8 +81,10 @@ clarification, or routine local check.
   names, and other providers are not exact matches. Never infer availability
   from a display label or an earlier task.
 - If the exact target is unavailable, explicit delegation stops and asks. An
-  optional independent review may record the target as `unavailable` and
-  continue coordinator-only; it must not silently select another model.
+  optional independent review or approved automatic execution may record the
+  target as `unavailable` and return coordinator-only control; only the
+  automatic mode may continue locally, and it must not silently select another
+  model.
 - For native GLM-5.3, use the native lifecycle with `fork_turns: "none"`. For
   a non-native transport, initialize a brand-new provider-owned session with
   no prior task history. If either isolation guarantee cannot be proven,
@@ -126,6 +137,9 @@ clarification, or routine local check.
 - Classify the model and transport before starting. Enforce the context
   isolation gate and, for non-native agents, the fresh-session boundary before
   sending any delegated prompt.
+- Accept `automatic-execution-delegation` only when it is explicitly entered by
+  `task-execution-flow` after an approved-SOW suitability gate. Do not infer
+  that mode from ordinary local execution.
 - For implementation, delegate with the approved SOW path, short intent,
   explicit write scope, and verification requirements. For planning/read-only,
   provide the target question or artifact plus explicit non-implementation
@@ -160,9 +174,9 @@ clarification, or routine local check.
      exactly when requested
    - external/custom: select an available documented CLI, process, or provider
      transport without silently substituting another one
-   - selection open plus an independent pass warranted: apply the
-     GLM-5.3-max First-Choice Rule above; otherwise keep execution
-     coordinator-only
+   - selection open plus an independent pass warranted, or an approved
+     `automatic-execution-delegation` mode: apply the GLM-5.3-max First-Choice
+     Rule above; otherwise keep execution coordinator-only
 4. Establish the session before sending the prompt:
    - every delegate: start with `fork_turns: "none"` and a self-contained prompt
    - native: use the native lifecycle; do not create an external session
@@ -207,6 +221,9 @@ Implementation-delegate prompts must also include:
 - exact write scope
 - explicit out-of-scope paths or behavior
 - required verification and evidence to return
+
+For `automatic-execution-delegation`, include the suitability decision and
+reason supplied by `task-execution-flow`; do not broaden the approved slice.
 
 Require the delegate to return: selected model id, reasoning effort, transport
 used, current availability evidence, safe session lifecycle state, isolation

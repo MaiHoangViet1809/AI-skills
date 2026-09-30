@@ -1,6 +1,6 @@
 ---
 name: task-execution-flow
-description: Use when task scope is already approved or otherwise clear and you need the repo's execution discipline for carrying work from context gathering through implementation, repair loops, implementation verification, gap-finding, and closeout.
+description: Use when task scope is already approved or otherwise clear and you need the repo's execution discipline for carrying work from context gathering through implementation, bounded delegation preference, repair loops, implementation verification, gap-finding, and closeout.
 ---
 
 # Task Execution Flow
@@ -38,6 +38,12 @@ If branch or scope is still unclear, use `task-router-flow` first.
 - Build context from the codebase or problem first. Do not lead with assumptions.
 - Reuse the nearest fitting project implementation when one is named or cheaply
   discoverable; do not rebuild its responsibilities inside task-specific code.
+- After approved scope is confirmed and before each implementation slice, run
+  the delegation-suitability gate below. Prefer one bounded delegated slice
+  when it is safe and verifiable; otherwise execute locally and record why.
+- Use `sow-delegate-flow`'s internal
+  `automatic-execution-delegation` mode for that preference. Explicit local-only
+  instructions and explicit model or transport choices always win.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
 - Apply the smallest meaningful patch that satisfies the SOW.
 - Keep behavior locks, invariants, and only authorized adjacent consistency in
@@ -91,10 +97,15 @@ Phase 1: context and experiment
 -> inspect adjacent scope only to confirm impact or the same proven defect;
    inspection does not expand authorized implementation scope
 -> break the work into the smallest meaningful mini-tasks
+-> run the delegation-suitability gate for the next slice:
+   -> explicit local-only, unsafe, unbounded, or unverifiable -> execute locally
+   -> suitable -> enter sow-delegate-flow's internal automatic mode
+   -> record the decision, reason, model/transport evidence, and isolation plan
 
 Phase 2: implement
 -> pick the next smallest meaningful mini-task
--> apply the smallest patch that satisfies the SOW
+-> if delegation was selected, hand off one bounded non-overlapping slice;
+   otherwise apply the smallest local patch that satisfies the SOW
 -> keep invariants, behavior locks, and cleanup paths in scope
 -> use micro-checks during implementation when they reduce wasted work
 
@@ -105,6 +116,8 @@ Phase 3: implementation verification
 -> exercise the intended public entrypoint; when genericity is required, verify
    that the first product identity is not hardcoded behind a generic name
 -> inspect frontend and backend evidence when the task crosses that boundary
+-> when a slice was delegated, treat delegate completion as handoff evidence;
+   verify the changed behavior and isolation locally before accepting it
 -> record verification evidence
 -> if verification fails or remains incomplete:
    -> task state = implemented but not fully verified
@@ -158,6 +171,37 @@ missing. For recoverable technical failures already within scope, escalate when
 the same failure repeats and no meaningful progress is being made.
 ```
 
+## Delegation Suitability Gate
+
+Run this gate after the approved SOW and exact write scope are confirmed, and
+before the next implementation slice. It is a preference, not a hard gate.
+
+- Keep the slice coordinator-owned when it is unapproved, unbounded, a broad
+  architecture decision, secret-bearing, dependent on interactive operator
+  state, dependent on unavailable local state, or not locally verifiable.
+- Prefer one delegated slice when it is non-trivial, independently bounded,
+  context-isolatable, and has clear verification evidence. Do not run
+  overlapping delegated write scopes.
+- An explicit user request for local execution wins. An explicit user-selected
+  model or transport wins over the automatic preference.
+- For a suitable slice with open model selection, invoke
+  `sow-delegate-flow` using `automatic-execution-delegation`. That internal mode
+  uses exact `greennode/glm-5.3` with `reasoning_effort=max` as first choice
+  when current catalog or documented transport evidence confirms availability.
+  Variants, stale aliases, and guessed availability do not qualify.
+- If automatic delegation lacks an exact model, compatible transport,
+  fresh-session guarantee, or isolation evidence, record the failed check and
+  continue coordinator-only. Do not silently select another model.
+- If the user explicitly requested delegation and the delegate contract cannot
+  be satisfied, follow `sow-delegate-flow` stop/ask behavior rather than local
+  fallback.
+- `sow-delegate-flow` owns prompt boundaries, native `fork_turns: "none"`,
+  fresh non-native sessions, cleanup, and delegate transport details. This
+  skill owns only the suitability decision and the execution handoff point.
+- Record: `delegation_decision` (`delegated` or `local`), reason, selected model
+  and transport when delegated, availability evidence, lifecycle/isolation
+  status, and the verification result.
+
 ## Hard Gates
 
 Do not mark the task complete if any of these are missing:
@@ -166,6 +210,8 @@ Do not mark the task complete if any of these are missing:
 - only syntax or compile checks were run for a runtime behavior change
 - end-to-end or runtime-path evidence was applicable but not inspected
 - a post-implementation gap-finding pass was not done
+- a delegated slice was accepted without coordinator-owned verification and
+  isolation evidence
 
 If verification cannot be completed:
 
@@ -191,6 +237,8 @@ Implementation verification must include, when applicable:
 - observed backend evidence
 - whether the result matched the SOW behavior lock
 - whether any gap or residual risk remained
+- delegation decision and reason; when delegated, selected model, transport,
+  availability evidence, lifecycle/isolation status, and handoff result
 
 ## Required Gap Checklist
 
@@ -320,6 +368,8 @@ Only close out when all of these are true:
 - gap-finding found no blocking gap; remaining risks meet the acceptance rule below
 - final quality check passed
 - task-owned changes still match approved scope; unrelated work remains intact
+- delegation decision evidence is recorded for every implementation slice that
+  entered the suitability gate
 - any SOW or plan completed by this task has been moved into the repo's `finished/` planning directory
 - the active extension and top-level SOW have their correct completion
   timestamps before a finished move
@@ -368,4 +418,9 @@ Final response must include:
 - Choose any available inspection method that provides sufficient codebase
   evidence; CodeGraph and a separate search-policy skill are optional, never
   required setup or invocation.
-- Use `sow-delegate-flow` when the user explicitly delegates a task, SOW, or plan to a native or custom external agent.
+- Use `sow-delegate-flow` when the user explicitly delegates a task, SOW, or
+  plan to a native or custom external agent, or when this skill's approved
+  suitability gate selects the internal `automatic-execution-delegation` mode.
+  The delegate skill remains authoritative for model, transport, isolation,
+  prompt, and cleanup behavior; this skill remains authoritative for whether
+  the execution slice should be delegated.

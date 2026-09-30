@@ -1,4 +1,4 @@
 interface:
   display_name: "TaskExecutionFlow"
-  short_description: "Execute scoped work with repair loops, gap-finding, and disciplined closeout"
-  default_prompt: "Use TaskExecutionFlow to execute an already-scoped task through mini-task loops, verification, double-check gap finding, and final closeout."
+  short_description: "Execute scoped work with bounded delegation preference, verification, and disciplined closeout"
+  default_prompt: "Use TaskExecutionFlow to execute an already-scoped task through a bounded delegation suitability check, mini-task loops, verification, double-check gap finding, and final closeout; keep unsuitable work coordinator-owned."
