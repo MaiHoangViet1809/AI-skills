@@ -157,9 +157,16 @@ clarification, or routine local check.
   repair feedback and continue.
 - Take over locally if the sub-agent fails, drifts, cannot use required tools,
   or exhausts the two repair rounds.
-- When a native child reaches a terminal, idle, or errored state, call
-  `interrupt_agent`; for an external delegate, terminate only the
-  task-owned process or provider session before closeout.
+- When a native child reaches a terminal or errored state, read its final
+  status/output, then call `interrupt_agent`; for an external delegate,
+  terminate only the task-owned process or provider session after that read.
+- A review or independent-review delegate that is still `running`, or is
+  `idle` without a readable final result, must not be interrupted immediately.
+  Wait in bounded increments for at most ten minutes total. If it remains
+  unresolved after that bound, report the unchanged state and make an explicit
+  cut/keep decision; a cut review is incomplete and must not be reported as
+  completed. An idle review with a confirmed final result may be cleaned up
+  without the wait.
 
 ## Flow
 
@@ -185,8 +192,10 @@ clarification, or routine local check.
 5. Start the delegate with a bounded prompt and clear ownership. Use
    `spawn_agent` for native children; use the selected documented transport for
    external agents and record only a safe task-owned handle.
-6. Wait only until a real decision point: completion, question, failure, or
-   repair need.
+6. Wait until a real decision point: completion, question, failure, or repair
+   need. For a review or independent-review delegate that is still running or
+   idle without a final result, use bounded waits up to ten minutes before any
+   cut decision; do not interrupt it immediately.
 7. On a question, provide the minimum approved clarification with
    `followup_task` for native work or the equivalent same-session transport for
    external work; do not broaden scope or attach old task history.
@@ -194,8 +203,9 @@ clarification, or routine local check.
    proportional to risk, record evidence, and complete a gap-finding pass.
 9. If validation fails, send targeted repair feedback. Allow at most two repair
    rounds before local completion or escalation.
-10. Clean up the delegate: interrupt the native child, or terminate only the
-    task-owned external process/session.
+10. After the delegate reaches a terminal/errored state, or after an explicit
+    post-timeout cut decision for an unresolved review, clean it up: interrupt
+    the native child, or terminate only the task-owned external process/session.
 11. If validation passes, close the SOW and move it to the repo's `finished/`
     planning directory when it is complete.
 12. If the owning plan has no active SOW left and the plan itself is complete,
@@ -263,6 +273,9 @@ If required verification is unavailable, stop at
 ## Termination Policy
 
 - `quality`: allow up to 2 repair rounds, then finish locally or stop
+- `review-wait`: never cut a running or unresolved-idle review delegate
+  immediately; wait up to 10 minutes, then report its unchanged state and
+  explicitly decide whether to cut. A cut review remains incomplete/unverified.
 - `infra`: if scope is already clear, finish locally instead of waiting on
   sub-agent recovery
 - `uncertainty`: answer once; if the task is still ambiguous, stop and escalate

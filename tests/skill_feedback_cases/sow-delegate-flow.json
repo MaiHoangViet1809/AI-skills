@@ -210,6 +210,41 @@
           "must_not": "Guess a variant match, resume historical context, or silently turn explicit delegation into local execution."
         }
       ]
+    },
+    {
+      "id": "review-delegate-wait-grace-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review or independent-review sub-agent is still running when the coordinator is ready to clean up delegation.",
+        "actual_behavior": "The lifecycle can interrupt an idle or active review delegate immediately without a bounded wait for its findings.",
+        "expected_behavior": "Wait up to ten minutes for a running or unresolved-idle review delegate, then make an explicit cut decision; terminal results may be cleaned up immediately.",
+        "invariant": "Review evidence is protected by a bounded ten-minute grace period, while completed delegates and implementation delegates retain their existing cleanup behavior.",
+        "evidence_ref": "sanitized:user-feedback-review-sub-agent-wait-2026-10-03"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Run an independent review and keep the reviewer alive while it is still working.",
+          "context": "The native review sub-agent is running and has not returned findings or a question.",
+          "expected_behavior": "Wait in bounded increments for at most ten minutes and do not call interrupt_agent immediately.",
+          "must_not": "Cut the running reviewer at the end of the coordinator's current turn or report missing findings as complete."
+        },
+        {
+          "kind": "negative",
+          "request": "Clean up a review sub-agent that has returned a terminal result.",
+          "context": "The final status and review output have already been read.",
+          "expected_behavior": "Clean up the task-owned child without an artificial ten-minute delay.",
+          "must_not": "Wait ten minutes after a confirmed terminal result or interrupt an unrelated task."
+        },
+        {
+          "kind": "boundary",
+          "request": "The review sub-agent is still running after ten minutes.",
+          "context": "No final result, question, or failure is available; the coordinator must choose whether to keep waiting or cut.",
+          "expected_behavior": "Report the unchanged state, make an explicit cut/keep decision, and mark a cut review incomplete/unverified.",
+          "must_not": "Silently cut the reviewer, claim the review completed, or wait without a decision boundary."
+        }
+      ]
     }
   ]
 }
