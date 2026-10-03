@@ -30,3 +30,16 @@ installs every skill listed in `registry.json`; use this table only for
 reference or explicit subset installs.
 
 Users with a local clone can use scripts under `scripts/skills/`.
+
+## Shared Planning Contracts
+
+`task-router-flow` owns the packaged defaults `references/plan.md` and
+`references/scope-of-work.md`; target-project declared contracts take precedence.
+Plan is optional: explicit user request or excessive-scope risk only. Existing
+SOW routing is unchanged. The review, execution, delegate, POC, and progress
+skills use these defaults only for applicable plan-backed work.
+
+Subset installs may omit the owner. Resolve it via harness-supplied skill
+location/catalog or use a supplied authoritative contract, never assumed sibling
+roots. If unavailable, dependent drafting/review/acceptance remains unverified;
+unrelated work is not blocked. No template duplication or auto-installation.

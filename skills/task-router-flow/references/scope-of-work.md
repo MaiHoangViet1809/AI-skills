@@ -8,6 +8,11 @@ For code-changing work, do not start implementation until the active SOW is appr
 
 For docs, plan, or SOW-only edits, do not create a new SOW unless the request changes active implementation scope.
 
+An optional parent plan follows [plan.md](plan.md). It owns aggregate outcomes;
+each SOW owns exact implementation coverage and links its parent `G#` only when
+that plan exists. Standalone SOWs need no plan or goal IDs. Preserve existing
+router/project SOW requirements, exemptions, and approval gates.
+
 ## Required Template
 
 Use the repository's active SOW template. In this repo, the template is:

@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "plan-poc-boundary-001",
+      "target_skill": "task-poc-verification-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Review a POC owned by a delivery plan.",
+        "actual_behavior": "Prototype-only evidence is reported as full plan acceptance.",
+        "expected_behavior": "Review declared proof boundary and parent goal when present; standalone POCs need no plan.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review the POC evidence against its parent goal.",
+          "context": "The project contract is supplied and the POC declares a limited proof boundary.",
+          "expected_behavior": "Map the POC to G# and assess only the declared scenario and runtime evidence.",
+          "must_not": "Expand POC proof to production delivery."
+        },
+        {
+          "kind": "negative",
+          "request": "Mark the parent plan DONE after this prototype passes.",
+          "context": "Production integration, preservation and ownership evidence have not been collected.",
+          "expected_behavior": "Record prototype proof separately and keep aggregate delivery unverified.",
+          "must_not": "Treat prototype-only evidence as full plan acceptance."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a standalone POC SOW.",
+          "context": "No parent plan exists; local SOW/rules define its contract.",
+          "expected_behavior": "Review declared POC scope without requiring plan or G#.",
+          "must_not": "Force plan creation or installation of shared resources."
+        }
+      ]
+    },
+    {
       "id": "poc-minimum-proof-001",
       "target_skill": "task-poc-verification-flow",
       "cause_class": "decision_procedure",

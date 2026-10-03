@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "plan-delegate-contract-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Delegate an isolated plan-backed slice.",
+        "actual_behavior": "The child receives inherited history or no applicable plan contract.",
+        "expected_behavior": "Resolve project-first contract and supply only bounded slice, goal and gates with clean context.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate one approved child SOW.",
+          "context": "The canonical contract is resolved and dependency gates pass.",
+          "expected_behavior": "Supply accessible applicable contract, G#, exact scope and gates in a self-contained task; coordinator verifies handoff.",
+          "must_not": "Copy the template into the consumer skill or delegate overlapping scope."
+        },
+        {
+          "kind": "negative",
+          "request": "Delegate plan work to a native custom agent.",
+          "context": "Parent conversation includes unrelated requests and reviews.",
+          "expected_behavior": "Use fork_turns none and only task-local inputs; retain coordinator ownership.",
+          "must_not": "Use fork_turns all or attach historical chat."
+        },
+        {
+          "kind": "boundary",
+          "request": "Delegate standalone SOW implementation.",
+          "context": "No parent plan exists; approved exact SOW coverage is available.",
+          "expected_behavior": "Delegate the bounded SOW without requiring plan or G#; preserve isolation and local verification.",
+          "must_not": "Block unrelated execution for missing plan owner or auto-install it."
+        }
+      ]
+    },
+    {
       "id": "native-glm-delegation-001",
       "target_skill": "sow-delegate-flow",
       "cause_class": "decision_procedure",

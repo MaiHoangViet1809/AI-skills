@@ -213,6 +213,14 @@ clarification, or routine local check.
 
 ## Delegate Prompt Contract
 
+For a plan-backed slice, resolve the project's declared contract first;
+otherwise locate `task-router-flow` via the harness's supplied skill
+location/catalog and read `references/plan.md`. Supply the applicable contract
+or its accessible resolved path, parent goal, scope, and dependency gates with
+the bounded task, not inherited chat. Missing contract leaves dependent plan
+drafting/review unverified; do not invent or auto-install it. Standalone SOW
+slices need no plan or `G#`. Preserve coordinator ownership and context isolation.
+
 Every delegated prompt must include:
 
 - one-sentence intent

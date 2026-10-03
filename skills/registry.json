@@ -267,6 +267,10 @@
           "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/agents/openai.yaml"
         },
         {
+          "path": "skills/task-router-flow/references/plan.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/references/plan.md"
+        },
+        {
           "path": "skills/task-router-flow/references/routing-notes.md",
           "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-router-flow/references/routing-notes.md"
         },

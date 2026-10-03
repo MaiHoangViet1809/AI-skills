@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "plan-review-contract-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Review a plan or child SOW before approval.",
+        "actual_behavior": "Review checks document consistency without original goal, scope or ownership.",
+        "expected_behavior": "Inspect original goal -> G# -> SOW -> evidence under project-first contract authority.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review this parent plan and child SOW.",
+          "context": "The project contract is available; baseline evidence and ownership locks are declared.",
+          "expected_behavior": "Verify goal/scope/SOW alignment, preserved behavior, ownership and aggregate acceptance.",
+          "must_not": "Recommend approval solely from consistent document wording."
+        },
+        {
+          "kind": "negative",
+          "request": "Approve this updated scope.",
+          "context": "The change includes material unknowns, proposed scope and an unapproved/TBD SOW.",
+          "expected_behavior": "Separate approved and proposed coverage; resolve material unknowns before recommending affected approval.",
+          "must_not": "Treat plan approval or TBD as SOW approval."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a standalone SOW.",
+          "context": "There is no parent plan and no request or excessive-scope reason for one.",
+          "expected_behavior": "Review the SOW under existing rules without requiring a plan or G#.",
+          "must_not": "Block standalone review for missing plan template."
+        }
+      ]
+    },
+    {
       "id": "effective-planning-writeback-001",
       "target_skill": "task-review-investigate-compare",
       "cause_class": "decision_procedure",

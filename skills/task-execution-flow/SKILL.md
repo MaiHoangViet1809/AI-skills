@@ -18,6 +18,13 @@ It is not for deciding the task branch and not for reporting progress format.
 
 If branch or scope is still unclear, use `task-router-flow` first.
 
+For plan-backed work, use the project's declared contract first; otherwise
+locate `task-router-flow` via the harness's supplied skill location/catalog and
+read `references/plan.md`, or use a supplied authoritative contract. Missing
+contract leaves dependent plan handling unverified; do not invent or
+auto-install it. Standalone tasks need no plan or `G#`; preserve existing SOW
+routing and do not add a plan unless requested or excessive scope risks failure.
+
 ## Core Rules
 
 - Read local repo rules and the active scope contract before editing.
@@ -66,6 +73,9 @@ If branch or scope is still unclear, use `task-router-flow` first.
 ```text
 Phase 0: scope check
 -> confirm the approved SOW covers the exact task
+-> if a parent plan exists, map the SOW to its goal and approved scope; confirm
+   dependency exit gates passed before execution; plan approval or TBD is not
+   SOW approval. Stop on material scope change and route for explicit approval
 -> for caller-visible work, compare the latest explicit consumer contract with
    the SOW; a task-specific surface does not satisfy a generic request merely
    because its internals are generic
@@ -149,6 +159,11 @@ Phase 5: closeout
 -> reuse still-valid verification evidence; rerun only checks invalidated by
    changed code, inputs, dependencies, config, or missing evidence
 -> review scope fit
+-> if a parent plan exists, update SOW Sequence and Acceptance with actual
+   results/gaps after each SOW; before plan closure, require evidence for all
+   outcomes, preservation/ownership locks, and required integration/deployment
+   -> SOW counts, prototype-only proof, or functional pass with ownership
+      violations do not make the plan DONE
 -> review changed files and worktree
 -> confirm no repair loop remains open
 -> if this task makes a SOW or plan complete:

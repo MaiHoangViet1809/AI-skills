@@ -2,6 +2,76 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "plan-project-authority-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A task encounters project-owned contracts or a subset skill install.",
+        "actual_behavior": "The router replaces project rules or silently invents missing defaults.",
+        "expected_behavior": "Project authority wins; missing defaults affect dependent work only.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Draft a requested plan.",
+          "context": "The target project declares its own active plan and SOW templates.",
+          "expected_behavior": "Use the project contracts and planning paths, not AISkills defaults.",
+          "must_not": "Override project authority or require a new SOW merely for plan creation."
+        },
+        {
+          "kind": "negative",
+          "request": "Fix wording in a document.",
+          "context": "Repo guardrails permit docs-only edits; no plan is required.",
+          "expected_behavior": "Use the existing docs-only/no-SOW branch and leave plan-specific gates inactive.",
+          "must_not": "Force SOW or plan creation."
+        },
+        {
+          "kind": "boundary",
+          "request": "Draft a plan from an installed review skill.",
+          "context": "No project contract, supplied contract, or router owner is available.",
+          "expected_behavior": "Identify missing contract and leave dependent drafting unverified; unrelated work remains allowed.",
+          "must_not": "Invent a template, assume sibling roots, or auto-install the owner."
+        }
+      ]
+    },
+    {
+      "id": "plan-routing-optional-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A task needs routing before choosing a plan.",
+        "actual_behavior": "Coordinated or multi-file work automatically gets a plan.",
+        "expected_behavior": "Preserve SOW routing; create a plan only by explicit request or excessive-scope risk.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Create a plan for this bounded task.",
+          "context": "The user explicitly requests a plan; SOW policy is unchanged.",
+          "expected_behavior": "Use the canonical contract and map original goal to G# and acceptance; do not infer implementation approval.",
+          "must_not": "Treat plan approval as SOW approval."
+        },
+        {
+          "kind": "negative",
+          "request": "Implement an ordinary change across multiple files and owners.",
+          "context": "An approved SOW covers the exact task; no excessive-scope risk or plan request exists.",
+          "expected_behavior": "Reuse approved coverage without a new SOW or plan; preserve existing routing.",
+          "must_not": "Create a plan from file count, owners, or dependencies alone."
+        },
+        {
+          "kind": "boundary",
+          "request": "Organize this extremely large change safely.",
+          "context": "Completing the scope in one SOW risks non-completion or mistakes.",
+          "expected_behavior": "Create a compact plan and bounded SOW sequence; keep proposed work separate from approved scope.",
+          "must_not": "Treat TBD SOWs or status markers as permission to implement."
+        }
+      ]
+    },
+    {
       "id": "guardrail-conformance-router-001",
       "target_skill": "task-router-flow",
       "cause_class": "decision_procedure",

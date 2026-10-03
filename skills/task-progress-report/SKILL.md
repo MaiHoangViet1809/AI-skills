@@ -98,6 +98,15 @@ Keep it brief. Do not turn the note section into a changelog.
 
 ## Completion Discipline
 
+For plan-backed reports, use the project's declared contract first; otherwise
+locate `task-router-flow` via the harness's supplied skill location/catalog and
+read `references/plan.md`, or use a supplied authoritative contract. If missing,
+mark dependent plan acceptance unverified; do not invent or auto-install it.
+Report closed-SOW counts separately from aggregate goal/ownership acceptance;
+`overall x/y` is not proof that the plan is DONE. Keep existing table formats
+and add only a brief acceptance/gap note when needed. Standalone SOW reports
+need no plan or `G#`; omit `plan name` when no parent plan exists.
+
 A SOW counts as done for reporting only after evidence shows:
 
 - implementation is finished

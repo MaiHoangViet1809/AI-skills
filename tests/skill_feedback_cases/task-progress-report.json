@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "plan-progress-acceptance-001",
+      "target_skill": "task-progress-report",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Report progress for plan-backed work.",
+        "actual_behavior": "Closed-SOW counts are presented as full outcome acceptance.",
+        "expected_behavior": "Preserve formats and report aggregate evidence/ownership acceptance separately from SOW counts.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Summarize this plan's execution.",
+          "context": "Three SOWs are closed; one aggregate integration outcome remains unverified.",
+          "expected_behavior": "Keep existing progress format and briefly note the actual plan acceptance gap separately from closed-SOW counts.",
+          "must_not": "Infer plan DONE or 100 percent acceptance from overall 3/3 alone."
+        },
+        {
+          "kind": "negative",
+          "request": "Report all goals as done.",
+          "context": "Functional behavior passes but an ownership lock fails.",
+          "expected_behavior": "Report missing acceptance and leave the affected plan incomplete.",
+          "must_not": "Hide ownership failure below an all-done summary."
+        },
+        {
+          "kind": "boundary",
+          "request": "Summarize a standalone SOW.",
+          "context": "There is no parent plan; SOW verification/closeout evidence is available.",
+          "expected_behavior": "Omit plan name and report SOW progress under existing completion discipline.",
+          "must_not": "Invent a parent plan, G# or unrelated acceptance requirements."
+        }
+      ]
+    },
+    {
       "id": "summary-shape-completion-001",
       "target_skill": "task-progress-report",
       "cause_class": "decision_procedure",

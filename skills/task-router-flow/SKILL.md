@@ -12,6 +12,26 @@ or a blocker. Keep the final response separate.
 
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
+## Optional Plan Contract
+
+Preserve existing SOW routing under target-repo guardrails. Create a plan only
+when the user explicitly requests one, or scope is so large that completing it
+reliably in one SOW risks non-completion or mistakes. Multiple files, owners,
+dependencies, or coordinated delivery alone do not require a plan.
+
+Use the project's declared plan contract first; otherwise read the packaged
+[plan.md](references/plan.md). Map original goal -> `G#` -> SOW -> acceptance
+evidence. A plan does not require a new SOW or grant implementation approval.
+Without a plan, skip plan-specific fields and gates; use the existing branch.
+
+This package owns the default plan/SOW definitions. Other skills locate
+`task-router-flow` via the active harness's supplied skill location/catalog,
+not an assumed sibling install root or a machine-specific path. A coordinator
+may supply the resolved contract to an isolated delegate. If no governing
+contract or default resource is available, identify what is missing and leave
+dependent drafting/review unverified; do not invent a template or auto-install.
+Unrelated work and tasks needing no plan contract remain unaffected.
+
 ## Project Guardrail Conformance Audit
 
 Run this audit before selecting a branch or drafting a SOW when the request may

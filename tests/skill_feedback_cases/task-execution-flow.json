@@ -2,6 +2,76 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "plan-closeout-reopen-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Complete or explicitly reopen plan-backed work.",
+        "actual_behavior": "Only SOW files move to finished and reopened plans retain terminal timestamps.",
+        "expected_behavior": "Close with aggregate evidence, move completed plan/SOWs, repair links and preserve prior evidence on explicit reopen.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Close this completed plan and its SOWs.",
+          "context": "All outcomes, preservation/ownership locks and required integration have verified evidence; no owned work remains.",
+          "expected_behavior": "Set actual finish datetimes, move completed plan/SOWs to matching finished folder and repair references.",
+          "must_not": "Leave completed plan active or claim closure from SOW counts alone."
+        },
+        {
+          "kind": "negative",
+          "request": "Close the entire plan.",
+          "context": "One required outcome remains NOT VERIFIED although every SOW implementation is marked complete.",
+          "expected_behavior": "Keep plan open and identify the missing outcome evidence.",
+          "must_not": "Mark DONE or fabricate finish_dttm."
+        },
+        {
+          "kind": "boundary",
+          "request": "Explicitly reopen this finished plan.",
+          "context": "The user authorizes follow-up scope; previous evidence is still valid.",
+          "expected_behavior": "Restore active status/location, clear finish_dttm, preserve earlier evidence and completed extension timestamps; obtain required scope approval.",
+          "must_not": "Erase prior evidence or reuse old approval for widened scope."
+        }
+      ]
+    },
+    {
+      "id": "plan-execution-gates-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Execute a SOW owned by a plan.",
+        "actual_behavior": "Execution ignores dependency gates or marks the whole plan done after a slice.",
+        "expected_behavior": "Check approved goal coverage and dependencies; update actual results without false aggregate closure.",
+        "invariant": "Optional plans preserve existing SOW routing, project authority, and evidence-backed acceptance.",
+        "evidence_ref": "sanitized:SOW_0098-plan-contract-integration"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Execute this approved child SOW.",
+          "context": "Parent plan contract is available and dependency exit gates have passed.",
+          "expected_behavior": "Map the child to G#, execute approved scope, then update SOW Sequence and Acceptance with evidence and gaps.",
+          "must_not": "Treat one slice pass as aggregate plan acceptance."
+        },
+        {
+          "kind": "negative",
+          "request": "Start the next planned SOW.",
+          "context": "Its prerequisite exit gate failed and its scope is still TBD/unapproved.",
+          "expected_behavior": "Stop dependent implementation and route missing approval or failed prerequisite.",
+          "must_not": "Use plan approval or completed-SOW counts to bypass gates."
+        },
+        {
+          "kind": "boundary",
+          "request": "Close the plan after functional checks pass.",
+          "context": "Required integration/deployment is unverified or implementation violates ownership locks.",
+          "expected_behavior": "Keep plan acceptance unverified/not DONE and route or repair only authorized gaps.",
+          "must_not": "Waive ownership or integration because functional checks passed."
+        }
+      ]
+    },
+    {
       "id": "guardrail-conformance-execution-001",
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",

@@ -28,6 +28,21 @@ Use `task-router-flow` when the job is mainly branch selection for implementatio
 
 Execution belongs to a later skill or human-in-the-loop step after this review is complete.
 
+## Plan-Backed Review
+
+For a plan or its child SOW, use the project's declared contract first;
+otherwise locate `task-router-flow` through the harness's supplied skill
+location/catalog and read `references/plan.md`. A supplied authoritative
+contract also suffices. If unavailable, report missing contract and leave
+dependent review unverified; do not invent it or auto-install.
+
+Check original goal -> `G#` -> SOW scope -> acceptance evidence, including
+preserved behavior and ownership. Keep proposed scope separate from approved
+work; resolve material unknowns before recommending approval of affected work.
+Plan approval, `TBD`, and completed SOW counts do not prove approved coverage or
+aggregate acceptance. Standalone SOWs need no plan or `G#`; do not create a plan
+unless explicitly requested or excessive scope risks non-completion/mistakes.
+
 ## Project Guardrail Conformance Audit
 
 Before choosing a review mode for a design-bearing request:

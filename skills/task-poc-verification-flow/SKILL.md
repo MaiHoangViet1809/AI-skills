@@ -35,6 +35,14 @@ Do not use this skill after the POC scope is approved and the user asks for impl
 
 ## POC SOW Checklist
 
+If the POC belongs to a plan, use the project's declared contract first;
+otherwise locate `task-router-flow` via the harness's supplied skill
+location/catalog and read `references/plan.md`, or use a supplied authoritative
+contract. If unavailable, mark dependent plan review unverified; do not invent
+or auto-install it. Check the POC's parent `G#` and declared proof boundary;
+prototype-only evidence does not establish full delivery or plan acceptance.
+Standalone POCs need no plan or `G#`; preserve existing SOW routing.
+
 Verify the SOW states:
 
 - exact POC folder and allowed files

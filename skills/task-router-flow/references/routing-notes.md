@@ -11,6 +11,12 @@
 
 ## SOW Behavior
 
+Plan creation is separate from SOW routing. Create a plan only on an explicit
+user request or when excessive scope risks non-completion or mistakes within
+one SOW, not merely because there are multiple files, owners, or dependencies.
+Use project authority first and [plan.md](plan.md) as the packaged default.
+No plan means no plan-specific gates; it does not change the existing SOW branch.
+
 - Use the repository's active SOW template
 - Place SOW files in the repository's required planning directory
 - Wait for approval before code edits when the repo requires it
