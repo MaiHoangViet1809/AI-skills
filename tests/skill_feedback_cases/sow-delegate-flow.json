@@ -177,37 +177,37 @@
       ]
     },
     {
-      "id": "glm53-max-first-choice-001",
+      "id": "mandatory-glm53-delegate-001",
       "target_skill": "sow-delegate-flow",
       "cause_class": "decision_procedure",
       "feedback": {
-        "trigger": "Model selection is open for an independent review or high-risk contract check.",
-        "actual_behavior": "The delegation flow treats GLM-5.3 variants as interchangeable or selects the first available model without recording exact identity and isolation.",
-        "expected_behavior": "When the bounded trigger is warranted and the exact target is available, select greennode/glm-5.3 with max reasoning first; preserve explicit overrides, fresh context, and the unavailable-target branch.",
-        "invariant": "Open model selection for a warranted independent pass deterministically chooses exact GLM-5.3-max when available and never hides unavailable or isolation failures.",
-        "evidence_ref": "sanitized:user-feedback-glm53-first-choice-2026-10-01"
+        "trigger": "Substantive execution or review enters this delegation flow with model selection open.",
+        "actual_behavior": "The delegation flow can skip exact GLM-5.3-max, reuse a stale session, or hide a failed handoff behind local continuation.",
+        "expected_behavior": "When exact greennode/glm-5.3 with reasoning_effort=max is available and a safe bounded slice exists, delegate it first; preserve explicit overrides, fresh context, evidence-backed fallback, and cleanup.",
+        "invariant": "Mandatory GLM-5.3-max delegation is exact-model evidenced, context-isolated, coordinator-owned, and never a silent alternate-model or old-session path.",
+        "evidence_ref": "sanitized:user-feedback-glm53-mandatory-delegation-2026-10-05"
       },
       "scenarios": [
         {
           "kind": "expected",
-          "request": "Delegate an independent review of this approved SOW without naming a model.",
-          "context": "The current catalog exposes exact greennode/glm-5.3 with max reasoning; native transport is available and the review is behavior-bearing.",
-          "expected_behavior": "Select the exact target first, start the native child with fork_turns none, and return model, transport, availability, lifecycle, and isolation evidence.",
+          "request": "Delegate a bounded review of this approved SOW without naming a model.",
+          "context": "The current catalog exposes exact greennode/glm-5.3 with max reasoning; native transport is available.",
+          "expected_behavior": "Select the exact target, start the native child with fork_turns none, return model, transport, availability, lifecycle, isolation, and coordinator verification evidence, then clean up.",
           "must_not": "Choose GLM-5.3 Flash, GLM5.2, or pass parent turns into the child."
         },
         {
           "kind": "negative",
-          "request": "Delegate this review to the explicitly selected native GLM5.2 role, or just check the local status.",
-          "context": "The user names GLM5.2 for the delegation branch; the status branch is routine and does not need an independent pass.",
-          "expected_behavior": "Honor the explicit GLM5.2 choice and keep the routine status check coordinator-only.",
-          "must_not": "Override the explicit target with GLM-5.3-max or spawn a delegate for routine status."
+          "request": "Delegate this review to the explicitly selected native GLM5.2 role.",
+          "context": "The user explicitly names GLM5.2, which is a valid model override for this invocation.",
+          "expected_behavior": "Honor the explicit GLM5.2 choice and keep the coordinator responsible for verification and cleanup.",
+          "must_not": "Override the explicit target with GLM-5.3-max or pass parent turns into the child."
         },
         {
           "kind": "boundary",
-          "request": "Run an optional independent review without naming a model, but exact GLM-5.3-max is unavailable; alternatively delegate implementation to that unavailable target.",
-          "context": "Current catalog or provider evidence says the exact target is unavailable; a non-native fallback has an old session; implementation scope requires an approved SOW.",
-          "expected_behavior": "Record unavailable; continue the optional review coordinator-only; stop and ask for explicit delegation; never reuse the old session or silently select an alternate.",
-          "must_not": "Fallback to GLM5.2 or Flash, reuse old task history, or treat unavailability as success."
+          "request": "Attempt delegation when exact GLM-5.3-max is unavailable, or after a launch failure, runtime failure, isolation failure, or invalid delegate output.",
+          "context": "Current catalog evidence says the exact target is unavailable; a separate handoff has a failed stage after bounded repair and a non-native candidate has an old session.",
+          "expected_behavior": "Record the unavailable or failed stage, discard invalid delegate output, clean up failed task-owned sessions, and use local fallback only in automatic mode; explicit delegation stops and asks.",
+          "must_not": "Fallback to GLM5.2 or Flash silently, reuse old task history, spawn a nested child, or treat failure as success."
         }
       ]
     },
@@ -216,9 +216,9 @@
       "target_skill": "sow-delegate-flow",
       "cause_class": "decision_procedure",
       "feedback": {
-        "trigger": "Approved task execution enters the named automatic-execution-delegation mode after its suitability gate.",
-        "actual_behavior": "The delegate skill rejects the internal caller as ordinary single-agent work or applies explicit-delegation fallback rules to an automatic preference.",
-        "expected_behavior": "Accept only the execution flow's internal mode, preserve the bounded SOW slice and isolation contract, and return unavailable checks to the coordinator for local fallback.",
+        "trigger": "Approved task execution enters the named automatic-execution-delegation mode after its mandatory exact-model availability gate.",
+        "actual_behavior": "The delegate skill rejects the internal caller as ordinary single-agent work or applies explicit-delegation fallback rules to a mandatory automatic handoff.",
+        "expected_behavior": "Accept only the execution flow's internal mode, preserve the bounded SOW slice and isolation contract, and return confirmed unavailable or failed checks to the coordinator for evidence-backed local fallback.",
         "invariant": "Internal automatic delegation is a narrowly authorized composition path; explicit user delegation remains stop/ask and never silently substitutes a model or session.",
         "evidence_ref": "sanitized:user-feedback-automatic-delegation-composition-2026-10-01"
       },
@@ -226,14 +226,14 @@
         {
           "kind": "expected",
           "request": "Start the approved slice through task-execution-flow's automatic-execution-delegation mode.",
-          "context": "The execution flow has confirmed a bounded, non-secret slice and supplied the SOW path, suitability reason, and local verification plan.",
-          "expected_behavior": "Accept the internal mode, apply exact GLM-5.3-max first-choice and fresh-context rules, and return handoff plus lifecycle evidence to the coordinator.",
+          "context": "The execution flow has confirmed a bounded, non-secret slice and supplied the SOW path, availability evidence, mandatory delegation decision, and local verification plan.",
+          "expected_behavior": "Accept the internal mode, apply exact GLM-5.3-max routing and fresh-context rules, and return handoff plus lifecycle evidence to the coordinator.",
           "must_not": "Treat the call as an unbounded delegation, bypass the SOW, or reuse parent history."
         },
         {
           "kind": "negative",
           "request": "Run ordinary single-agent execution while merely mentioning another model, without the internal automatic mode.",
-          "context": "No explicit user delegation and no task-execution suitability decision is present.",
+          "context": "No explicit user delegation and no task-execution mandatory availability decision is present.",
           "expected_behavior": "Do not activate the delegate flow; an explicit user delegation, when actually requested, continues through the existing explicit path.",
           "must_not": "Infer automatic delegation from a model mention or broaden the public trigger implicitly."
         },

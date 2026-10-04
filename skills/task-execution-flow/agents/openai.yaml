@@ -1,4 +1,4 @@
 interface:
   display_name: "TaskExecutionFlow"
-  short_description: "Execute scoped work with bounded delegation preference, verification, and disciplined closeout"
-  default_prompt: "Use TaskExecutionFlow to execute an already-scoped task through a bounded delegation suitability check, mini-task loops, verification, double-check gap finding, and final closeout; keep unsuitable work coordinator-owned."
+  short_description: "Execute scoped work with mandatory available-GLM-5.3-max delegation, verification, and disciplined closeout"
+  default_prompt: "Use TaskExecutionFlow to execute an already-scoped task through the mandatory exact GLM-5.3-max availability gate, bounded delegation or evidence-backed fallback, mini-task loops, verification, gap finding, and final closeout."

@@ -1,6 +1,6 @@
 ---
 name: sow-delegate-flow
-description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, or when approved task execution enters its internal automatic-delegation mode. Prefer GLM5.2 when explicitly requested and GLM-5.3-max when the first-choice rule applies. Keep approved SOWs authoritative, give each delegate a bounded ownership slice, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
+description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, or when approved task execution enters its internal automatic-delegation mode. When the exact GLM-5.3-max target is available, delegate a meaningful bounded slice instead of skipping because the work appears simple or routine. Keep approved SOWs authoritative, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
 ---
 
 # Sow Delegate Flow
@@ -34,11 +34,11 @@ triggers:
 - `delegate task ... cho custom agent via CLI`
 - an equivalent request naming a native or external agent
 - `task-execution-flow` enters `automatic-execution-delegation` after its
-  approved-scope suitability gate
+  mandatory exact-model availability gate
 
 Do not activate for ordinary single-agent execution, a request merely
 mentioning another model, or an automatic delegation mode that was not entered
-by `task-execution-flow` after its suitability gate.
+by `task-execution-flow` after its mandatory availability gate.
 
 - Resolve the requested target against the current native agent catalog first.
   A custom-named role is native when the catalog exposes it; use the native
@@ -58,33 +58,32 @@ by `task-execution-flow` after its suitability gate.
   or draft a plan/SOW before approval, but must not modify product code, tests,
   scripts, config, or runtime contracts in that mode.
 
-## GLM-5.3-max First-Choice Rule
+## GLM-5.3-max Mandatory Availability Rule
 
-Apply this rule only when an independent pass is warranted or when
-`task-execution-flow` has entered the approved
-`automatic-execution-delegation` mode for a bounded implementation slice. An
-independent pass is warranted for an explicit independent-review request, a
-behavior-bearing or high-risk contract review, or ambiguity or blast radius
-that makes a second bounded pass materially useful.
-Do not spawn an independent delegate for a simple status, editorial
-clarification, or routine local check.
+Apply this rule whenever this skill handles substantive execution or review, or
+when `task-execution-flow` has entered the approved
+`automatic-execution-delegation` mode. If the exact target is available and a
+safe bounded slice exists, delegation is mandatory; do not skip for simple,
+mechanical, routine, costly, or perceived-complexity reasons. A plain status or
+editorial summary outside this skill may remain coordinator-only.
 
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
   possible without a user choice, stop and ask.
-- When model selection is open and one of the triggers above is active, inspect the
-  current native catalog or documented provider transport. The exact
-  first-choice target is `greennode/glm-5.3` with `reasoning_effort=max`.
-  When it is available, the coordinator **MUST select it before any alternate
-  model**.
+- When model selection is open and this skill is active for substantive work,
+  inspect the current native catalog or documented provider transport. The
+  exact target is `greennode/glm-5.3` with `reasoning_effort=max`; when it is
+  available, the coordinator **MUST select it before any alternate model**.
 - `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
   names, and other providers are not exact matches. Never infer availability
   from a display label or an earlier task.
-- If the exact target is unavailable, explicit delegation stops and asks. An
-  optional independent review or approved automatic execution may record the
-  target as `unavailable` and return coordinator-only control; only the
-  automatic mode may continue locally, and it must not silently select another
-  model.
+- If the exact target is confirmed unavailable, record the catalog or transport
+  evidence. Automatic execution may use the local fallback only after that
+  evidence is recorded; an explicit delegation request must stop and ask.
+  Never silently select another model. A launch, transport, session, isolation,
+  terminal-child, or bounded-output failure may use local fallback only after
+  concrete evidence and bounded repair; missing external evidence is
+  unverified and must stop.
 - For native GLM-5.3, use the native lifecycle with `fork_turns: "none"`. For
   a non-native transport, initialize a brand-new provider-owned session with
   no prior task history. If either isolation guarantee cannot be proven,
@@ -138,8 +137,8 @@ clarification, or routine local check.
   isolation gate and, for non-native agents, the fresh-session boundary before
   sending any delegated prompt.
 - Accept `automatic-execution-delegation` only when it is explicitly entered by
-  `task-execution-flow` after an approved-SOW suitability gate. Do not infer
-  that mode from ordinary local execution.
+  `task-execution-flow` after an approved-SOW exact-model availability gate. Do
+  not infer that mode from ordinary local execution.
 - For implementation, delegate with the approved SOW path, short intent,
   explicit write scope, and verification requirements. For planning/read-only,
   provide the target question or artifact plus explicit non-implementation
@@ -181,9 +180,10 @@ clarification, or routine local check.
      exactly when requested
    - external/custom: select an available documented CLI, process, or provider
      transport without silently substituting another one
-   - selection open plus an independent pass warranted, or an approved
-     `automatic-execution-delegation` mode: apply the GLM-5.3-max First-Choice
-     Rule above; otherwise keep execution coordinator-only
+   - substantive execution or review, or an approved
+     `automatic-execution-delegation` mode: apply the GLM-5.3-max Mandatory
+     Availability Rule above; plain status/editorial work outside this skill
+     remains coordinator-only
 4. Establish the session before sending the prompt:
    - every delegate: start with `fork_turns: "none"` and a self-contained prompt
    - native: use the native lifecycle; do not create an external session
@@ -240,8 +240,13 @@ Implementation-delegate prompts must also include:
 - explicit out-of-scope paths or behavior
 - required verification and evidence to return
 
-For `automatic-execution-delegation`, include the suitability decision and
-reason supplied by `task-execution-flow`; do not broaden the approved slice.
+For `automatic-execution-delegation`, include the exact-model availability
+evidence and mandatory delegation decision supplied by
+`task-execution-flow`; do not broaden the approved slice.
+
+### Failure Evidence Contract
+
+For a failed handoff, record confirmed launch, transport, session, or isolation error, terminal child failure, delegate output, failed stage, concrete error or capability evidence, task impact, and fallback decision. Clean up failed task-owned sessions, discard invalid output, and return coordinator verification; the delegate is not required to spawn nested children. Aliases, stale role names, and variants never satisfy the exact target.
 
 Require the delegate to return: selected model id, reasoning effort, transport
 used, current availability evidence, safe session lifecycle state, isolation
@@ -284,14 +289,15 @@ If required verification is unavailable, stop at
 - `review-wait`: never cut a running or unresolved-idle review delegate
   immediately; wait up to 10 minutes, then report its unchanged state and
   explicitly decide whether to cut. A cut review remains incomplete/unverified.
-- `infra`: if scope is already clear, finish locally instead of waiting on
-  sub-agent recovery
+- `infra`: finish locally only after the launch, transport, session, or
+  isolation failure is evidenced and bounded repair has failed; missing
+  external evidence remains unverified and must stop
 - `uncertainty`: answer once; if the task is still ambiguous, stop and escalate
 - `unavailable requested model`: report the model unavailability; do not silently
   substitute another model
-- `unavailable GLM-5.3-max first-choice target`: stop explicit delegation and
-  ask; for optional independent review, record `unavailable` and continue
-  coordinator-only without selecting an alternate model
+- `unavailable GLM-5.3-max target`: stop explicit delegation and ask; in
+  automatic mode, record `unavailable` evidence before local fallback without
+  selecting an alternate model
 - `unavailable requested transport or fresh-session guarantee`: report it and do
   not reuse an old session or historical task context
 - `scope drift`: interrupt the sub-agent, preserve valid scoped work, and repair

@@ -352,37 +352,37 @@
       ]
     },
     {
-      "id": "automatic-delegation-preference-001",
+      "id": "mandatory-glm53-execution-001",
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",
       "feedback": {
         "trigger": "Execution reaches the next implementation slice after an approved SOW.",
-        "actual_behavior": "The flow either always implements locally or delegates without a suitability gate, explicit override, or recorded fallback reason.",
-        "expected_behavior": "Evaluate one bounded slice first; enter sow-delegate-flow's automatic-execution-delegation mode when suitable, otherwise keep the coordinator local and record the decision.",
-        "invariant": "Delegation preference never bypasses approval, explicit user choice, context isolation, coordinator verification, or safe local ownership boundaries.",
-        "evidence_ref": "sanitized:user-feedback-task-execution-delegation-preference-2026-10-01"
+        "actual_behavior": "The flow can skip an available exact GLM-5.3-max target because the slice looks simple, routine, or locally convenient.",
+        "expected_behavior": "When exact greennode/glm-5.3 with reasoning_effort=max is available and a safe bounded slice exists, enter automatic-execution-delegation and record the handoff before coordinator verification.",
+        "invariant": "Mandatory delegation never bypasses approval, explicit user override, context isolation, coordinator verification, or safe local ownership boundaries.",
+        "evidence_ref": "sanitized:user-feedback-task-execution-mandatory-glm53-2026-10-05"
       },
       "scenarios": [
         {
           "kind": "expected",
           "request": "Execute the next slice of this approved SOW.",
-          "context": "The slice is non-trivial, independently bounded, free of secrets and interactive operator state, and has a local verification path; exact GLM-5.3-max availability is confirmed.",
-          "expected_behavior": "Select the automatic-execution-delegation mode, use exact GLM-5.3-max first, start an isolated session, and record the delegation decision before coordinator verification.",
+          "context": "The slice is independently bounded, free of secrets and interactive operator state, and has a local verification path; exact GLM-5.3-max availability is confirmed even though the task is simple.",
+          "expected_behavior": "Select the automatic-execution-delegation mode, use exact GLM-5.3-max, start an isolated session, and record the delegation decision before coordinator verification.",
           "must_not": "Delegate an unbounded task, overlap write scopes, accept delegate completion as closeout, or pass historical context."
         },
         {
           "kind": "negative",
           "request": "Implement this approved slice locally and do not delegate; in another invocation, honor the explicitly named model and transport.",
           "context": "The user has supplied an explicit local-only instruction for the first invocation and an explicit model/transport choice for the second.",
-          "expected_behavior": "Keep the local-only invocation coordinator-owned and preserve the explicit model/transport choice in the second invocation without replacing it with the automatic preference.",
+          "expected_behavior": "Keep the local-only invocation coordinator-owned as a user override and preserve the explicit model/transport choice in the second invocation.",
           "must_not": "Spawn the automatic mode despite local-only intent or override an explicit model/transport choice."
         },
         {
           "kind": "boundary",
-          "request": "Execute an automatic delegation candidate whose exact target or fresh-session guarantee is unavailable, or whose slice requires secret or interactive operator state.",
-          "context": "The approved SOW is present, but catalog/transport evidence is incomplete and one candidate path needs credentials or an operator-controlled UI action.",
-          "expected_behavior": "Record the exact failed check and keep the slice coordinator-owned; if the user explicitly requested delegation, stop and ask instead of falling back silently.",
-          "must_not": "Guess model availability, select an alternate model, expose secrets, or delegate interactive operator work."
+          "request": "Execute an automatic delegation candidate when the catalog is flash-only, the exact target is unavailable, or the slice has an unsafe context.",
+          "context": "The approved SOW is present, but catalog evidence is flash-only and a separate attempted handoff has a failed coordinator verification after bounded repair.",
+          "expected_behavior": "Record the unavailable or failed delegation evidence, use local fallback only for those confirmed cases, and stop when no safe authorized slice exists.",
+          "must_not": "Guess model availability, select an alternate model, expose secrets, start an unapproved implementation, or treat failed coordinator verification as successful delegation."
         }
       ]
     }

@@ -1,6 +1,6 @@
 ---
 name: task-review-investigate-compare
-description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes; or compare approaches. Default concrete, low-ambiguity findings back into a known existing plan or SOW unless the user explicitly requests discussion only; route material contract changes separately. When an independent pass is warranted and model selection is open, use available GLM-5.3-max as the first-choice reviewer.
+description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes; or compare approaches. Default concrete, low-ambiguity findings back into a known existing plan or SOW unless the user explicitly requests discussion only; route material contract changes separately. For substantive review, delegate one bounded independent pass to exact GLM-5.3-max whenever available, with evidence-backed fallback only for confirmed unavailability or actual delegation failure.
 ---
 
 # Task Review Investigate Compare
@@ -86,28 +86,38 @@ This skill remains read-only and advisory even when it asks for an independent
 reviewer. A delegated reviewer supplies evidence; the coordinator owns the
 review conclusion, writeback, verification, and closeout.
 
-Use an independent pass only for an explicit independent-review request, a
-behavior-bearing or high-risk contract review, or ambiguity or blast radius
-that makes a second bounded pass materially useful. Keep simple status,
-editorial, and routine local checks coordinator-only.
+For any substantive review using this skill, run one bounded independent pass
+when exact `greennode/glm-5.3` at `reasoning_effort=max` is available. Do not
+skip because the review is simple, routine, or judged unsuitable. A plain
+status or editorial summary that does not invoke this skill may remain
+coordinator-only.
+
+### Mandatory Review Contract
+
+Mandatory GLM-5.3-max review uses exact identity when available. The coordinator owns the review conclusion. Inspect the current native catalog and documented provider transport; confirmed unavailability or observed delegation failure, record capability evidence, record concrete evidence, and user override must be recorded before coordinator verification or closeout. Aliases, stale role names, and variants never satisfy the exact target.
 
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
   possible without a user choice, stop and ask.
-- When model selection is open and the trigger above is warranted, inspect the
-  current native catalog or documented provider transport. The exact
-  first-choice target is `greennode/glm-5.3` with `reasoning_effort=max`; when
-  available, the coordinator **MUST select it before any alternate model**.
+- When model selection is open and this skill is active, inspect the current
+  native catalog or documented provider transport. The exact target is
+  `greennode/glm-5.3` with `reasoning_effort=max`; when available, the
+  coordinator **MUST select it before any alternate model**.
 - `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
   names, and other providers are not exact matches. Do not infer availability
   from a display label or an earlier task.
-- If the exact target is unavailable, report `unavailable`. For an optional
-  independent pass, continue coordinator-only without silently selecting an
-  alternate model; an explicit delegation request must stop and ask.
+- If the exact target is confirmed unavailable, report `unavailable` with the
+  catalog or transport evidence. Automatic review may continue coordinator-only
+  only after recording that evidence; an explicit delegation request must stop
+  and ask. A launch, transport, session, isolation, terminal-child, or bounded
+  output failure permits coordinator-only continuation only after concrete
+  evidence and bounded repair. Missing external evidence is unverified and must
+  stop; never invent a failure or silently select another model.
 - Native use requires `fork_turns: "none"`; a non-native transport requires a
   brand-new provider-owned session with no prior task history. If isolation is
-  not proven, discard the delegate findings and restart fresh or continue
-  without the independent pass.
+  not proven, discard the delegate findings and restart fresh; if the failure
+  remains, record it and continue coordinator-only only under the
+  evidence-backed failure rule above.
 
 ### 1. Brainstorm
 
@@ -377,19 +387,19 @@ If the user asks for a plain `summary`, `summarize`, or status recap and does no
 
 ### Independent Review Evidence
 
-When an independent pass is attempted, considered, or unavailable, record:
+For substantive review, record the independent-pass decision and evidence:
 
 - selected model id and reasoning effort
 - exact model identity match or mismatch
 - transport and current availability evidence
 - lifecycle and isolation status
-- whether the independent pass ran, was unavailable, or was skipped by the
-  bounded trigger
+- whether the independent pass ran, was unavailable, or failed after bounded
+  repair; plain status/editorial work outside this skill may be `not applicable`
 - how the coordinator used or discarded the delegated findings
 
-If the trigger is not warranted, state `coordinator-only` rather than inventing
-an unavailable delegate result. Never present an unisolated delegate output as
-review evidence.
+If the exact target is unavailable or delegation fails, state the concrete
+evidence-backed reason for `coordinator-only`; never invent an unavailable
+delegate result or present an unisolated delegate output as review evidence.
 
 ## Writeback Decision Rule
 

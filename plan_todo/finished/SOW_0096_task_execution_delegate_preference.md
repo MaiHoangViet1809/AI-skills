@@ -1,12 +1,17 @@
 # SOW_0096 - Task Execution Delegation Preference
 
+Approved [EXT_01](SOW_0096_EXT_01_mandatory_glm53_delegation.md) replaces
+optional delegation with mandatory available GLM-5.3-max delegation. The
+parent was reopened for the approved extension and is now closed again after
+canonical verification; base approval history remains unchanged.
+
 ## Lifecycle
 
 - **Status**: COMPLETED
 - **Approval**: User approved in the current task thread: "patch giúp tôi, sau đó implement, rồi commit, push"
 - **create_dttm**: `2026-10-01T03:23:09+07:00`
 - **approve_dttm**: `2026-10-01T03:47:20+07:00`
-- **finish_dttm**: `2026-10-01T03:50:59+07:00`
+- **finish_dttm**: `2026-10-05T02:58:16+07:00`
 - **Proposed-By**: Codex
 - **plan**: Standalone; follows `skill-evolution-flow` and extends the approved
   delegation contract from SOW_0095.
