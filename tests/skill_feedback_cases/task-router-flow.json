@@ -142,6 +142,41 @@
       ]
     },
     {
+      "id": "retired-telemetry-marker-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "The task router runs in a Codex session after repository-owned telemetry was retired.",
+        "actual_behavior": "The skill instructs Codex to emit a CODEX_SKILL_RUN marker as a telemetry side effect.",
+        "expected_behavior": "Route the request without emitting telemetry markers or interacting with telemetry hooks.",
+        "invariant": "Task routing has no telemetry side effect.",
+        "evidence_ref": "sanitized:user-feedback-retired-telemetry-marker-2026-09-14"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Route a docs-only request into the correct workflow branch.",
+          "context": "The repository retired its telemetry flow and global hook templates.",
+          "expected_behavior": "Select the docs-only branch and continue without emitting a telemetry marker.",
+          "must_not": "Emit CODEX_SKILL_RUN or start a telemetry lifecycle."
+        },
+        {
+          "kind": "negative",
+          "request": "Route a code change that needs an approved SOW.",
+          "context": "The request must still follow normal SOW-first routing.",
+          "expected_behavior": "Require or find the approved SOW, then hand off to execution without telemetry output.",
+          "must_not": "Change SOW routing because telemetry is unavailable."
+        },
+        {
+          "kind": "boundary",
+          "request": "Route work in a project that independently operates telemetry.",
+          "context": "That project's telemetry ownership is external to this skill.",
+          "expected_behavior": "Route only the task and leave telemetry ownership to the external project workflow.",
+          "must_not": "Emit, configure, or manage telemetry hooks."
+        }
+      ]
+    },
+    {
       "id": "router-bounded-adjacency-001",
       "target_skill": "task-router-flow",
       "cause_class": "decision_procedure",

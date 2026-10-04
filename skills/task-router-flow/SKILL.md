@@ -146,18 +146,6 @@ After any branch finishes:
 - handle commits according to the user's instruction and repo policy
 - report the result to the user
 
-## Global Hook Telemetry
-
-When this skill runs in its own Codex session, emit one first-line marker:
-
-```text
-CODEX_SKILL_RUN skill=task-router-flow plan=<plan> sow=<sow> task_type=<task_type> intent=<intent>
-```
-
-Use real values, resolve the target project from the session working directory,
-and let global hooks own timing. Do not run a second telemetry lifecycle from
-this isolated routing session.
-
 ## Notes
 
 - This skill decides the branch. It does not replace downstream execution skills.
