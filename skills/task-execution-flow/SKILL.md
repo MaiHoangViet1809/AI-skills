@@ -45,6 +45,10 @@ routing and do not add a plan unless requested or excessive scope risks failure.
 - Build context from the codebase or problem first. Do not lead with assumptions.
 - Reuse the nearest fitting project implementation when one is named or cheaply
   discoverable; do not rebuild its responsibilities inside task-specific code.
+- For a remote or containerized runner, stage only the approved files, then run
+  an import-only smoke with the exact interpreter and `PYTHONPATH` that will
+  launch the action. Do not background a Spark, database, or other data action
+  until that smoke passes; an import failure is a staging/environment gate.
 - After approved scope is confirmed and before each implementation slice, run
   the mandatory GLM-5.3-max delegation gate below. When the exact target is
   available and a safe bounded slice can be defined, delegate it; do not skip

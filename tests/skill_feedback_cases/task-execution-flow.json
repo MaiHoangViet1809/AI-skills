@@ -385,6 +385,41 @@
           "must_not": "Guess model availability, select an alternate model, expose secrets, start an unapproved implementation, or treat failed coordinator verification as successful delegation."
         }
       ]
+    },
+    {
+      "id": "remote-container-import-preflight-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A migration runner is launched in a connection-bearing container after approved files are staged.",
+        "actual_behavior": "The runner was backgrounded before the staged Airflow package roots were on PYTHONPATH and failed with an import error before creating a Spark job.",
+        "expected_behavior": "Run an import-only smoke with the exact interpreter and PYTHONPATH in the same container, then start the Spark action only after it passes.",
+        "invariant": "A remote data action must not start until its import and runtime boundary is proven in the exact execution environment.",
+        "evidence_ref": "sanitized:remote-migration-import-preflight-2026-10-05"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Run a staged migration probe inside the connection-bearing container.",
+          "context": "The runner imports both framework code and staged Airflow modules.",
+          "expected_behavior": "Stage the approved roots, run the import smoke with the final interpreter and PYTHONPATH, and only then background the bounded data action.",
+          "must_not": "Spend a Spark session on a runner whose imports have not passed."
+        },
+        {
+          "kind": "negative",
+          "request": "Run an ordinary local function whose dependencies are already installed.",
+          "context": "No remote container or staged package boundary exists.",
+          "expected_behavior": "Use the normal local verification path without inventing remote staging requirements.",
+          "must_not": "Require a container-specific PYTHONPATH smoke for an ordinary local call."
+        },
+        {
+          "kind": "boundary",
+          "request": "The import smoke passes but the later Spark action fails.",
+          "context": "The same interpreter and PYTHONPATH successfully import every staged module.",
+          "expected_behavior": "Classify and diagnose the later runtime, transport, or SQL failure separately.",
+          "must_not": "Relabel a post-import Spark failure as an import-preflight defect."
+        }
+      ]
     }
   ]
 }
