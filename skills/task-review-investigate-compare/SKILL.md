@@ -327,13 +327,14 @@ work.
   safety, data semantics, intentional config, or an explicit runtime contract.
   Line count is only a warning signal.
 - When the requested outcome is framework-owned automation or a speedup, do not
-  invent a caller/operator confirmation, manual rerun, or opt-in gate merely
-  because an implementation detail is not yet proven. First check whether the
-  existing framework metadata and lifecycle can make that decision automatically.
-  If evidence is still missing, keep it as an implementation/design gap or a
-  scope question; do not make normal operation manual unless a concrete
-  safety/security/destructive constraint or an explicit user contract requires
-  the gate.
+  introduce or approve a caller/operator confirmation, manual rerun, or opt-in
+  gate merely because an implementation detail is not yet proven. First check
+  whether the existing framework metadata and lifecycle can make that decision
+  automatically. If evidence is still missing, keep it as an
+  implementation/design gap or a scope question; do not make normal operation
+  manual unless a concrete correctness/data-integrity, security,
+  destructive-operation, intentional-configuration, explicit runtime/project
+  contract, or explicit user contract requires the gate.
 
 Unsupported material complexity is an actionable finding and blocks a clean
 approval recommendation. Keep this review proportional; do not require a new
