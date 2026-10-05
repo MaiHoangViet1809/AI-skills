@@ -126,6 +126,39 @@ editorial summary outside this skill may remain coordinator-only.
 - Native Codex children use the native lifecycle; do not create an external
   provider session for them.
 
+## Claude Code External Transport
+
+Use this documented transport only when Claude is explicitly selected. Do not
+replace the exact GLM-5.3-max default silently.
+
+- Review, brainstorm, research and investigation use the Claude `opus` alias
+  with `--effort high`; approved code implementation uses the `sonnet` alias
+  with `--effort high`. Verify the `model` in the first `stream-json` init
+  event resolves to the expected current model before accepting the handoff.
+- Every logical task uses a fresh non-interactive `claude -p` process. Never use
+  `--continue`, `--resume`, or a persisted session for a new task. Keep the
+  prompt self-contained and do not pass parent history.
+- Read-only review uses:
+
+  ```bash
+  claude -p --model opus --effort high --output-format stream-json \
+    --no-session-persistence --permission-mode plan \
+    --permission-prompts none --allowed-tools Read,Glob,Grep
+  ```
+
+  The prompt MUST say not to edit, commit, push or deploy.
+- Approved implementation uses `--model sonnet --effort high`,
+  `--output-format stream-json`, `--no-session-persistence`,
+  `--permission-mode acceptEdits`, and only the approved file tools such as
+  `Read,Glob,Grep,Edit,Write`. Add a narrowly scoped command tool only when the
+  approved SOW requires the delegate to run a specific verification command;
+  never use `--dangerously-skip-permissions` by default.
+- `stream-json` is an event transport, not completion proof. The coordinator
+  MUST inspect the init model, terminal result, changed files, diff, and
+  verification before accepting the handoff. An unavailable alias, model
+  mismatch, stale session, invalid result, or failed verification is evidence
+  to stop/discard or follow the existing explicit fallback rules.
+
 ## Rules
 
 - Keep the approved SOW as the source of truth for the current implementation.

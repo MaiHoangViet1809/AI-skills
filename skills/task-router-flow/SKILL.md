@@ -152,3 +152,7 @@ After any branch finishes:
 - Use the repo's own SOW template and planning location.
 - New SOWs should use a unique 4-digit index such as `SOW_0001_...`.
 - For multi-SOW execution after routing, hand off to `sow-delegate-flow` or the local execution path as appropriate.
+- When a user explicitly names Claude Code as the delegate, route the request to
+  `sow-delegate-flow` for its documented transport/model contract. Do not create
+  a second Claude command contract or silently select Claude when no model or
+  transport was requested.

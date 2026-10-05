@@ -119,6 +119,12 @@ Mandatory GLM-5.3-max review uses exact identity when available. The coordinator
   remains, record it and continue coordinator-only only under the
   evidence-backed failure rule above.
 
+When the user explicitly selects Claude Code for this review, route the
+external transport and fresh-session details through `sow-delegate-flow`:
+use Claude `opus` at high effort for review, brainstorm, research or
+investigation. This skill owns the question, evidence and verdict; do not
+duplicate the Claude CLI contract here.
+
 ### 1. Brainstorm
 
 Use when no target artifact is known, findings are still exploratory or ambiguous, or the user explicitly does not want file edits yet.

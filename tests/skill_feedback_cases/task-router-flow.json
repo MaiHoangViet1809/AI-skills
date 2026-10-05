@@ -280,6 +280,41 @@
           "must_not": "Create or overwrite project policies."
         }
       ]
+    },
+    {
+      "id": "claude-delegation-routing-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Route a request that explicitly names Claude Code as delegate.",
+        "actual_behavior": "The router invents a second provider contract or silently chooses Claude when no transport was requested.",
+        "expected_behavior": "Route explicit Claude delegation to sow-delegate-flow and leave model/transport selection unchanged otherwise.",
+        "invariant": "Routing selects the single delegate owner without silently changing model authority or creating duplicate transport policy.",
+        "evidence_ref": "sanitized:claude-delegation-routing-2026-10-06"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate this approved review to Claude Code.",
+          "context": "The user explicitly names Claude and the target scope is clear.",
+          "expected_behavior": "Route to sow-delegate-flow for its opus/sonnet and session contract.",
+          "must_not": "Create a second Claude CLI syntax in the router."
+        },
+        {
+          "kind": "negative",
+          "request": "Route an ordinary task without naming a model or transport.",
+          "context": "Existing native model-selection and execution policy applies.",
+          "expected_behavior": "Use normal routing and do not select Claude solely because the CLI exists.",
+          "must_not": "Turn a model mention in background context into a delegation request."
+        },
+        {
+          "kind": "boundary",
+          "request": "Route explicit Claude delegation when the requested CLI/model is unavailable.",
+          "context": "The transport check returns a concrete availability failure.",
+          "expected_behavior": "Return the failure to the delegate flow for its stop/fallback policy; do not invent another route.",
+          "must_not": "Silently substitute a different model, old session, or local implementation."
+        }
+      ]
     }
   ]
 }

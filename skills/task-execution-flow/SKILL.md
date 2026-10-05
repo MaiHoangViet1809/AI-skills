@@ -235,6 +235,11 @@ the exact target is available and a safe bounded slice exists.
 - `sow-delegate-flow` owns prompt boundaries, native `fork_turns: "none"`,
   fresh non-native sessions, cleanup, and transport details. This skill owns
   availability, the mandatory decision, and evidence-backed fallback.
+- When the user explicitly selects Claude Code for an approved implementation
+  slice, route the external transport through `sow-delegate-flow` and use its
+  Claude `sonnet` high-effort contract. This skill remains responsible for SOW
+  scope, write ownership, verification and closeout; do not duplicate CLI
+  syntax here.
 - Record `delegation_decision` as `delegated`, `fallback-unavailable`,
   `fallback-failure`, `user-override`, or `blocked-no-safe-slice`, with reason,
   model/transport, availability evidence, isolation status, failure evidence,

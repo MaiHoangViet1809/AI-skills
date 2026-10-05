@@ -455,6 +455,41 @@
           "must_not": "Convert an unresolved implementation question into a new normal-operation confirmation parameter."
         }
       ]
+    },
+    {
+      "id": "claude-review-routing-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Review or brainstorm with an explicitly selected Claude Code reviewer.",
+        "actual_behavior": "The review duplicates Claude CLI syntax or treats the external response as the verdict.",
+        "expected_behavior": "Route transport to sow-delegate-flow, use opus at high effort, and keep evidence, verdict and writeback under coordinator ownership.",
+        "invariant": "Review owns reasoning and acceptance; the delegate skill owns external transport and isolation.",
+        "evidence_ref": "sanitized:claude-review-routing-2026-10-06"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review this SOW using Claude Code.",
+          "context": "The user explicitly selects Claude and the read-only review target is known.",
+          "expected_behavior": "Use sow-delegate-flow's opus/high transport contract, then independently assess evidence and verdict.",
+          "must_not": "Copy the CLI command into the review skill or treat stream-json text as approval."
+        },
+        {
+          "kind": "negative",
+          "request": "Review this SOW without naming an external model.",
+          "context": "The exact GLM-5.3-max availability policy applies and no Claude override exists.",
+          "expected_behavior": "Preserve the existing model-selection policy and do not silently choose Claude.",
+          "must_not": "Route every substantive review to Claude merely because its CLI is installed."
+        },
+        {
+          "kind": "boundary",
+          "request": "The Claude process returns stream events but no trusted terminal result.",
+          "context": "The session or resolved model cannot be verified.",
+          "expected_behavior": "Mark the independent pass incomplete and continue only under the existing evidence-backed failure rule.",
+          "must_not": "Report a clean review from partial or unverified output."
+        }
+      ]
     }
   ]
 }
