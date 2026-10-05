@@ -131,6 +131,12 @@ editorial summary outside this skill may remain coordinator-only.
 Use this documented transport only when Claude is explicitly selected. Do not
 replace the exact GLM-5.3-max default silently.
 
+- Eligibility guard: launch Claude Code only when the current coordinator is
+  not Claude/Claude Code. If the current runtime is Claude, do not start another
+  Claude process or resume a Claude session; use coordinator-owned local work or
+  an explicitly selected non-Claude native path. If the current agent identity
+  cannot be established, treat Claude delegation as ineligible and report the
+  missing evidence instead of assuming it is safe.
 - Review, brainstorm, research and investigation use the Claude `opus` alias
   with `--effort high`; approved code implementation uses the `sonnet` alias
   with `--effort high`. Verify the `model` in the first `stream-json` init

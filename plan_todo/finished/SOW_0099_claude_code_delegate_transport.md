@@ -1,10 +1,13 @@
 # SOW_0099 - Claude Code Delegate Transport Contract
 
+Approved EXT_01 adds a self-delegation guard. The parent was reopened for that
+correction and is closed again after canonical verification.
+
 - **Status**: COMPLETED
 - **Approval**: APPROVED by user
 - **create_dttm**: 2026-10-06
 - **approve_dttm**: 2026-10-06T05:08:47+07:00
-- **finish_dttm**: 2026-10-06T05:12:42+07:00
+- **finish_dttm**: 2026-10-06T05:19:00+07:00
 - **Proposed-By**: Codex
 - **plan**: None; bounded skill-contract update
 
@@ -180,6 +183,7 @@ implementation code ----------------------------> `sonnet` + high
 - `task-execution-flow`
 - `task-router-flow`
 - `SOW_0096_EXT_01_mandatory_glm53_delegation`
+- `SOW_0099_EXT_01_claude_self_delegation_guard.md`
 
 ## Decision
 
@@ -187,4 +191,4 @@ Approved by the user. Use one canonical Claude CLI contract in
 `sow-delegate-flow`; consumer skills reference it but do not duplicate it.
 Claude is an explicit transport/model choice, with `opus` for thinking/review
 and `sonnet` for approved implementation; GLM-5.3-max remains the open-choice
-default.
+default. EXT_01 additionally forbids Claude-to-Claude self-delegation.
