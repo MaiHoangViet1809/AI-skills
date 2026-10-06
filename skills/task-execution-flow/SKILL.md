@@ -116,6 +116,10 @@ Phase 1: context and experiment
 -> inspect adjacent scope only to confirm impact or the same proven defect;
    inspection does not expand authorized implementation scope
 -> break the work into the smallest meaningful mini-tasks
+-> for a generic or framework-wide contract change, enumerate every discoverable
+   direct caller/declaration in the declared source scope
+-> record each caller's approved, legacy, or boundary disposition in the
+   existing implementation evidence; do not create a persistent caller registry
 -> run the mandatory GLM-5.3-max delegation gate for the next slice:
    -> inspect current native catalog/list-models or documented transport
    -> exact model + max effort available and safe bounded slice exists:
@@ -147,6 +151,12 @@ Phase 3: implementation verification
 -> verify the changed behavior in the real runtime path when feasible
 -> exercise the intended public entrypoint; when genericity is required, verify
    that the first product identity is not hardcoded behind a generic name
+-> verify every discoverable affected caller follows the approved contract;
+   one representative caller or helper-only fixture is not enough for a generic
+   claim
+-> run a negative check that fails when any affected caller retains the old
+   route, default, flag, or gate, and verify non-target consumers remain on
+   their declared behavior
 -> inspect frontend and backend evidence when the task crosses that boundary
 -> when a slice was delegated, treat delegate completion as handoff evidence;
    verify the changed behavior and isolation locally before accepting it
@@ -290,6 +300,10 @@ After implementation, answer this checklist:
 - contract complete?
 - caller-visible abstraction, identifiers, inputs and result match the latest
   explicit user contract?
+- all discoverable affected callers use the approved route/default, and is the
+  caller inventory recorded in the existing evidence?
+- does the negative check reject every affected caller that retains the old
+  route/default/gate while preserving non-target consumers?
 - edge cases covered?
 - old behavior preserved?
 - race or cancellation path safe?

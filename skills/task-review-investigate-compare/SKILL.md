@@ -249,6 +249,22 @@ this gate for internal-only changes and explicitly product-specific APIs.
 
 Build evidence from the right source first.
 
+### Generic Caller Coverage
+
+When a reviewed change claims to update a generic or framework-wide behavior:
+
+- trace the shared owner to every discoverable direct caller or consumer
+  declaration in the declared source scope before recommending approval;
+- record each caller's approved, legacy, or boundary disposition in the
+  existing review evidence; do not create a persistent caller registry;
+- treat a helper-only fixture or one representative caller as insufficient
+  evidence for the generic claim;
+- require a negative check that fails when any affected caller retains the old
+  route, default, flag, or gate, and verify non-target consumers remain
+  unchanged;
+- if caller coverage is incomplete, report the gap and do not recommend clean
+  approval.
+
 ### Exact runtime-contract evidence
 
 Before recommending or writing back a mutation to a schema, API payload,

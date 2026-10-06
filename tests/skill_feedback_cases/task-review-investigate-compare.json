@@ -490,6 +490,41 @@
           "must_not": "Report a clean review from partial or unverified output."
         }
       ]
+    },
+    {
+      "id": "consumer-contract-false-negative-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Review a generic behavior change before recommending approval.",
+        "actual_behavior": "The review checks document consistency and a helper fixture but does not trace real callers, so a legacy caller route remains hidden.",
+        "expected_behavior": "Trace every discoverable direct caller, require caller evidence and a legacy-route negative check, and verify non-target boundaries.",
+        "invariant": "A generic review cannot recommend clean approval from component-only evidence when affected callers remain unverified.",
+        "evidence_ref": "sanitized:SOW_0100-consumer-contract-false-negative"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review an approved framework-wide behavior change.",
+          "context": "The shared owner, discoverable callers, and non-target consumers are identifiable in the declared source scope.",
+          "expected_behavior": "Trace every affected caller, record its disposition, run the forbidden legacy-route negative check, verify boundaries, and then recommend approval if clean.",
+          "must_not": "Approve from consistent SOW wording or a helper-only fixture."
+        },
+        {
+          "kind": "negative",
+          "request": "Approve the change because the shared component test passes.",
+          "context": "One discoverable affected caller still retains the old route, default, or gate.",
+          "expected_behavior": "Report the caller gap as a concrete finding and do not recommend clean approval.",
+          "must_not": "Hide the legacy caller behind generic wording or treat the component pass as sufficient."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a change scoped to one consumer family.",
+          "context": "A separate non-target consumer has an intentionally different contract.",
+          "expected_behavior": "Accept the target change only after its callers pass and verify that the non-target consumer remains unchanged.",
+          "must_not": "Demand an unrelated consumer adopt the target route or classify its preserved behavior as a defect."
+        }
+      ]
     }
   ]
 }
