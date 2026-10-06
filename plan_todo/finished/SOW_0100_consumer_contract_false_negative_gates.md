@@ -6,7 +6,7 @@
 - **Approval**: approved by user in current side thread (`làm SOW đó đi`)
 - **create_dttm**: `2026-10-06T13:08:27+07:00`
 - **approve_dttm**: `2026-10-06T13:31:15+07:00`
-- **finish_dttm**: `2026-10-06T13:40:02+07:00`
+- **finish_dttm**: `2026-10-06T13:43:45+07:00`
 - **Proposed-By**: Codex
 - **Plan / Reference**: `skill-evolution-flow` feedback correction
 
@@ -164,6 +164,7 @@ approved contract change
   tests.test_skill_feedback_cases tests.test_skill_sync_scripts`: 13 tests
   PASS.
 - `git diff --check`: PASS for the changed tracked files.
-- Installed skill copies were not synced. Commit/closeout remains pending
-  only for the scoped commit and target sync steps; pre-existing user changes
-  remain outside this SOW.
+- Scoped commit `39a3e0e` was pushed to `origin/main`.
+- The two canonical skills were synced and verified with parity `ok` in
+  `/Users/maihoangviet/.codex/skills` and `/Users/maihoangviet/.claude/skills`.
+- Pre-existing user changes remain outside this SOW.
