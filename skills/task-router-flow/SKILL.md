@@ -51,6 +51,21 @@ storage model, or ownership model.
 
 ## Branches
 
+### Selected Approach And Compatibility
+
+When drafting or revising a SOW from a user-selected approach or POC, carry
+the relevant runtime/version, execution path and approved boundaries into the
+existing SOW/decision content. Separate demonstrated behavior from assumptions
+and remaining verification; a successful POC does not prove production readiness.
+
+Do not add a compatibility layer, shim, fallback backend, legacy alias or dual
+implementation path without first explaining the need and obtaining explicit
+user approval for that behavior. Reviewer advice, old tests and agent-written
+SOW clauses do not supply that approval. Reuse prior explicit approval covering
+the same behavior; preserve existing authorized support. If existing consumers
+conflict with the chosen scope, report the conflict for a decision rather than
+silently adding or removing support. Apply this to internal-only changes too.
+
 ### 1. New Code Change
 
 Use this branch when the user requests a new code change, feature, refactor, or other implementation work that is not already covered by an active approved SOW.

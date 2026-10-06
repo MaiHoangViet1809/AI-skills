@@ -33,6 +33,17 @@ routing and do not add a plan unless requested or excessive scope risks failure.
 - When concept authority exists, run Concept Preflight before implementation
   and Concept Closeout before completion.
 - Confirm the approved SOW covers the exact task before code changes begin.
+- Before implementation or delegation, compare the planned route with the
+  user's selected approach, relevant runtime/version, chosen POC and approved
+  changes, including internal-only work. Keep demonstrated behavior distinct
+  from remaining verification. An APPROVED label does not resolve a contradiction
+  with an explicit user constraint; report the exact conflict before proceeding.
+- Do not introduce an additional compatibility layer, shim, fallback backend,
+  legacy alias or dual path without first explaining its need and obtaining
+  explicit user approval. Reviewer advice, old tests or an agent-written SOW
+  clause do not authorize it. Reuse prior explicit approval for the same scope;
+  preserve existing authorized support. Report conflicting consumer requirements
+  rather than silently adding or removing support or weakening tests.
 - For a public API, CLI, UI action, SDK, or other caller-visible entrypoint,
   reconstruct the latest explicit consumer call and compare its abstraction,
   identifiers, inputs and result with the SOW. Stop and reopen scope when they

@@ -224,6 +224,22 @@ entities or states:
   approval; do not infer the missing path;
 - skip this gate when no downstream state or consumer exists.
 
+### Selected Approach And Compatibility Gate
+
+Before incorporating a material review finding into a SOW, compare it with the
+user's selected approach, relevant runtime/version, chosen POC and approved
+changes. Apply this even to internal-only runtime or backend changes. Classify
+the finding as an in-scope correction or additional proposed behavior; POC
+evidence establishes what was demonstrated, not broader production readiness.
+
+Do not make an additional compatibility layer, shim, fallback backend, legacy
+alias or dual path a required deliverable without first explaining its need and
+obtaining explicit user approval. Technical necessity, reviewer agreement, old
+tests and an agent-written clause in an approved-looking SOW are insufficient.
+Reuse existing explicit approval for the same behavior. Preserve existing
+authorized support; report a genuine consumer conflict instead of silently
+adding support, removing consumers or weakening tests.
+
 ### Consumer Contract Gate
 
 When the reviewed work creates or changes a public API, CLI, UI action, SDK, or
@@ -243,7 +259,8 @@ other caller-visible entrypoint:
 
 If an approved SOW conflicts with the latest explicit consumer contract, report
 a material scope change and route it instead of recommending approval. Skip
-this gate for internal-only changes and explicitly product-specific APIs.
+the public-surface checks for internal-only changes and explicitly
+product-specific APIs; the Selected Approach And Compatibility Gate still applies.
 
 ## Evidence Rules
 
