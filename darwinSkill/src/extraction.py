@@ -13,7 +13,7 @@ from darwinSkill.src.provider_logs import (
 )
 
 
-SOW_PATTERN = re.compile(r"\bSOW_\d{4}\b")
+SOW_PATTERN = re.compile(r"\bSOW_(?:[0-9]{8}_[A-Z0-9]{8}|\d{4})(?=\b|_)")
 CONTINUATION_MARKERS = (
     "approve",
     "approved",
