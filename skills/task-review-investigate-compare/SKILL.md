@@ -30,6 +30,17 @@ Execution belongs to a later skill or human-in-the-loop step after this review i
 
 ## Plan-Backed Review
 
+For planning identity, relationships, EXT, decisions and lifecycle, use the
+project's declared contract first; otherwise locate `task-router-flow` through
+the harness's supplied skill location/catalog and read
+`references/planning-bundles.md`, or use the supplied resolved contract.
+If missing, dependent review stays unverified; do not invent or auto-install it.
+Review base SOW plus applicable approved EXT files in recorded order; draft
+scope cannot supersede approval, and unresolved overlap blocks implementation.
+Check prospective layout without migrating legacy records; conversion needs
+a separate approved migration SOW. Check partial Plan completion preserves its
+child bundles and aggregate moves/reopen preserve evidence and sibling times.
+
 For a plan or its child SOW, use the project's declared contract first;
 otherwise locate `task-router-flow` through the harness's supplied skill
 location/catalog and read `references/plan.md`. A supplied authoritative
@@ -490,6 +501,9 @@ or new summary; discussion-only requests remain read-only.
   there before removing its sole SOW copy, avoid duplicate entries and repair
   affected links. If no decision-log authority exists, retain minimum necessary
   rationale locally rather than inventing a governance structure.
+- For new-format records, follow the resolved bundle contract's scope-owned
+  decision file when no project decision authority overrides it; link shared
+  Plan decisions rather than duplicating them in each SOW.
 - Preserve decision-log chronology and leave completed historical artifacts
   alone unless their modification is explicitly in scope.
 

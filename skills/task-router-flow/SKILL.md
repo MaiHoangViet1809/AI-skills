@@ -12,6 +12,16 @@ or a blocker. Keep the final response separate.
 
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
+## Planning Bundle Contract
+
+Before creating, extending, adopting, moving or reopening planning records,
+use the target project's declared contract first; otherwise read
+[planning-bundles.md](references/planning-bundles.md). This package owns the
+default identity, placement, extension, decision and lifecycle contract.
+Installing it does not declare project concept authority. Existing legacy
+records retain their recorded contract; conversion needs a separate approved
+migration SOW. Preserve routing exemptions and optional Plan semantics below.
+
 ## Optional Plan Contract
 
 Preserve existing SOW routing under target-repo guardrails. Create a plan only
@@ -89,9 +99,9 @@ Use this branch when the user changes scope for work already covered by an activ
 
 Flow:
 - Check how many approved extensions the active SOW already has.
-- Give the new extension its own lifecycle timestamps and update the parent SOW
-  lifecycle with full timezone-aware datetimes, without rewriting completed
-  extension history.
+- Give the new extension its own lifecycle timestamps. A draft EXT does not
+  reopen its parent SOW/Plan; update parent lifecycle only after explicit scope
+  approval, using full timezone-aware datetimes and preserving completed history.
 - If the next change would become extension 4, do not keep extending the same SOW.
 - Draft a new SOW that references the prior SOW and carries forward only the still-relevant context.
 - Re-check concept authority for the updated scope.
@@ -130,7 +140,8 @@ Flow:
   docs edit and repo policy permits it; do not ask for the same approval again.
 - Obtain approval only for missing authority or a material scope expansion.
 - Edit the docs or planning files directly.
-- If the edit makes a SOW or plan complete, move that completed file into `plan_todo/finished/` before closeout.
+- If the edit completes owned planning scope, apply the resolved bundle
+  lifecycle before closeout; a completed child stays in an active Plan.
 
 ## Bounded Scope Guardrail
 
@@ -145,7 +156,7 @@ Flow:
 ## SOW Extension Limit
 
 - Treat 3 extensions as the hard maximum for a single SOW.
-- Count each explicit extension section or equivalent approved addendum toward that limit.
+- Count approved separate EXT files and legacy approved addenda toward that limit.
 - If a requested change would become extension 4, open a new SOW instead of appending more to the old one.
 - The new SOW should reference the prior SOW so reviewers can trace continuity without letting one document grow indefinitely.
 - Prefer carrying forward only active context, unresolved risks, and dependency notes rather than copying the entire old SOW.
@@ -154,9 +165,9 @@ Flow:
 
 After any branch finishes:
 - run a final check
-- if a SOW became complete during this branch, set its `finish_dttm` at that
-  transition and move it into the repo's `finished/` planning directory before
-  commit
+- if a SOW became complete, set its actual `finish_dttm` and apply the resolved
+  planning lifecycle before commit: move a standalone bundle, retain a completed
+  child in an active Plan, or move the whole verified completed Plan; repair links
 - summarize the outcome
 - handle commits according to the user's instruction and repo policy
 - report the result to the user
@@ -165,7 +176,8 @@ After any branch finishes:
 
 - This skill decides the branch. It does not replace downstream execution skills.
 - Use the repo's own SOW template and planning location.
-- New SOWs should use a unique 4-digit index such as `SOW_0001_...`.
+- New records follow the resolved planning bundle identity contract; do not
+  allocate sequential indices or rename legacy IDs automatically.
 - For multi-SOW execution after routing, hand off to `sow-delegate-flow` or the local execution path as appropriate.
 - When a user explicitly names Claude Code as the delegate, route the request to
   `sow-delegate-flow` for its documented transport/model contract. Do not create

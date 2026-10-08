@@ -5,6 +5,18 @@ description: Use when task scope is already approved or otherwise clear and you 
 
 # Task Execution Flow
 
+## Planning Bundle Lifecycle
+
+Before extending, adopting, moving or reopening planning records, use the
+project's declared contract first; otherwise locate `task-router-flow` through
+the harness's supplied skill location/catalog and read
+`references/planning-bundles.md`, or use its supplied resolved contract.
+If unavailable, leave dependent lifecycle handling unverified; do not invent
+or auto-install it. Read the base SOW and applicable approved EXT files in
+recorded order; stop on unresolved scope overlap. Draft EXT files grant no scope.
+Use scope-owned decisions under that contract. Legacy records retain their
+recorded lifecycle; conversion requires a separate approved migration SOW.
+
 Use this skill after routing is already done.
 
 This skill is for execution discipline, implementation verification, and closeout state.
@@ -213,7 +225,9 @@ Phase 5: closeout
    -> set the active extension's finish_dttm at its verified completion
    -> set the top-level SOW finish_dttm only when no owned scope remains open
    -> preserve completed extension timestamps
-   -> move that completed planning file into the repo's `finished/` planning directory before commit
+   -> apply resolved bundle lifecycle before commit and repair references
+   -> standalone: move whole SOW bundle to matching finished/
+   -> active Plan: retain completed child; move whole Plan only after aggregate verification
 -> commit
    -> review task-owned changes against scope; preserve unrelated dirty work
    -> follow Scoped Commit Safety below, including pre-existing staged changes
@@ -438,7 +452,9 @@ Only close out when all of these are true:
 - task-owned changes still match approved scope; unrelated work remains intact
 - delegation decision evidence is recorded for every implementation slice that
   entered the mandatory GLM-5.3-max gate
-- any SOW or plan completed by this task has been moved into the repo's `finished/` planning directory
+- completed planning scope follows the resolved bundle lifecycle: standalone
+  bundles move to matching `finished/`, completed children stay in an active
+  Plan, and only aggregate completion moves the whole Plan
 - the active extension and top-level SOW have their correct completion
   timestamps before a finished move
 

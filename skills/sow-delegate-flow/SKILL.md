@@ -245,12 +245,24 @@ replace the exact GLM-5.3-max default silently.
 10. After the delegate reaches a terminal/errored state, or after an explicit
     post-timeout cut decision for an unresolved review, clean it up: interrupt
     the native child, or terminate only the task-owned external process/session.
-11. If validation passes, close the SOW and move it to the repo's `finished/`
-    planning directory when it is complete.
-12. If the owning plan has no active SOW left and the plan itself is complete,
-    move that plan to the same `finished/` directory.
+11. If validation passes, close owned scope under the resolved planning bundle
+    lifecycle; repair references. Move a standalone bundle to matching
+    `finished/`, but retain a completed child in an active Plan.
+12. Only verified aggregate Plan completion moves the whole Plan bundle.
+    The coordinator owns these lifecycle transitions, not a delegate handoff.
 
 ## Delegate Prompt Contract
+
+For planning identity, placement, EXT, decisions and lifecycle, use the target
+project's declared contract first; otherwise locate `task-router-flow` via the
+harness's supplied skill location/catalog and read
+`references/planning-bundles.md`. Supply the resolved contract or accessible
+path to the delegate; if missing, dependent work is unverified, not invented
+or auto-installed. Include base SOW plus applicable approved EXT files in
+recorded order, stopping on unresolved overlap. Draft EXT files grant no scope.
+Legacy conversion requires a separate approved migration SOW. Delegates must
+not detach completed children, reopen parents or move bundles independently of
+the coordinator's authorized scope.
 
 For a plan-backed slice, resolve the project's declared contract first;
 otherwise locate `task-router-flow` via the harness's supplied skill

@@ -151,6 +151,12 @@ class PlanContractIntegrationTests(unittest.TestCase):
 
             installed_plan = target_root / ROUTER_SKILL / PLAN_RELATIVE_PATH
             self.assertTrue(installed_plan.is_file())
+            installed_bundle = target_root / ROUTER_SKILL / "references/planning-bundles.md"
+            self.assertTrue(installed_bundle.is_file())
+            self.assertEqual(
+                (SKILLS_ROOT / ROUTER_SKILL / "references/planning-bundles.md").read_bytes(),
+                installed_bundle.read_bytes(),
+            )
             self.assert_local_links_stay_in_package(target_root / ROUTER_SKILL)
             for skill_name in CONSUMER_SKILLS:
                 self.assert_local_links_stay_in_package(target_root / skill_name)

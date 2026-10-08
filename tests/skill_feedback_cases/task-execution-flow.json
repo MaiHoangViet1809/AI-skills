@@ -52,7 +52,7 @@
           "kind": "expected",
           "request": "Close this completed plan and its SOWs.",
           "context": "All outcomes, preservation/ownership locks and required integration have verified evidence; no owned work remains.",
-          "expected_behavior": "Set actual finish datetimes, move completed plan/SOWs to matching finished folder and repair references.",
+          "expected_behavior": "Set actual finish datetimes, move the whole verified completed Plan bundle to matching finished folder and repair references; retain completed children inside an active Plan until aggregate completion.",
           "must_not": "Leave completed plan active or claim closure from SOW counts alone."
         },
         {

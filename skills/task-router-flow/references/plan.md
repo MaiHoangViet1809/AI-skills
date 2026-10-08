@@ -3,6 +3,10 @@
 Plan defines the big goal; SOWs define bounded changes. Use the target repo's
 declared contract first; this is the default when none is declared.
 
+Identity, relationships, placement, decisions and moves follow
+[Planning Bundles](planning-bundles.md) unless the target project declares
+another contract. This reference does not authorize historical migration.
+
 ## Authoring Contract
 
 - Preserve existing SOW routing: `task-router-flow` applies target-repo
@@ -29,7 +33,7 @@ declared contract first; this is the default when none is declared.
 ## Template
 
 ```md
-# PLAN_<name> - <Title>
+# PLAN_<YYYYMMDD>_<RANDOM8> - <Title>
 
 - Status: DRAFT
 - Approval: PENDING
@@ -87,5 +91,8 @@ case. Parity must match the referenced baseline, not just smoke/build.>
   Static/simulated checks and SOW counts are not runtime proof.
 - `DONE`: evidence for all outcomes/locks and required integration/deployment.
   Functional success does not waive ownership violations.
-- Move completed plan/SOWs to matching `finished/`; repair links. Exclude unrelated follow-ups.
-- Explicit reopen: preserve prior evidence, restore active status/location, clear `finish_dttm`.
+- Follow the resolved bundle lifecycle: completed children stay in an active
+  Plan; only verified aggregate completion moves the whole Plan to matching
+  `finished/`. Repair links; exclude unrelated follow-ups.
+- Authorized reopen restores the owning bundle and affected parent states;
+  clear only reopened scope/ancestor finish times and preserve completed siblings.

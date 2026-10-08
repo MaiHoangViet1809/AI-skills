@@ -13,6 +13,11 @@ each SOW owns exact implementation coverage and links its parent `G#` only when
 that plan exists. Standalone SOWs need no plan or goal IDs. Preserve existing
 router/project SOW requirements, exemptions, and approval gates.
 
+For identity, placement, separate extensions, decisions and moves, use the
+target project's declared contract first; otherwise follow
+[Planning Bundles](planning-bundles.md). Apply it prospectively, not as migration
+authority for existing records.
+
 ## Required Template
 
 Use the repository's active SOW template. In this repo, the template is:
@@ -48,7 +53,8 @@ Rules:
   cannot be established authoritatively. Do not derive it from file metadata or
   Git history.
 - Before code changes begin, `Approval` must be `approved`.
-- When work is finished and the SOW is moved to `finished/`, set `Status` to a completed state such as `done`.
+- At verified SOW completion, set `Status` to a completed state such as `done`,
+  even when it remains inside an active Plan.
 - When a plan document reaches its terminal completed state and is moved to `finished/`, make that completed state explicit in the plan file.
 - If the target repository declares concept authority, add `Concept Compliance`
   to the SOW before approval.
@@ -78,41 +84,37 @@ Rules:
   approval and keep the concept update in the same SOW.
 - If no concept authority exists, omit `Concept Compliance` entirely.
 
-## Indexing
+## Identity And Placement
 
-Every new SOW should use a unique 4-digit index from `0001` to `9999`.
-
-Recommended filename shape:
-
-- `SOW_0001_short_name.md`
-- `SOW_0002_short_name.md`
-
-Choose the next available index by scanning the repository's planning area, including finished SOWs.
+Follow [Planning Bundles](planning-bundles.md) for the default
+`SOW_YYYYMMDD_RANDOM8` ID, ID-only folder and `<SOW_ID>_<task_name>.md` file.
+Do not allocate sequential indices. Preserve identities of existing records.
 
 ## Lifecycle
 
-- Create SOW files in the repository's planning directory.
-- In this repo, planning files live under `plan_todo/`.
+- Create a standalone SOW bundle under the resolved active planning root;
+  nest it in a Plan bundle only when it owns work under that optional Plan.
 - At creation, set `create_dttm` to the current full timezone-aware datetime
   and keep `approve_dttm` and `finish_dttm` null.
 - At explicit approval, set `approve_dttm`; at verified completion, set
   `finish_dttm`. Update each field only at its matching transition.
 - Before writing code, confirm an approved SOW exists unless the repo explicitly exempts the task.
 - If scope changes materially, update or extend the active SOW and get approval again.
+- Create every new extension in its own parent-owned EXT file under the
+  resolved bundle contract. Read the base plus applicable approved extensions
+  in recorded order; stop on unresolved overlap. Draft extensions grant no scope.
 - Every extension must contain its own `Status`, `Approval`, `create_dttm`,
   `approve_dttm`, and `finish_dttm`. Do not reuse the parent approval timestamp
   as the extension approval timestamp.
-- When an extension reopens a completed SOW, return the top-level status to an
-  active state and clear its top-level `finish_dttm` to `null`. Do not rewrite
-  completed extension timestamps. Set the new top-level `finish_dttm` when the
-  whole SOW is complete again.
+- On authorized reopen, apply the resolved parent SOW/Plan lifecycle; preserve
+  prior evidence and completed sibling timestamps. A draft EXT alone does not
+  reopen its parents. Record actual finish times again after renewed completion.
 - A single SOW may have at most 3 approved extensions.
-- If a follow-up change would become extension 4, create a new SOW instead of adding another extension block.
+- If a follow-up change would become extension 4, create a replacement SOW.
 - A replacement SOW should reference the prior SOW and carry forward only the still-relevant context, risks, and dependencies.
-- When the work is complete, move the SOW into the repo's finished-plans location.
-- In this repo, completed SOWs move to a `finished/` directory under the planning area.
-- If a plan document becomes complete and no longer has active scoped work under it, move that completed plan into the same `finished/` directory under the planning area.
-- Do not leave a completed plan in the active planning area once its owned work is complete.
+- Apply [Planning Bundles](planning-bundles.md) for standalone/aggregate moves,
+  partial Plan completion, adoption and reference repair. Never detach completed
+  children from an active Plan merely to place them in `finished/`.
 
 ## Branch Rule
 
