@@ -361,7 +361,7 @@ Reason:
 Date: 2026-09-18
 
 Related SOW:
-- `finished/SOW_20260918_VNMP6GD0_template_agents_hardening_review.md`
+- `finished/SOW_20260918_VNMP6GD0/SOW_20260918_VNMP6GD0_template_agents_hardening_review.md`
 
 Decision:
 - `TEMPLATE_AGENTS.md` remains the canonical policy source and `AGENTS.md`
