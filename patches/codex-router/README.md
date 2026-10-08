@@ -1,6 +1,7 @@
 # Codex Router external subagent message compatibility
 
-This directory contains a reinstall/recovery patch for SOW_0092. It is a
+This directory contains a reinstall/recovery patch for
+[SOW_20260920_9851QRQ4](../../plan_todo/finished/SOW_20260920_9851QRQ4/SOW_20260920_9851QRQ4_codex_router_external_subagent_message_compat.md). It is a
 derived artifact, not a replacement runtime checkout.
 
 ## Provenance

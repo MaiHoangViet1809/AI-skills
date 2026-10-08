@@ -1,0 +1,59 @@
+# SOW_20260425_5X409X89 - shared utils dedupe
+
+- Status: UNKNOWN
+- Approval: UNKNOWN
+- create_dttm: 2026-04-25T00:36:55+07:00
+- create_date: 2026-04-25
+- create_dttm_source: filesystem_birthtime
+- create_dttm_confidence: filesystem_proxy
+- create_dttm_evidence: `plan_todo/finished/SOW_20261008_VO3LKN0L/creation-date-evidence.json` (record: SOW_20260425_5X409X89)
+- approve_dttm: unknown
+- finish_dttm: unknown
+- legacy_id: SOW_0037
+- legacy_path: plan_todo/finished/SOW_0037_shared_utils_dedupe.md
+- migrated_dttm: 2026-10-08T12:48:51+07:00
+
+## Preserved Contract And Historical Evidence
+
+- **Task**: Refactor các helper/function đang bị duplicate thành shared util/common modules để telemetry, dashboard, và skill scripts dùng chung một nguồn logic.
+- **Location**: `plan_todo/SOW_0037_shared_utils_dedupe.md`, `~/Projects/AISkills/aiskills_common/telemetry/**`, `~/Projects/AISkills/scripts/telemetry/**`, `~/Projects/AISkills/skills/telemetry-flow/scripts/**`, `~/Projects/AISkills/skills/sow-delegate-flow/scripts/**`, `~/Projects/AISkills/dashboard/backend/**`, `~/Projects/AISkills/scripts/skills/sync_environment.py`, `~/Projects/AISkills/.codex/hooks.json.template`
+- **Why**: Hiện project có nhiều helper/parser duplicate và đã bắt đầu drift logic; cần gom về nguồn dùng chung để giữ DRY/KISS/SOLID và tránh sửa một nơi hỏng nơi khác.
+- **As-Is Diagram (ASCII)**:
+```text
+dashboard loader      telemetry hook      delegate/parser scripts
+      |                    |                    |
+      +--> own helper copy +--> own helper copy +--> own parser copy
+                        |
+                        v
+                 drift / inconsistent behavior
+```
+- **To-Be Diagram (ASCII)**:
+```text
+shared util/common modules
+      |
+      +--> dashboard backend
+      +--> telemetry hook / hook bridge
+      +--> delegate/parser wrappers
+      |
+      v
+single-source logic
+```
+- **Deliverables**:
+  - shared util module(s) cho path/json/time/sow resolution
+  - shared parser/common logic cho Codex rollout và Claude delegate logs
+  - remove các duplicate helper/parser chính bằng wrapper mỏng
+  - update callers hiện có sang shared modules
+- **Done Criteria**:
+  - `resolve_sow_file` chỉ còn 1 nguồn logic dùng chung
+  - `parse_delegate_log` và `parse_codex_rollout` chỉ còn 1 nguồn implementation
+  - dashboard, telemetry hook, hook bridge, và synced skill runtime vẫn chạy
+  - compile/smoke checks pass
+- **Out-of-Scope**:
+  - dashboard redesign
+  - thay đổi telemetry metric schema ngoài phần cần để dedupe
+- **Proposed-By**: Codex GPT-5
+- **plan**: `shared utils dedupe`
+- **Cautions / Risks**:
+  - cần giữ skill runtime self-contained sau khi sync sang `~/.codex`
+  - không được làm vỡ hook-based telemetry global path
+  - parser progress mode và telemetry mode phải vẫn phục vụ đúng use case riêng

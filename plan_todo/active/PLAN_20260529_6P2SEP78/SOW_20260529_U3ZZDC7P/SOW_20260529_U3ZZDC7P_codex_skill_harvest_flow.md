@@ -1,0 +1,87 @@
+# SOW_20260529_U3ZZDC7P - codex skill harvest flow
+
+- Status: done
+- Approval: approved
+- create_dttm: 2026-05-29T03:00:13+07:00
+- create_date: 2026-05-29
+- create_dttm_source: filesystem_birthtime
+- create_dttm_confidence: filesystem_proxy
+- create_dttm_evidence: `plan_todo/finished/SOW_20261008_VO3LKN0L/creation-date-evidence.json` (record: SOW_20260529_U3ZZDC7P)
+- approve_dttm: unknown
+- finish_dttm: unknown
+- legacy_id: SOW_0058
+- legacy_path: plan_todo/finished/SOW_0058_codex_skill_harvest_flow.md
+- migrated_dttm: 2026-10-08T12:48:51+07:00
+
+## Preserved Contract And Historical Evidence
+
+- **Status**: done
+- **Approval**: approved
+- **Task**: Build a harvest flow in `darwinSkill` that reads raw conversation and tool logs from Codex first, normalizes them into a canonical raw schema, and preserves enough evidence to support later Claude or OpenCode adapters.
+- **Location**: `~/Projects/AISkills/darwinSkill/`, `~/Projects/AISkills/tests/darwinSkill/`, `~/Projects/AISkills/scripts/darwinSkill/`, `~/Projects/AISkills/plan_todo/`
+- **Why**: If `darwinSkill` is going to plug into an agent-improvement loop, it first needs a stable raw evidence layer. Before any labeling or severity logic, the system must lock a canonical schema so multiple providers can merge into the same downstream data model.
+- **As-Is Diagram (ASCII)**:
+```text
+provider task/session logs
+  -> Codex JSONL exists
+  -> other providers use different schemas
+  -> no darwinSkill-native canonical raw schema
+  -> no stable raw evidence layer for later training extraction
+```
+- **To-Be Diagram (ASCII)**:
+```text
+provider-native logs / hooks
+  -> provider adapter
+     -> raw envelope normalization
+     -> raw turn / tool / task event parsing
+  -> darwinSkill canonical raw schema
+     -> session
+     -> turn
+     -> message
+     -> tool call / tool result
+     -> patch event
+     -> task event
+     -> artifact references
+  -> downstream extraction pipeline
+```
+- **Deliverables**:
+  - add a `darwinSkill.provider_logs` module for raw log harvesting and canonical schema normalization
+  - define provider-agnostic typed contracts for:
+    - provider identity and source format version
+    - session identity
+    - turn identity
+    - message role and content
+    - tool call and tool result
+    - patch apply events
+    - task started and task complete markers
+    - timestamps
+    - cwd and repo context when available
+    - artifact and transcript references
+  - add a Codex-specific parser that maps current `~/.codex/sessions/*.jsonl` structures into the canonical schema
+  - make historical session logs the default source for v1 harvesting
+  - treat hook-based capture as an optional enrichment path, not a dependency for the first usable version
+  - preserve provider-specific details in extensible metadata instead of discarding them
+  - preserve raw evidence references without collapsing them into outcome labels or judgments
+  - add helper scripts that ingest provider-native payloads and emit canonical raw artifacts
+  - add tests for:
+    - Codex raw events parsing into the canonical schema
+    - missing optional fields degrading cleanly
+    - provider-specific metadata preservation without polluting core contracts
+- **Done Criteria**:
+  - repo has a native `darwinSkill` harvest flow that converts current Codex logs into a canonical raw schema
+  - the schema does not depend directly on Codex-only class names
+  - v1 harvesting works from existing historical Codex session logs without requiring custom hook registration
+  - the resulting raw artifact format is stable enough to become the upstream input for later extraction and labeling work
+- **Out-of-Scope**:
+  - work-unit segmentation
+  - positive or negative outcome labeling
+  - severity scoring
+  - mandatory hook wiring before historical-log ingestion works
+  - automatic publishing of updated skills into `~/.codex/skills`
+  - fully automatic self-training inline inside active Codex task execution
+- **Proposed-By**: Codex GPT-5
+- **plan**: `plan_todo/active/PLAN_20260529_6P2SEP78/PLAN_20260529_6P2SEP78_codex_skill_improvement_data_plan.md`
+- **Cautions / Risks**:
+  - if the raw schema is too Codex-shaped, Claude and OpenCode extension will become awkward later
+  - if abstraction happens too early and loses raw evidence, downstream extraction will weaken
+  - the harvest layer must stay evidence-preserving normalization, not turn into auto-judgment too early

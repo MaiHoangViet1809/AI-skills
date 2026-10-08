@@ -1,0 +1,992 @@
+{
+  "schema_version": 1,
+  "migration_sow": "SOW_20261008_VO3LKN0L",
+  "status": "APPLIED_NEEDS_DATE_CORRECTION",
+  "snapshot_dttm": "2026-10-08T11:31:08+07:00",
+  "id_assignment_date": "20261008",
+  "date_basis": "Superseded targets: each SOW/Plan ID date must match its original create_dttm; historical-date resolution and revised mapping pending",
+  "plans": [
+    {
+      "source": "plan_todo/codex_skill_improvement_data_plan.md",
+      "target": "plan_todo/active/PLAN_20261008_6P2SEP78/PLAN_20261008_6P2SEP78_codex_skill_improvement_data_plan.md",
+      "id": "PLAN_20261008_6P2SEP78",
+      "sha256": "daa51195f93c5e49935cc7b27acc3a0166593f0048168ddc31dfb09bfb0cd8a1",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/agent_skill_library_cleanup_plan.md",
+      "target": "plan_todo/finished/PLAN_20261008_W5VOKPTU/PLAN_20261008_W5VOKPTU_agent_skill_library_cleanup_plan.md",
+      "id": "PLAN_20261008_W5VOKPTU",
+      "sha256": "f216f89f8faea9ed296a6a60f2cfe14b2bbb45c9adf8a22370402a5fe16baee3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/agent_skill_sync_refine_plan.md",
+      "target": "plan_todo/finished/PLAN_20261008_PST680EX/PLAN_20261008_PST680EX_agent_skill_sync_refine_plan.md",
+      "id": "PLAN_20261008_PST680EX",
+      "sha256": "db57ef8a1862777ed833722bcf9f7757164b7c2eb977fbe0944320bb3276b0f3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/telemetry_dashboard_followup_plan.md",
+      "target": "plan_todo/finished/PLAN_20261008_GOBS4HRF/PLAN_20261008_GOBS4HRF_telemetry_dashboard_followup_plan.md",
+      "id": "PLAN_20261008_GOBS4HRF",
+      "sha256": "e6e1255f922ac6a5ca55eb4430d6d5b80cf44df9ffe8e3f9b69581f891ede84a",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/telemetry_dashboard_master_plan.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/PLAN_20261008_T4T0TPAC_telemetry_dashboard_master_plan.md",
+      "id": "PLAN_20261008_T4T0TPAC",
+      "sha256": "2e8f917238bd7b0e5bbeb0e8aa14379701e7e4dbf43870aba1c6dae095ab63c1",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/mcp_skills_market_plan.md",
+      "target": "plan_todo/active/PLAN_20261008_OL8CB3EC/PLAN_20261008_OL8CB3EC_mcp_skills_market_plan.md",
+      "id": "PLAN_20261008_OL8CB3EC",
+      "sha256": "38683b637f378b62d13e07b919f22eb306a6731e6383dd9f05b77185cb84e33d",
+      "tracked": false
+    },
+    {
+      "source": "plan_todo/skill_framework_distillation_plan.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/PLAN_20261008_IGLO2SVW_skill_framework_distillation_plan.md",
+      "id": "PLAN_20261008_IGLO2SVW",
+      "sha256": "b4ce2273b5873d2fca42a7686a496455e2e8f05872247e86ac08f84e0554aa94",
+      "tracked": true
+    }
+  ],
+  "sows": [
+    {
+      "source": "plan_todo/SOW_0047_skillopt_reflective_engine_parity.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_Q7DBBRZ7/SOW_20261008_Q7DBBRZ7_skillopt_reflective_engine_parity.md",
+      "id": "SOW_20261008_Q7DBBRZ7",
+      "sha256": "670024d6f43bdfe989f7cbfdbe636c1618163cb2fc554946a027703b0bc8f3c3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0048_skillopt_runtime_state_resume_and_artifact_lineage.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_KPHZ6HX6/SOW_20261008_KPHZ6HX6_skillopt_runtime_state_resume_and_artifact_lineage.md",
+      "id": "SOW_20261008_KPHZ6HX6",
+      "sha256": "998bd4ea0e6e209e4385bb266416e775ab541c54bc1e2ade2cfb40c64fb5fe62",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0049_skillopt_epoch_memory_parity.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_XRXT6GSO/SOW_20261008_XRXT6GSO_skillopt_epoch_memory_parity.md",
+      "id": "SOW_20261008_XRXT6GSO",
+      "sha256": "365a695bf97d3828335675a0496af1ed1382c8396d9a733f2d87db93c93923d7",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0050_skillopt_backend_router_and_dual_role_execution.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_IPBHY42O/SOW_20261008_IPBHY42O_skillopt_backend_router_and_dual_role_execution.md",
+      "id": "SOW_20261008_IPBHY42O",
+      "sha256": "4dec474bdfbee29ff0e6fcac44ec2ff0e36b1adb7932aa34808e070917783261",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0051_skillopt_adapter_dataloader_and_config_migration.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_YKPW0TCH/SOW_20261008_YKPW0TCH_skillopt_adapter_dataloader_and_config_migration.md",
+      "id": "SOW_20261008_YKPW0TCH",
+      "sha256": "585a074007419bae1864e998f7e5a27265d697fa38836ea4b9646591c5b15c9d",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0052_skillopt_native_python_run_and_eval_surface.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_ZBM8XE0J/SOW_20261008_ZBM8XE0J_skillopt_native_python_run_and_eval_surface.md",
+      "id": "SOW_20261008_ZBM8XE0J",
+      "sha256": "b1f4c7cc63800a10eb2354c2214c809ccc9f9b281e270ebe73039da68934b8e8",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0053_skillopt_benchmark_pack_text_and_doc_tasks.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_W46NKDB1/SOW_20261008_W46NKDB1_skillopt_benchmark_pack_text_and_doc_tasks.md",
+      "id": "SOW_20261008_W46NKDB1",
+      "sha256": "374932485288abb1c658bbcf45bc418ff2c027b5a5d4ca1b4a3155d2b74afdcc",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0054_skillopt_benchmark_pack_interactive_and_tool_tasks.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_WUSTM4YS/SOW_20261008_WUSTM4YS_skillopt_benchmark_pack_interactive_and_tool_tasks.md",
+      "id": "SOW_20261008_WUSTM4YS",
+      "sha256": "6cd927187fc7f3da0011c62f8c27758e2cfcf51a3738145b5c8a76ab9ad8ec1f",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0055_skillopt_api_ergonomics_and_parity_docs.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_3WBH5AYH/SOW_20261008_3WBH5AYH_skillopt_api_ergonomics_and_parity_docs.md",
+      "id": "SOW_20261008_3WBH5AYH",
+      "sha256": "2d6047571927065bc59052458dbab89787af889d102724a0334b6c12c075c609",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0056_codex_router_claude_cli_native_subagent.md",
+      "target": "plan_todo/active/SOW_20261008_P1ZCTCHY/SOW_20261008_P1ZCTCHY_codex_router_claude_cli_native_subagent.md",
+      "id": "SOW_20261008_P1ZCTCHY",
+      "sha256": "ffeb61fd9ec44a0d6134969a59e6a76bc042dad4a92a8dc85eedd86dc5cdbb7d",
+      "tracked": false
+    },
+    {
+      "source": "plan_todo/SOW_0087_review_end_to_end_outcome_trace.md",
+      "target": "plan_todo/finished/SOW_20261008_V7HK7IAU/SOW_20261008_V7HK7IAU_review_end_to_end_outcome_trace.md",
+      "id": "SOW_20261008_V7HK7IAU",
+      "sha256": "fa6b52fe643002d49fd99a58bd2073f75c0aaad82e3ea74a6c61e27f9162587f",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0089_public_repo_privacy_hardening.md",
+      "target": "plan_todo/active/SOW_20261008_9TYIE2MO/SOW_20261008_9TYIE2MO_public_repo_privacy_hardening.md",
+      "id": "SOW_20261008_9TYIE2MO",
+      "sha256": "575a7df1b88c6f20abe192c4f97f1fee88ebf70bc8967125bd3530473e33f384",
+      "tracked": false
+    },
+    {
+      "source": "plan_todo/SOW_0092_codex_router_external_subagent_message_compat.md",
+      "target": "plan_todo/finished/SOW_20261008_9851QRQ4/SOW_20261008_9851QRQ4_codex_router_external_subagent_message_compat.md",
+      "id": "SOW_20261008_9851QRQ4",
+      "sha256": "581107e2ce94e1b032966c80e0c99070eb2ffef853acb514ab0ff3a5fb3f9eac",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0093_mcp_skills_market_local_repository_registry.md",
+      "target": "plan_todo/active/PLAN_20261008_OL8CB3EC/SOW_20261008_GVDCDZ3B/SOW_20261008_GVDCDZ3B_mcp_skills_market_local_repository_registry.md",
+      "id": "SOW_20261008_GVDCDZ3B",
+      "sha256": "42e40fb457f9ab666a78fcc24f9651da191ab602cce96c4da9aaa9013d47c4a1",
+      "tracked": false
+    },
+    {
+      "source": "plan_todo/SOW_0097_sow_delegate_review_wait_grace.md",
+      "target": "plan_todo/finished/SOW_20261008_3XZ5PZ72/SOW_20261008_3XZ5PZ72_sow_delegate_review_wait_grace.md",
+      "id": "SOW_20261008_3XZ5PZ72",
+      "sha256": "3915a92a7ab8bc27a85718c018727d5b7275499405b79c05b91a052dd4c28faf",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0001_centralize_local_skills.md",
+      "target": "plan_todo/finished/SOW_20261008_GZK7DZJ6/SOW_20261008_GZK7DZJ6_centralize_local_skills.md",
+      "id": "SOW_20261008_GZK7DZJ6",
+      "sha256": "39ca6073dd608d8ef2d2c7a06b14937ec76cc89aa6c0fa7a51ebca3385f335e4",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0002_copy_telemetry_tooling.md",
+      "target": "plan_todo/finished/SOW_20261008_X3MCJVC6/SOW_20261008_X3MCJVC6_copy_telemetry_tooling.md",
+      "id": "SOW_20261008_X3MCJVC6",
+      "sha256": "5d24769def9a325820b5a9be7f99273a2bdbae1008f0c58ea42f7b9d94752499",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0003_claude_delegate_probe.md",
+      "target": "plan_todo/finished/SOW_20261008_LBRWFO9M/SOW_20261008_LBRWFO9M_claude_delegate_probe.md",
+      "id": "SOW_20261008_LBRWFO9M",
+      "sha256": "5a7439badc00befe0d57dce60fd2e567c5f5a87510b98b94e379e8d3b405d6d8",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0004_sow_delegate_flow_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_0DVUMWO6/SOW_20261008_0DVUMWO6_sow_delegate_flow_skill.md",
+      "id": "SOW_20261008_0DVUMWO6",
+      "sha256": "5f05fc48ce2a1e80aac29f134f440e57ced7f4f4c456785b0dc74954c906f592",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0005_sow_delegate_flow_wording_trim.md",
+      "target": "plan_todo/finished/SOW_20261008_L1VYWH14/SOW_20261008_L1VYWH14_sow_delegate_flow_wording_trim.md",
+      "id": "SOW_20261008_L1VYWH14",
+      "sha256": "d2a2bdad7a274544369af12b2b8f9c4a70ab3b0098ae4548f4c09001becc75f2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0006_sow_delegate_flow_advisor_session.md",
+      "target": "plan_todo/finished/SOW_20261008_FH5735BM/SOW_20261008_FH5735BM_sow_delegate_flow_advisor_session.md",
+      "id": "SOW_20261008_FH5735BM",
+      "sha256": "6040cb3a419448aad4c35e3969c3f602b6775519c368373ba16c8866168e6eaa",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0007_sow_delegate_flow_session_compaction.md",
+      "target": "plan_todo/finished/SOW_20261008_87WNL5BL/SOW_20261008_87WNL5BL_sow_delegate_flow_session_compaction.md",
+      "id": "SOW_20261008_87WNL5BL",
+      "sha256": "e92b1bdac5ac1468bbd22ddfbb5dfd5f844813924e71937bf4ec4c2a7e656977",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0008_code_context_benchmark.md",
+      "target": "plan_todo/finished/SOW_20261008_OABU11GG/SOW_20261008_OABU11GG_code_context_benchmark.md",
+      "id": "SOW_20261008_OABU11GG",
+      "sha256": "3ba9193ec23475cf51ec2a74dca3cee6b1b5eb6e4bd7efef7692c8337bf451b5",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0009_sow_delegate_flow_guardrails.md",
+      "target": "plan_todo/finished/SOW_20261008_UFFZUZI4/SOW_20261008_UFFZUZI4_sow_delegate_flow_guardrails.md",
+      "id": "SOW_20261008_UFFZUZI4",
+      "sha256": "4393a8f4ab44fed377669c4c6a5155b09fd9181f2579e05434ecb3a934ad2022",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0010_task_router_flow_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_L0TPKTJH/SOW_20261008_L0TPKTJH_task_router_flow_skill.md",
+      "id": "SOW_20261008_L0TPKTJH",
+      "sha256": "85051073a39d881382eb9c4b28c46a8df52d5224ea15b649afb9f0ab43a50c36",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0011_task_router_flow_plan_and_indexing.md",
+      "target": "plan_todo/finished/SOW_20261008_UJTILNL6/SOW_20261008_UJTILNL6_task_router_flow_plan_and_indexing.md",
+      "id": "SOW_20261008_UJTILNL6",
+      "sha256": "2fa616e57cf93ccc0ecae2ad03668119e4280195ad631e889b125f8686ed97f3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0012_sow_delegate_flow_json_first.md",
+      "target": "plan_todo/finished/SOW_20261008_KQ138ZHE/SOW_20261008_KQ138ZHE_sow_delegate_flow_json_first.md",
+      "id": "SOW_20261008_KQ138ZHE",
+      "sha256": "8c7e07997d8a7d914e6f455b9e391b44d462b1c10aa80ce99dd8f19f323aaef6",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0013_sow_delegate_flow_output_filtering.md",
+      "target": "plan_todo/finished/SOW_20261008_TO65BLA8/SOW_20261008_TO65BLA8_sow_delegate_flow_output_filtering.md",
+      "id": "SOW_20261008_TO65BLA8",
+      "sha256": "a25acbba5c53a83910306dd8387b3af7d3d736752f9f707876be6cd409a64554",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0014_sow_delegate_flow_log_parser.md",
+      "target": "plan_todo/finished/SOW_20261008_9IUCS05O/SOW_20261008_9IUCS05O_sow_delegate_flow_log_parser.md",
+      "id": "SOW_20261008_9IUCS05O",
+      "sha256": "3f5df7dcff00aada801b8843a5d17028a932f447161484ced046b6b7d4cccb75",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0015_codex_otel_session_metrics.md",
+      "target": "plan_todo/finished/SOW_20261008_XQR8DDJ3/SOW_20261008_XQR8DDJ3_codex_otel_session_metrics.md",
+      "id": "SOW_20261008_XQR8DDJ3",
+      "sha256": "695d7a2b9227d1657061bb2199f72c6886a0ba6546b490319823db0e78d44bae",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0016_codex_rollout_metrics_refactor.md",
+      "target": "plan_todo/finished/SOW_20261008_WEE9FNN1/SOW_20261008_WEE9FNN1_codex_rollout_metrics_refactor.md",
+      "id": "SOW_20261008_WEE9FNN1",
+      "sha256": "ac637f7c586f7157a5199b43639189e8c468d3ee657ea9e48a18092344084138",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0017_sow_delegate_flow_claude_raw_only.md",
+      "target": "plan_todo/finished/SOW_20261008_VFYK7PQC/SOW_20261008_VFYK7PQC_sow_delegate_flow_claude_raw_only.md",
+      "id": "SOW_20261008_VFYK7PQC",
+      "sha256": "614bbd143cf2bfbc04bccc0bcc57f6dfb7fe3287ab8c59f7de73efd5dd53a33d",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0018_sow_delegate_flow_refinements.md",
+      "target": "plan_todo/finished/SOW_20261008_VJ86J7C3/SOW_20261008_VJ86J7C3_sow_delegate_flow_refinements.md",
+      "id": "SOW_20261008_VJ86J7C3",
+      "sha256": "45fd9685ffcd8c930e0653022fc57580ddd746ef908d0a5680cb2aa978cb73dc",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0019_telemetry_hook_skill_v1.md",
+      "target": "plan_todo/finished/SOW_20261008_4NSM51RC/SOW_20261008_4NSM51RC_telemetry_hook_skill_v1.md",
+      "id": "SOW_20261008_4NSM51RC",
+      "sha256": "3e3aa76736d20fd838c85509844e5240f8284f66a296aaf8e4145e659b5d7a4f",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0020_telemetry_delegate_smoke_test.md",
+      "target": "plan_todo/finished/SOW_20261008_ADH1MDO0/SOW_20261008_ADH1MDO0_telemetry_delegate_smoke_test.md",
+      "id": "SOW_20261008_ADH1MDO0",
+      "sha256": "78cafc395ad2d412c9b0cc2fd89e556fa23c561eb542c287f04d0b9a34e9fe51",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0021_dashboard_loader_and_schema.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/SOW_20261008_TZNXOS70/SOW_20261008_TZNXOS70_dashboard_loader_and_schema.md",
+      "id": "SOW_20261008_TZNXOS70",
+      "sha256": "0ea21874b9b6ec088a9aaad00278635d4bdf87eda1ce4b9b577a49432307f479",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0022_dashboard_backend_summary_api.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/SOW_20261008_0NU5SHGZ/SOW_20261008_0NU5SHGZ_dashboard_backend_summary_api.md",
+      "id": "SOW_20261008_0NU5SHGZ",
+      "sha256": "a13f2a7bf8ea25d82a2d4ca99e47770d4cf22f67c32345a8bf7b21a58e9ed043",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0023_dashboard_backend_detail_and_charts_api.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/SOW_20261008_HMLE8HBJ/SOW_20261008_HMLE8HBJ_dashboard_backend_detail_and_charts_api.md",
+      "id": "SOW_20261008_HMLE8HBJ",
+      "sha256": "dc7aa622bae405d26dfa9bc3f999f9476295bf7e50cbb487a9638769ccf1749b",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0024_dashboard_frontend_shell.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/SOW_20261008_0BJYMPCY/SOW_20261008_0BJYMPCY_dashboard_frontend_shell.md",
+      "id": "SOW_20261008_0BJYMPCY",
+      "sha256": "1524052779c8bdfbf608e817c85f96a273a19906dd9d04f21013ac1833060488",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0025_dashboard_frontend_visuals.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/SOW_20261008_CKWHRFFJ/SOW_20261008_CKWHRFFJ_dashboard_frontend_visuals.md",
+      "id": "SOW_20261008_CKWHRFFJ",
+      "sha256": "a334c8ae3f50f780e101e99f3c15a4fb68954392935d7f42f00cf74aa6e4eb20",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0026_dashboard_boot_and_smoke.md",
+      "target": "plan_todo/finished/PLAN_20261008_T4T0TPAC/SOW_20261008_U27MN5Y0/SOW_20261008_U27MN5Y0_dashboard_boot_and_smoke.md",
+      "id": "SOW_20261008_U27MN5Y0",
+      "sha256": "7c83b373c436c77f25c0df537615f9cbd39a574aef313fe901e405d591b22fac",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0027_skill_install_flow.md",
+      "target": "plan_todo/finished/PLAN_20261008_GOBS4HRF/SOW_20261008_984F0YF8/SOW_20261008_984F0YF8_skill_install_flow.md",
+      "id": "SOW_20261008_984F0YF8",
+      "sha256": "57f6c1cff3e5c3a6c7110583be075c626e8a769602c1d8c07952ec1d08149dc3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0028_dashboard_token_heatmap.md",
+      "target": "plan_todo/finished/PLAN_20261008_GOBS4HRF/SOW_20261008_6X92J74B/SOW_20261008_6X92J74B_dashboard_token_heatmap.md",
+      "id": "SOW_20261008_6X92J74B",
+      "sha256": "ed903495309a94fc6643243bd380a169ba3fbd6e656f6b6a2a3299e0c205499b",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0029_dashboard_trace_metadata.md",
+      "target": "plan_todo/finished/SOW_20261008_VFTALA2E/SOW_20261008_VFTALA2E_dashboard_trace_metadata.md",
+      "id": "SOW_20261008_VFTALA2E",
+      "sha256": "07ee330376faa594ac636f179f401c22bc41711f2d84514fb5adbb8a5d338cdd",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0030_brief_execution_rule_sync.md",
+      "target": "plan_todo/finished/SOW_20261008_TXMXHRGX/SOW_20261008_TXMXHRGX_brief_execution_rule_sync.md",
+      "id": "SOW_20261008_TXMXHRGX",
+      "sha256": "94e794a9a88a5b94bad8b417a5a8c41199db85e58a00b966432b2469d31c32f3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0031_global_telemetry_ledger.md",
+      "target": "plan_todo/finished/SOW_20261008_YJH9QCPH/SOW_20261008_YJH9QCPH_global_telemetry_ledger.md",
+      "id": "SOW_20261008_YJH9QCPH",
+      "sha256": "c36f748c1ef0a0da2e3325b9ea77b6c0e718ccf8e687ec40fb8e206a2066b98f",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0032_dashboard_structure_refactor.md",
+      "target": "plan_todo/finished/SOW_20261008_1L07OWX9/SOW_20261008_1L07OWX9_dashboard_structure_refactor.md",
+      "id": "SOW_20261008_1L07OWX9",
+      "sha256": "95cbc499bd58e2648443932a0759e72f624093e189cbb5440a4d76ba2b401dca",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0033_task_router_hooked_subagent_telemetry_pilot.md",
+      "target": "plan_todo/finished/SOW_20261008_SGMIKS0R/SOW_20261008_SGMIKS0R_task_router_hooked_subagent_telemetry_pilot.md",
+      "id": "SOW_20261008_SGMIKS0R",
+      "sha256": "dff12ab7bdea1a8bd869814b1f280583f5f7528297cd6e84a05eeb2e8edf628e",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0034_dashboard_reload_and_refresh_api.md",
+      "target": "plan_todo/finished/SOW_20261008_HP5K09Z0/SOW_20261008_HP5K09Z0_dashboard_reload_and_refresh_api.md",
+      "id": "SOW_20261008_HP5K09Z0",
+      "sha256": "62d0d133972218504a567817f86c3f00bc296e0fdefbec86efc3624e44f14f5b",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0035_global_cross_project_skill_telemetry.md",
+      "target": "plan_todo/finished/SOW_20261008_XNJ9XMER/SOW_20261008_XNJ9XMER_global_cross_project_skill_telemetry.md",
+      "id": "SOW_20261008_XNJ9XMER",
+      "sha256": "0a796ded6d11cc228dcb50fea2a707044df035cf1e3d44154f950b20753bfb2b",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0036_hook_session_boundary_and_cleanup.md",
+      "target": "plan_todo/finished/SOW_20261008_APJJ5VGR/SOW_20261008_APJJ5VGR_hook_session_boundary_and_cleanup.md",
+      "id": "SOW_20261008_APJJ5VGR",
+      "sha256": "6bf9c3ea23dff7f6f1a9aa8e4007aa673e37527184064c03b72bce7f48c64943",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0037_shared_utils_dedupe.md",
+      "target": "plan_todo/finished/SOW_20261008_5X409X89/SOW_20261008_5X409X89_shared_utils_dedupe.md",
+      "id": "SOW_20261008_5X409X89",
+      "sha256": "84cd1d1bc1923e20273f4761d422ea4d8fd1798702333be56fc246126ba470c5",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0038_move_all_telemetry_logs_global.md",
+      "target": "plan_todo/finished/SOW_20261008_HX17BNV6/SOW_20261008_HX17BNV6_move_all_telemetry_logs_global.md",
+      "id": "SOW_20261008_HX17BNV6",
+      "sha256": "dacac89a90167432ec1a8dff2a6876716ba3fe6bb61f5e452b43eb1d38e86bb3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0039_playwright_skill_cleanup_lifecycle.md",
+      "target": "plan_todo/finished/SOW_20261008_NOOXZ8GY/SOW_20261008_NOOXZ8GY_playwright_skill_cleanup_lifecycle.md",
+      "id": "SOW_20261008_NOOXZ8GY",
+      "sha256": "847933203dd9c25696dd57dd2f2879d55c705651744e1874f94f551abb6e0ae8",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0040_skillopt_reference_intake.md",
+      "target": "plan_todo/finished/SOW_20261008_IQFNIY4O/SOW_20261008_IQFNIY4O_skillopt_reference_intake.md",
+      "id": "SOW_20261008_IQFNIY4O",
+      "sha256": "1895922ac32b005818e44b89bd22607a2751c915cc4c12dfd58aca62f9965bdc",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0042_skill_framework_contracts_and_skeleton.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_UNXOB9MZ/SOW_20261008_UNXOB9MZ_skill_framework_contracts_and_skeleton.md",
+      "id": "SOW_20261008_UNXOB9MZ",
+      "sha256": "94026566624153f3854e2d4559c884389f778e4ed3e5f2d8040f4d7085d5a1be",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0043_skill_trainer_core_and_artifacts.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_01ALLZ8R/SOW_20261008_01ALLZ8R_skill_trainer_core_and_artifacts.md",
+      "id": "SOW_20261008_01ALLZ8R",
+      "sha256": "3ec184e84805fa279c7b4bc4da495500ade3abed55df8b744b0fe8222511da2f",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0044_skill_pipeline_and_demo_adapter.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_Z81S5KA0/SOW_20261008_Z81S5KA0_skill_pipeline_and_demo_adapter.md",
+      "id": "SOW_20261008_Z81S5KA0",
+      "sha256": "df5e1f28e09157c1c086827941ce0df92b40ba8c9194a3e334946fdd09c1c842",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0045_skill_framework_examples_and_smoke.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_RF6NVYOV/SOW_20261008_RF6NVYOV_skill_framework_examples_and_smoke.md",
+      "id": "SOW_20261008_RF6NVYOV",
+      "sha256": "1203f4fa44ea8c6aabb525ba34705bba9436c1fddc2482bf5857cebdf73f79b2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0046_skill_framework_hardening_and_eval_persistence.md",
+      "target": "plan_todo/finished/PLAN_20261008_IGLO2SVW/SOW_20261008_JEC6YCUW/SOW_20261008_JEC6YCUW_skill_framework_hardening_and_eval_persistence.md",
+      "id": "SOW_20261008_JEC6YCUW",
+      "sha256": "1b57e68e96a11de83465494ecad95ab5a77874d297127246dde0338e036a2b45",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0056_progress_reporting_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_NKZEOT3T/SOW_20261008_NKZEOT3T_progress_reporting_skill.md",
+      "id": "SOW_20261008_NKZEOT3T",
+      "sha256": "21319400852dbddc25298a7240a03b2f7af6a0de332e0c2dd01aa41cd277b477",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0057_task_execution_flow_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_OT7QGDGL/SOW_20261008_OT7QGDGL_task_execution_flow_skill.md",
+      "id": "SOW_20261008_OT7QGDGL",
+      "sha256": "ce9be0ae575184864733eb916aeb3a18e4f2c173e53635fd2e5cfc70684d77a2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0058_codex_skill_harvest_flow.md",
+      "target": "plan_todo/active/PLAN_20261008_6P2SEP78/SOW_20261008_U3ZZDC7P/SOW_20261008_U3ZZDC7P_codex_skill_harvest_flow.md",
+      "id": "SOW_20261008_U3ZZDC7P",
+      "sha256": "09631b79d5db4bcf02aefe763a02bc1f174f47425788eb0aef8f2b2607b82462",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0059_trainable_example_extraction_pipeline.md",
+      "target": "plan_todo/active/PLAN_20261008_6P2SEP78/SOW_20261008_2L3U6TF2/SOW_20261008_2L3U6TF2_trainable_example_extraction_pipeline.md",
+      "id": "SOW_20261008_2L3U6TF2",
+      "sha256": "7bec367ca01bdc488b60b2c72e42343540b2c08f42ea1a0c01708a943eaa3ac3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0060_task_progress_report_rename.md",
+      "target": "plan_todo/finished/SOW_20261008_63RJAJA6/SOW_20261008_63RJAJA6_task_progress_report_rename.md",
+      "id": "SOW_20261008_63RJAJA6",
+      "sha256": "08315e768ad358f10899444af0f1b052b470fa332d249d3cb7aa55c8ccb3aa35",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0061_agent_instruction_file_targets.md",
+      "target": "plan_todo/finished/SOW_20261008_UUCT82PT/SOW_20261008_UUCT82PT_agent_instruction_file_targets.md",
+      "id": "SOW_20261008_UUCT82PT",
+      "sha256": "b35327b2f03fad8aea63f7dbf23aa2bad1952659e73456a620529702b02f0946",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0062_core_codex_skill_sync.md",
+      "target": "plan_todo/finished/PLAN_20261008_PST680EX/SOW_20261008_XQ5APZF3/SOW_20261008_XQ5APZF3_core_codex_skill_sync.md",
+      "id": "SOW_20261008_XQ5APZF3",
+      "sha256": "884b3058c754bbd11919fe0908da618f185a39bfdca5a855932bd307460c6c04",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0063_claude_skill_sync.md",
+      "target": "plan_todo/finished/PLAN_20261008_PST680EX/SOW_20261008_F29MR8R3/SOW_20261008_F29MR8R3_claude_skill_sync.md",
+      "id": "SOW_20261008_F29MR8R3",
+      "sha256": "9831ce37b7dc8c5d27a7bd5e813d738e66a41900edd7a11ea76552b49cac250c",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0064_opencode_other_skill_sync.md",
+      "target": "plan_todo/finished/PLAN_20261008_PST680EX/SOW_20261008_26D6YSY0/SOW_20261008_26D6YSY0_opencode_other_skill_sync.md",
+      "id": "SOW_20261008_26D6YSY0",
+      "sha256": "d4b0ffc0c781f255cb0f2d1400592b3968ad0acb774783b792ec2b4386b5739e",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0065_skill_sync_docs_verification.md",
+      "target": "plan_todo/finished/PLAN_20261008_PST680EX/SOW_20261008_QFZIA4ZO/SOW_20261008_QFZIA4ZO_skill_sync_docs_verification.md",
+      "id": "SOW_20261008_QFZIA4ZO",
+      "sha256": "6fba2cb8547c4161fb611cb0a19f426604238a187214159e6b1d9867fb82730a",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0066_remove_telemetry_dashboard.md",
+      "target": "plan_todo/finished/PLAN_20261008_W5VOKPTU/SOW_20261008_58NIDD3G/SOW_20261008_58NIDD3G_remove_telemetry_dashboard.md",
+      "id": "SOW_20261008_58NIDD3G",
+      "sha256": "c11b0efaefbf3ce8aaf346d37ac4716bdf9ee01a37be8bc8085c0650b72edd4f",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0067_review_darwinskill_regroup.md",
+      "target": "plan_todo/finished/PLAN_20261008_W5VOKPTU/SOW_20261008_ODVOSEOS/SOW_20261008_ODVOSEOS_review_darwinskill_regroup.md",
+      "id": "SOW_20261008_ODVOSEOS",
+      "sha256": "6612e587d74271de7ec28e93639ace63f196f730b38eb095411e17f0cd8c989b",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0068_agent_github_install_guide.md",
+      "target": "plan_todo/finished/PLAN_20261008_W5VOKPTU/SOW_20261008_HAM9B5WA/SOW_20261008_HAM9B5WA_agent_github_install_guide.md",
+      "id": "SOW_20261008_HAM9B5WA",
+      "sha256": "a9dd21adf16a2c70c6d344c556c0a7fa4e2e9a019ba238170702041be19205fc",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0069_final_skill_library_cleanup.md",
+      "target": "plan_todo/finished/PLAN_20261008_W5VOKPTU/SOW_20261008_TF2WP923/SOW_20261008_TF2WP923_final_skill_library_cleanup.md",
+      "id": "SOW_20261008_TF2WP923",
+      "sha256": "f426791b6d0b6c4b1930e20c9461e83880964629363bc259b14e82686061131c",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0070_darwinskill_mini_project_migration.md",
+      "target": "plan_todo/finished/SOW_20261008_G1MNPUPT/SOW_20261008_G1MNPUPT_darwinskill_mini_project_migration.md",
+      "id": "SOW_20261008_G1MNPUPT",
+      "sha256": "816500f52d93108bc235aeb7b461d45d0af96c08b4d14b013990378fa2631cb1",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0071_skill_evolution_feedback_loop.md",
+      "target": "plan_todo/finished/SOW_20261008_TNK5SBDC/SOW_20261008_TNK5SBDC_skill_evolution_feedback_loop.md",
+      "id": "SOW_20261008_TNK5SBDC",
+      "sha256": "f4ee1e98352786111864ed1dfc70820273fead54965d8e8f66901c5575d446d2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0072_remove_mandatory_codegraph_skill_policy.md",
+      "target": "plan_todo/finished/SOW_20261008_SEUAD09U/SOW_20261008_SEUAD09U_remove_mandatory_codegraph_skill_policy.md",
+      "id": "SOW_20261008_SEUAD09U",
+      "sha256": "2fde292a78cabaa0f40da705896e6a0fda3d4950047e05894b841cc552a8892b",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0073_concept_compliance_execution_gates.md",
+      "target": "plan_todo/finished/SOW_20261008_U6CHXKMS/SOW_20261008_U6CHXKMS_concept_compliance_execution_gates.md",
+      "id": "SOW_20261008_U6CHXKMS",
+      "sha256": "aa1e40bb8f2d6c4060c5160cae1e5ddbce79cb07189fe8dea3fa43cd89ad28b2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0074_reimport_playwright_flow.md",
+      "target": "plan_todo/finished/SOW_20261008_2FVFL5CO/SOW_20261008_2FVFL5CO_reimport_playwright_flow.md",
+      "id": "SOW_20261008_2FVFL5CO",
+      "sha256": "0d530587e47c6df5c0c1918d71595de6d34bd1fb377f11129598183ce8617f6e",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0075_portable_design_mirror_skill_suite.md",
+      "target": "plan_todo/finished/SOW_20261008_HG5LJ6N3/SOW_20261008_HG5LJ6N3_portable_design_mirror_skill_suite.md",
+      "id": "SOW_20261008_HG5LJ6N3",
+      "sha256": "9a3b1483171dfed6e611be62c8b97453a74568787e8a8869d5faf05318769d11",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0076_import_taste_skill_v2.md",
+      "target": "plan_todo/finished/SOW_20261008_BPIHDB83/SOW_20261008_BPIHDB83_import_taste_skill_v2.md",
+      "id": "SOW_20261008_BPIHDB83",
+      "sha256": "6ef4fe60d0e0badf239e0f4b1f8247adc71fa6dc79d2afcf9cf6aef4fc0e8b79",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0077_visual_ui_review_skill_evolution.md",
+      "target": "plan_todo/finished/SOW_20261008_WG7I2GYO/SOW_20261008_WG7I2GYO_visual_ui_review_skill_evolution.md",
+      "id": "SOW_20261008_WG7I2GYO",
+      "sha256": "deb57c989556668d40af92e299ffdd834bb218c734c9fb1aa443334af925849c",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0078_review_exact_runtime_contract_evidence.md",
+      "target": "plan_todo/finished/SOW_20261008_8MOLMSUP/SOW_20261008_8MOLMSUP_review_exact_runtime_contract_evidence.md",
+      "id": "SOW_20261008_8MOLMSUP",
+      "sha256": "16706b91672becda173be441ea908bdb7ca46c9a7dccbe45192073ff69c7ceaf",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0079_sow_lifecycle_timestamps.md",
+      "target": "plan_todo/finished/SOW_20261008_L9WADTRP/SOW_20261008_L9WADTRP_sow_lifecycle_timestamps.md",
+      "id": "SOW_20261008_L9WADTRP",
+      "sha256": "545c53508574710403901d66f50e6fd4f0cd631db37c3cc7581c08e663586b27",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0080_sow_execution_lifecycle_timestamps.md",
+      "target": "plan_todo/finished/SOW_20261008_HPSNQARS/SOW_20261008_HPSNQARS_sow_execution_lifecycle_timestamps.md",
+      "id": "SOW_20261008_HPSNQARS",
+      "sha256": "af61ac5260abdd4506963b0e42e564b527dd32cb79eb7c1d191ba7962c2a53f5",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0081_effective_sow_review_writeback.md",
+      "target": "plan_todo/finished/SOW_20261008_C8PP1I1L/SOW_20261008_C8PP1I1L_effective_sow_review_writeback.md",
+      "id": "SOW_20261008_C8PP1I1L",
+      "sha256": "3c3970b05811f3e88e4bd16e68978c640cd8b9024ff7120fa723afc67ae4f632",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0082_workflow_contract_consistency.md",
+      "target": "plan_todo/finished/SOW_20261008_QQ20QA7N/SOW_20261008_QQ20QA7N_workflow_contract_consistency.md",
+      "id": "SOW_20261008_QQ20QA7N",
+      "sha256": "efb8d596c49675ef147d7372e3683ceee311e9eda36bcc0f0dcbafaa5ec7c175",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0083_datamart_design_review_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_DQEXQF5X/SOW_20261008_DQEXQF5X_datamart_design_review_skill.md",
+      "id": "SOW_20261008_DQEXQF5X",
+      "sha256": "8d8085bf20ca146d8a9bacfe681a6ccfc92b8ad4bdd31c7d578b5fe4fdd1993e",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0084_review_anti_overengineering_gate.md",
+      "target": "plan_todo/finished/SOW_20261008_S1PEKHPG/SOW_20261008_S1PEKHPG_review_anti_overengineering_gate.md",
+      "id": "SOW_20261008_S1PEKHPG",
+      "sha256": "29919acb4c527bca9fdf15df25baefb1317f72126393a7512b08d26067b8d70e",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0085_public_api_consumer_contract_gate.md",
+      "target": "plan_todo/finished/SOW_20261008_K8X5MTX2/SOW_20261008_K8X5MTX2_public_api_consumer_contract_gate.md",
+      "id": "SOW_20261008_K8X5MTX2",
+      "sha256": "e84af37f4ab04b8c37d525314a6e5770e17e63d72d290cefb2be6eb32d7bbca2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0086_skill_evolution_failure_diagnosis.md",
+      "target": "plan_todo/finished/SOW_20261008_YMKJ2DLF/SOW_20261008_YMKJ2DLF_skill_evolution_failure_diagnosis.md",
+      "id": "SOW_20261008_YMKJ2DLF",
+      "sha256": "44c5c5452a18a5fb81d4c10571e235431e4f61176e7fdfd94d3e10db07ad336d",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0088_spark_connect_debug_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_ORJ5FJT4/SOW_20261008_ORJ5FJT4_spark_connect_debug_skill.md",
+      "id": "SOW_20261008_ORJ5FJT4",
+      "sha256": "5d8c621b1fe5761c11b7fa78b4a1b85279565efe4f620c2666311a1d6612c523",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0090_template_agents_hardening_review.md",
+      "target": "plan_todo/finished/SOW_20261008_VNMP6GD0/SOW_20261008_VNMP6GD0_template_agents_hardening_review.md",
+      "id": "SOW_20261008_VNMP6GD0",
+      "sha256": "1ef6c08295fd6ff2743b0d3a547ffad36e18ec560a85057136a5c1f8caaf3802",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0091_model_escalation_advisor_flow.md",
+      "target": "plan_todo/finished/SOW_20261008_RXM4HLWX/SOW_20261008_RXM4HLWX_model_escalation_advisor_flow.md",
+      "id": "SOW_20261008_RXM4HLWX",
+      "sha256": "6e6e3d32c30864e8a7f67f4ebeea1d72c7d4508c627d1bee761ec03595071479",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0094_sow_delegate_native_context_isolation.md",
+      "target": "plan_todo/finished/SOW_20261008_41N2XGU5/SOW_20261008_41N2XGU5_sow_delegate_native_context_isolation.md",
+      "id": "SOW_20261008_41N2XGU5",
+      "sha256": "82885f4916f4ef8721cba4ac77275be43a49b588a9dba721476fc9a41cf7f8c3",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0095_skill_delegate_review_glm53_preference.md",
+      "target": "plan_todo/finished/SOW_20261008_UTAQGE14/SOW_20261008_UTAQGE14_skill_delegate_review_glm53_preference.md",
+      "id": "SOW_20261008_UTAQGE14",
+      "sha256": "dbc78ef110b1ab19cd711a37a5a2b0b21988195eb8fa6cb7a4d5eb8f89430143",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0096_task_execution_delegate_preference.md",
+      "target": "plan_todo/finished/SOW_20261008_ZJDHWCVU/SOW_20261008_ZJDHWCVU_task_execution_delegate_preference.md",
+      "id": "SOW_20261008_ZJDHWCVU",
+      "sha256": "54ef0822217de1fd170b0291d4edf6b230aeea4e121baed81fa852dd042d60a2",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0098_canonical_plan_contract_skill_integration.md",
+      "target": "plan_todo/finished/SOW_20261008_G8YCYDQB/SOW_20261008_G8YCYDQB_canonical_plan_contract_skill_integration.md",
+      "id": "SOW_20261008_G8YCYDQB",
+      "sha256": "d9525968065c5310bdd75cc2a1d7bdeb70395ca1858dd062a582e3943d2ac0c6",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0099_claude_code_delegate_transport.md",
+      "target": "plan_todo/finished/SOW_20261008_TXV92GQG/SOW_20261008_TXV92GQG_claude_code_delegate_transport.md",
+      "id": "SOW_20261008_TXV92GQG",
+      "sha256": "60169bec8eccc58413712432999cbee064b645e1534ca5fca7a385cb82c4c99a",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0100_consumer_contract_false_negative_gates.md",
+      "target": "plan_todo/finished/SOW_20261008_A4274RON/SOW_20261008_A4274RON_consumer_contract_false_negative_gates.md",
+      "id": "SOW_20261008_A4274RON",
+      "sha256": "83e4a4a4dd913e2b9b4c122270949e955e74560d434dafb17d3f0ea079b9e2e5",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0101_chosen_approach_and_compatibility_approval.md",
+      "target": "plan_todo/finished/SOW_20261008_IGCUAWQM/SOW_20261008_IGCUAWQM_chosen_approach_and_compatibility_approval.md",
+      "id": "SOW_20261008_IGCUAWQM",
+      "sha256": "e2bc0264cfa331b0bf1a3d77add4ef57c0edf58c4d3d68465c03bd96be0fbf54",
+      "tracked": true
+    }
+  ],
+  "extensions": [
+    {
+      "source": "plan_todo/finished/SOW_0096_EXT_01_mandatory_glm53_delegation.md",
+      "target": "plan_todo/finished/SOW_20261008_ZJDHWCVU/SOW_20261008_ZJDHWCVU_EXT_U8XRPS06_mandatory_glm53_delegation.md",
+      "sha256": "b19cb386117eb0be8bffe1f10c31eb00febf3fecd92eb8fbd1c8343aa1ff1600",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0099_EXT_01_claude_self_delegation_guard.md",
+      "target": "plan_todo/finished/SOW_20261008_TXV92GQG/SOW_20261008_TXV92GQG_EXT_H3ZBHVB7_claude_self_delegation_guard.md",
+      "sha256": "80bf16f38e3e80975583a3f6cd2a3dc63edefc9ab77ae52564dae421b588d273",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/finished/SOW_0071_skill_evolution_feedback_loop.md",
+      "target": "plan_todo/finished/SOW_20261008_TNK5SBDC/SOW_20261008_TNK5SBDC_EXT_O80EDZRT_historical_extension.md",
+      "sha256": "f4ee1e98352786111864ed1dfc70820273fead54965d8e8f66901c5575d446d2",
+      "extraction": {
+        "start_heading": "## Extension 1: Overwrite Dry-Run Parity",
+        "end_before_heading": null,
+        "start_line": 138,
+        "end_line": 158,
+        "section_sha256": "9bf33b28111df60437165bb375b8a77d383b23a24b227b877bacf0f6cc482f8c"
+      },
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/SOW_0092_codex_router_external_subagent_message_compat.md",
+      "target": "plan_todo/finished/SOW_20261008_9851QRQ4/SOW_20261008_9851QRQ4_EXT_7MPLVEOK_historical_extension.md",
+      "sha256": "581107e2ce94e1b032966c80e0c99070eb2ffef853acb514ab0ff3a5fb3f9eac",
+      "extraction": {
+        "start_heading": "## Extension 1: Luna-Max Native Collaboration Certification",
+        "end_before_heading": null,
+        "start_line": 305,
+        "end_line": 410,
+        "section_sha256": "a355452bf35e435454b2fc5e0f6f261f65e1fe644f71cc2a748d51f737c9f7ce"
+      },
+      "tracked": true
+    }
+  ],
+  "decisions": [
+    {
+      "source": "plan_todo/SOW_0087_review_end_to_end_outcome_trace.md",
+      "target": "plan_todo/finished/SOW_20261008_V7HK7IAU/SOW_20261008_V7HK7IAU_decision.md",
+      "sha256": "fa6b52fe643002d49fd99a58bd2073f75c0aaad82e3ea74a6c61e27f9162587f",
+      "sections": [
+        {
+          "start_heading": "## Decision Log",
+          "end_before_heading": "## Implementation and Verification",
+          "start_line": 134,
+          "end_line": 139,
+          "section_sha256": "e76e76fa4140cdfe2fb28fe81e9468c32f2e2add8fb97aac9999d5905d27096b"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/SOW_0089_public_repo_privacy_hardening.md",
+      "target": "plan_todo/active/SOW_20261008_9TYIE2MO/SOW_20261008_9TYIE2MO_decision.md",
+      "sha256": "575a7df1b88c6f20abe192c4f97f1fee88ebf70bc8967125bd3530473e33f384",
+      "sections": [
+        {
+          "start_heading": "## Decision Log",
+          "end_before_heading": "## Approval Gate",
+          "start_line": 232,
+          "end_line": 239,
+          "section_sha256": "9af84c8e81120e7a14c27cc9b1510617ab80e8076423fd13135a2d2ece4eb63e"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/SOW_0092_codex_router_external_subagent_message_compat.md",
+      "target": "plan_todo/finished/SOW_20261008_9851QRQ4/SOW_20261008_9851QRQ4_decision.md",
+      "sha256": "581107e2ce94e1b032966c80e0c99070eb2ffef853acb514ab0ff3a5fb3f9eac",
+      "sections": [
+        {
+          "start_heading": "## Implementation Decision",
+          "end_before_heading": "## Deliverables",
+          "start_line": 144,
+          "end_line": 162,
+          "section_sha256": "0bd93e6d70f92f4e9929184c376b82ae99ef59b64b6977f7e87b56ca2fe44a51"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/SOW_0097_sow_delegate_review_wait_grace.md",
+      "target": "plan_todo/finished/SOW_20261008_3XZ5PZ72/SOW_20261008_3XZ5PZ72_decision.md",
+      "sha256": "3915a92a7ab8bc27a85718c018727d5b7275499405b79c05b91a052dd4c28faf",
+      "sections": [
+        {
+          "start_heading": "## Decision Log",
+          "end_before_heading": "## Implementation Verification",
+          "start_line": 177,
+          "end_line": 183,
+          "section_sha256": "0004bd18e96efae3fb64ea2b5da7d08f225838d7757335028b39e6741da7defb"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0075_portable_design_mirror_skill_suite.md",
+      "target": "plan_todo/finished/SOW_20261008_HG5LJ6N3/SOW_20261008_HG5LJ6N3_decision.md",
+      "sha256": "9a3b1483171dfed6e611be62c8b97453a74568787e8a8869d5faf05318769d11",
+      "sections": [
+        {
+          "start_heading": "## Design And Ownership Decisions",
+          "end_before_heading": "## Cross-Skill Artifact Contract",
+          "start_line": 101,
+          "end_line": 114,
+          "section_sha256": "0ceed00372545ea627cb9c1eea2f38a38181419fb33297b0015404b4f908e33b"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0088_spark_connect_debug_skill.md",
+      "target": "plan_todo/finished/SOW_20261008_ORJ5FJT4/SOW_20261008_ORJ5FJT4_decision.md",
+      "sha256": "5d8c621b1fe5761c11b7fa78b4a1b85279565efe4f620c2666311a1d6612c523",
+      "sections": [
+        {
+          "start_heading": "## Decision Log",
+          "end_before_heading": "## Cautions / Risks",
+          "start_line": 149,
+          "end_line": 159,
+          "section_sha256": "80b1ef32efee45b4d30eb990722ed4e487882c15307881414890a75ef780e262"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0090_template_agents_hardening_review.md",
+      "target": "plan_todo/finished/SOW_20261008_VNMP6GD0/SOW_20261008_VNMP6GD0_decision.md",
+      "sha256": "1ef6c08295fd6ff2743b0d3a547ffad36e18ec560a85057136a5c1f8caaf3802",
+      "sections": [
+        {
+          "start_heading": "## Preserved And Rejected Decisions",
+          "end_before_heading": "## Deliverables",
+          "start_line": 102,
+          "end_line": 115,
+          "section_sha256": "7db913020fb2bfbf673046bdc2b20cd084d75f85ac1bd1aa0fe800a99cdce9f9"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0098_canonical_plan_contract_skill_integration.md",
+      "target": "plan_todo/finished/SOW_20261008_G8YCYDQB/SOW_20261008_G8YCYDQB_decision.md",
+      "sha256": "d9525968065c5310bdd75cc2a1d7bdeb70395ca1858dd062a582e3943d2ac0c6",
+      "sections": [
+        {
+          "start_heading": "## Decision",
+          "end_before_heading": "## Verification / Closeout",
+          "start_line": 166,
+          "end_line": 171,
+          "section_sha256": "8200b3de8eb23c8682d5bed810733f10de5522197d9d6b0b4ab8a4e993a662df"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0099_claude_code_delegate_transport.md",
+      "target": "plan_todo/finished/SOW_20261008_TXV92GQG/SOW_20261008_TXV92GQG_decision.md",
+      "sha256": "60169bec8eccc58413712432999cbee064b645e1534ca5fca7a385cb82c4c99a",
+      "sections": [
+        {
+          "start_heading": "## Decision",
+          "end_before_heading": null,
+          "start_line": 188,
+          "end_line": 194,
+          "section_sha256": "53c640ac9c88dd9cbb3e7eb10b696ea24e3bba1c30d6be2320717c965540dcb7"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0100_consumer_contract_false_negative_gates.md",
+      "target": "plan_todo/finished/SOW_20261008_A4274RON/SOW_20261008_A4274RON_decision.md",
+      "sha256": "83e4a4a4dd913e2b9b4c122270949e955e74560d434dafb17d3f0ea079b9e2e5",
+      "sections": [
+        {
+          "start_heading": "## Decision Log",
+          "end_before_heading": "## Implementation Verification",
+          "start_line": 151,
+          "end_line": 158,
+          "section_sha256": "41cf91e015d95d7540ad1a9033fd56902350b95358a02302fd7db5e6d4d24db2"
+        }
+      ]
+    },
+    {
+      "source": "plan_todo/finished/SOW_0101_chosen_approach_and_compatibility_approval.md",
+      "target": "plan_todo/finished/SOW_20261008_IGCUAWQM/SOW_20261008_IGCUAWQM_decision.md",
+      "sha256": "e2bc0264cfa331b0bf1a3d77add4ef57c0edf58c4d3d68465c03bd96be0fbf54",
+      "sections": [
+        {
+          "start_heading": "## Decision Log",
+          "end_before_heading": "## Self-Review — One Pass",
+          "start_line": 156,
+          "end_line": 175,
+          "section_sha256": "4bd6ad2e10b5af1e17bdfd03e4bc371a39f5c5d672d6397955f95b052d347ac0"
+        }
+      ]
+    }
+  ],
+  "reference_consumers": [
+    {
+      "source": "plan_todo/skill_design_decisions.md",
+      "sha256": "91c04d78a49179db84d527865c64e3eb6b9cf0df4f56cbc3aaeb2179fd9b4d2d",
+      "tracked": true
+    },
+    {
+      "source": "plan_todo/fix_bug.md",
+      "sha256": "72836127ed1668533311cc2dfcd322e23940ae58752324bdc0da5eb0d3b6b306",
+      "tracked": true
+    },
+    {
+      "source": "docs/mcp-skills-market-architecture.md",
+      "sha256": "b228d92785471972e48ee984976a19450f79e4bbdd2ae9a5d040bba1abccca99",
+      "tracked": false
+    },
+    {
+      "source": "patches/codex-router/README.md",
+      "sha256": "e5c83bef42e1bc6ca2a8e4607077d37a7e71b6f0b01671020318aa5cb7c0be9a",
+      "tracked": true
+    }
+  ],
+  "untracked_sources": [
+    "plan_todo/SOW_0056_codex_router_claude_cli_native_subagent.md",
+    "plan_todo/SOW_0089_public_repo_privacy_hardening.md",
+    "plan_todo/SOW_0093_mcp_skills_market_local_repository_registry.md",
+    "plan_todo/mcp_skills_market_plan.md"
+  ]
+}

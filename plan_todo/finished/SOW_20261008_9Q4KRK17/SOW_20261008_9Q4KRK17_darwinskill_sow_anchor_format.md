@@ -7,7 +7,7 @@
 - approve_dttm: 2026-10-08T11:49:39+07:00
 - finish_dttm: 2026-10-08T11:53:50+07:00
 - Plan / Reference: Standalone maintenance before
-  [planning migration](../../active/SOW_20261008_VO3LKN0L/SOW_20261008_VO3LKN0L_migrate_legacy_planning_bundles.md),
+  [planning migration](../SOW_20261008_VO3LKN0L/SOW_20261008_VO3LKN0L_migrate_legacy_planning_bundles.md),
   per the user's selected order. No new parent Plan.
 
 ## Task
