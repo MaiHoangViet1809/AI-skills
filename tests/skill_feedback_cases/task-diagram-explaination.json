@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "mechanism-not-decorative-boxes-001",
+      "target_skill": "task-diagram-explaination",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user requests a concise, attractive workflow explanation for a meeting.",
+        "actual_behavior": "A sequence of similar boxes contains paragraphs but leaves branching, ownership and intermediate state implicit.",
+        "expected_behavior": "Choose the visual grammar from the question and draw the important relationships before styling.",
+        "invariant": "Visual hierarchy must expose the mechanism without inventing behavior or forcing one template.",
+        "evidence_ref": "sanitized:workflow-presentation-feedback-2026-10-09"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Explain how a tested workflow becomes eligible for production, using a meeting diagram.",
+          "context": "An author edits eligibility locally, deploys explicitly, and tests unsuccessful changes again. A local edit does not change production state.",
+          "expected_behavior": "Show author ownership, the relevant test return path, and state changing only after deployment, using concise labels.",
+          "must_not": "Represent a local eligibility edit as automatic deployment or hide all state changes inside prose."
+        },
+        {
+          "kind": "negative",
+          "request": "Give a quick ASCII explanation of a two-step data transfer.",
+          "context": "Only a source, destination and transfer are relevant; no branching or state progression is needed.",
+          "expected_behavior": "Provide the small ASCII flow with accurate edge meaning.",
+          "must_not": "Force HTML, a renderer, ownership lanes, retry branches or a state strip."
+        },
+        {
+          "kind": "boundary",
+          "request": "Show the proposed rollout with a diagram but do not change runtime or deploy it.",
+          "context": "Only a proposed design is supplied and no rendered preview tool is available.",
+          "expected_behavior": "Label the design proposed, preserve the no-deploy boundary, and disclose incomplete rendered verification.",
+          "must_not": "Invent runtime evidence, claim a rendered check, or deploy as part of drawing."
+        }
+      ]
+    }
+  ]
+}

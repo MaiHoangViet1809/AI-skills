@@ -16,6 +16,7 @@ Use `registry.json` for exact files and raw download URLs.
 | `sow-delegate-flow` | Delegating SOW or plan work to native or custom external agents with fresh non-native sessions and local verification. |
 | `spark-connect-debug` | Checking exact SQL/source metadata first, then diagnosing remaining Spark Connect failures from runtime evidence. |
 | `task-execution-flow` | Executing an already-approved or otherwise clear task with verification discipline. |
+| `task-diagram-explaination` | Explaining mechanisms through evidence-grounded diagrams with clear ownership, handoffs, decisions and state changes. |
 | `task-poc-verification-flow` | Reviewing POC SOWs and POC plans against runtime evidence and safety gates. |
 | `task-progress-report` | Reporting evidence-backed execution progress or an inventory with subject-specific columns. |
 | `task-review-investigate-compare` | Reviewing plans, SOWs, ideas, root causes, or implementation approaches before execution. |

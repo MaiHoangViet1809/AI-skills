@@ -71,6 +71,20 @@
       ]
     },
     {
+      "name": "task-diagram-explaination",
+      "description": "Explain mechanisms with concise diagrams that reveal ownership, handoffs, decisions and state changes.",
+      "files": [
+        {
+          "path": "skills/task-diagram-explaination/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-diagram-explaination/SKILL.md"
+        },
+        {
+          "path": "skills/task-diagram-explaination/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-diagram-explaination/agents/openai.yaml"
+        }
+      ]
+    },
+    {
       "name": "task-escalation-flow",
       "description": "Escalate genuinely stuck Luna, GLM-high, Sonnet, or Haiku executors through isolated Sol and Astra advisor tiers.",
       "files": [

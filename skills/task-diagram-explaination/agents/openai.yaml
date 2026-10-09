@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task Diagram Explaination"
+  short_description: "Explain mechanisms through clear, grounded diagrams"
+  default_prompt: "Use $task-diagram-explaination to explain this mechanism with a concise diagram that makes ownership, handoffs and relevant state changes clear."
