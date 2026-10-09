@@ -7,6 +7,7 @@ Use `registry.json` for exact files and raw download URLs.
 | Skill | Use when |
 | --- | --- |
 | `apply-design-mirror` | Applying an extracted design package through a target project's real design-system ownership. |
+| `claude-code-glm-setup` | Connecting GreenNode GLM-5.3 via codex-router to Claude Code desktop as a one-level `glm-worker` sub-agent, with a check per phase. |
 | `datamart-design-review` | Designing or reviewing datamart grain, formulas, table and column changes, migration impact, and evidence. |
 | `extract-design-mirror` | Extracting a UI design language into `DESIGN.md` plus evidence for later reuse. |
 | `task-escalation-flow` | Escalating a genuinely stuck Luna, GLM-high, Sonnet, or Haiku executor through isolated Sol and Astra advisor tiers. |

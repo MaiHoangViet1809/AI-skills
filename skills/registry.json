@@ -23,6 +23,36 @@
       ]
     },
     {
+      "name": "claude-code-glm-setup",
+      "description": "Connect GreenNode GLM-5.3 through codex-router to Claude Code desktop as a one-level glm-worker sub-agent, with a check per phase.",
+      "files": [
+        {
+          "path": "skills/claude-code-glm-setup/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/claude-code-glm-setup/SKILL.md"
+        },
+        {
+          "path": "skills/claude-code-glm-setup/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/claude-code-glm-setup/agents/openai.yaml"
+        },
+        {
+          "path": "skills/claude-code-glm-setup/assets/glm-worker.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/claude-code-glm-setup/assets/glm-worker.md"
+        },
+        {
+          "path": "skills/claude-code-glm-setup/references/stream-prefix-fix.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/claude-code-glm-setup/references/stream-prefix-fix.md"
+        },
+        {
+          "path": "skills/claude-code-glm-setup/references/troubleshooting.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/claude-code-glm-setup/references/troubleshooting.md"
+        },
+        {
+          "path": "skills/claude-code-glm-setup/scripts/glm-run",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/claude-code-glm-setup/scripts/glm-run"
+        }
+      ]
+    },
+    {
       "name": "datamart-design-review",
       "description": "Review datamart grain, formulas, table and column changes, migration impact, and evidence through one merged matrix.",
       "files": [

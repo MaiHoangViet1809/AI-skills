@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""Run one self-contained task on GreenNode GLM-5.3 through claude-router.
+
+Usage: glm-run --mode read|edit [--cwd DIR] [--model ID] [--timeout S] < prompt.txt
+
+Stdout carries two lines only: `[glm-run] started run_dir=...` before the
+delegate starts, and a final status line. Everything else goes to files in the
+run directory, written while the delegate runs so a timeout keeps evidence:
+stream.jsonl (raw events), progress.log (one line per tool call), stderr.log,
+and result.md (GLM's original final answer). Exit 1 on failure or refusal.
+
+The relay is one level deep only: it refuses to start under a Codex process or
+under a non-interactive Claude Code process (`claude -p` / `--print`), which
+covers Codex -> claude -p -> GLM and any other nested delegation.
+"""
+import argparse
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+DEFAULT_MODEL = "codex_router/anthropic/greennode/glm-5.3"
+EFFORT = "max"
+OUT_ROOT = os.path.join(tempfile.gettempdir(), "glm-run")
+# --tools restricts what exists; --allowed-tools alone only auto-approves and
+# still lets settings-allowed tools such as Bash run.
+READ_TOOLS = "Read,Glob,Grep"
+EDIT_TOOLS = "Read,Glob,Grep,Edit,Write"
+MODE_FLAGS = {
+    "read": ["--permission-mode", "plan", "--tools", READ_TOOLS, "--allowed-tools", READ_TOOLS],
+    "edit": ["--permission-mode", "acceptEdits", "--tools", EDIT_TOOLS, "--allowed-tools", EDIT_TOOLS],
+}
+CODEX_PROCESS_NAMES = {"codex", "codex (service)"}
+NON_INTERACTIVE_FLAGS = {"-p", "--print"}
+
+
+def ps_field(pid, field):
+    out = subprocess.run(["ps", "-o", f"{field}=", "-p", str(pid)], capture_output=True, text=True)
+    return out.stdout.strip()
+
+
+def delegated_ancestor():
+    """Return a description of the first ancestor that makes this a nested call."""
+    pid = os.getppid()
+    while pid > 1:
+        command = ps_field(pid, "comm").lower()
+        name = os.path.basename(command)
+        if name in CODEX_PROCESS_NAMES:
+            return f"codex pid={pid}"
+        # Versioned installs run as .../claude/versions/<ver>, so match the path too.
+        is_claude = name == "claude" or "/claude/" in command
+        if is_claude and NON_INTERACTIVE_FLAGS & set(ps_field(pid, "args").split()):
+            return f"claude -p pid={pid}"
+        parent = ps_field(pid, "ppid")
+        if not parent.isdigit():
+            return None
+        pid = int(parent)
+    return None
+
+
+def finish(message, code):
+    print(f"[glm-run] {message}", flush=True)
+    sys.exit(code)
+
+
+def progress_line(event, turn):
+    lines = []
+    for block in event.get("message", {}).get("content", []):
+        if isinstance(block, dict) and block.get("type") == "tool_use":
+            tool_input = block.get("input") or {}
+            target = tool_input.get("file_path") or tool_input.get("pattern") or tool_input.get("path") or ""
+            lines.append(f"{time.strftime('%H:%M:%S')} turn={turn} tool={block.get('name')} target={target}\n")
+    return lines
+
+
+def run_delegate(cmd, cwd, out_dir, timeout):
+    """Stream events to disk as they arrive; return (init_model, result, timed_out)."""
+    init_model, result, turn = None, None, 0
+    with open(os.path.join(out_dir, "stderr.log"), "w") as stderr_log, \
+            open(os.path.join(out_dir, "stream.jsonl"), "w") as stream_log, \
+            open(os.path.join(out_dir, "progress.log"), "w") as progress_log:
+        # Own process group: the launcher spawns the Claude CLI, and killing only
+        # the launcher would leave the CLI holding stdout open after a timeout.
+        proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr_log, text=True,
+                                start_new_session=True)
+        timer = threading.Timer(timeout, os.killpg, (proc.pid, signal.SIGKILL))
+        timer.start()
+        try:
+            for line in proc.stdout:
+                stream_log.write(line)
+                stream_log.flush()
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if event.get("type") == "system" and event.get("subtype") == "init":
+                    init_model = event.get("model")
+                elif event.get("type") == "assistant":
+                    turn += 1
+                    progress_log.writelines(progress_line(event, turn))
+                    progress_log.flush()
+                elif event.get("type") == "result":
+                    result = event
+            proc.wait()
+        finally:
+            timed_out = not timer.is_alive() and result is None
+            timer.cancel()
+    return init_model, result, timed_out
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=MODE_FLAGS, required=True)
+    parser.add_argument("--cwd", default=os.getcwd())
+    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--timeout", type=int, default=540)
+    args = parser.parse_args()
+
+    nested = delegated_ancestor()
+    if nested:
+        finish(f"REFUSED nested delegation ({nested}); do the work in the calling session", 1)
+    prompt = sys.stdin.read().strip()
+    if not prompt:
+        finish("FAILED empty prompt on stdin", 1)
+
+    out_dir = os.path.join(OUT_ROOT, f"{time.strftime('%Y%m%d-%H%M%S')}-{os.getpid()}")
+    os.makedirs(out_dir)
+    print(f"[glm-run] started run_dir={out_dir}", flush=True)
+    launcher = shutil.which("claude-router") or os.path.expanduser("~/.local/bin/claude-router")
+    cmd = [
+        launcher, "-p", prompt,
+        "--model", args.model, "--effort", EFFORT,
+        "--output-format", "stream-json", "--verbose",
+        "--no-session-persistence", "--permission-prompts", "none",
+        *MODE_FLAGS[args.mode],
+    ]
+    init_model, result, timed_out = run_delegate(cmd, args.cwd, out_dir, args.timeout)
+
+    if timed_out:
+        finish(f"FAILED timeout after {args.timeout}s run_dir={out_dir}", 1)
+    # Identity gate: reject the handoff unless the routed model actually ran.
+    if init_model != args.model:
+        finish(f"FAILED init model {init_model!r} != {args.model!r} run_dir={out_dir}", 1)
+    if result is None:
+        finish(f"FAILED no result event run_dir={out_dir}", 1)
+
+    result_path = os.path.join(out_dir, "result.md")
+    with open(result_path, "w") as handle:
+        handle.write(result.get("result", ""))
+    ok = not result.get("is_error")
+    finish(f"model={init_model} effort={EFFORT} mode={args.mode} ok={ok} "
+           f"turns={result.get('num_turns')} ms={result.get('duration_ms')} result={result_path}",
+           0 if ok else 1)
+
+
+if __name__ == "__main__":
+    main()

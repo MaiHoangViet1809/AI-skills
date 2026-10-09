@@ -1,0 +1,4 @@
+interface:
+  display_name: "ClaudeCodeGlmSetup"
+  short_description: "Claude Code only: connect GreenNode GLM-5.3 via codex-router as a one-level glm-worker sub-agent"
+  default_prompt: "Use $claude-code-glm-setup only inside Claude Code on macOS to connect GreenNode GLM-5.3 through codex-router as a one-level glm-worker sub-agent. Run phases P0-P7 in order with a check per phase; credentials only through the router's private prompt; ask before changing codex-router, ~/.claude or services; leave Codex untouched."
