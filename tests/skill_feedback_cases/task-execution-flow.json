@@ -560,6 +560,41 @@
           "must_not": "Force every consumer onto the new route or treat an unrelated consumer as a failure."
         }
       ]
+    },
+    {
+      "id": "claude-code-glm-execution-gate-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Run the mandatory GLM-5.3-max delegation gate in Claude Code.",
+        "actual_behavior": "The gate records Claude Code as lacking native GLM even when glm-worker is installed.",
+        "expected_behavior": "Follow the gate pointer to the Claude Code reference; with glm-worker present in an interactive top-level session, delegate each safe bounded slice one level deep.",
+        "invariant": "In Claude Code the execution gate uses glm-worker only from the interactive top-level session and never from a delegated process or sub-agent.",
+        "evidence_ref": "sanitized:claude-code-glm-branch-2026-10-10"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Implement an approved SOW slice.",
+          "context": "Interactive top-level Claude Code session; glm-worker is in the catalog; the SOW names exact write files.",
+          "expected_behavior": "Delegate the slice to glm-worker in edit mode with the exact files, read the result file, inspect the working tree and run verification locally.",
+          "must_not": "Let the delegate own verification or widen the write scope."
+        },
+        {
+          "kind": "negative",
+          "request": "Implement an approved SOW slice handed over by another coordinator.",
+          "context": "This Claude Code process is a non-interactive delegate of Codex.",
+          "expected_behavior": "Implement the slice locally in this process without calling glm-worker.",
+          "must_not": "Start a nested GLM delegation."
+        },
+        {
+          "kind": "boundary",
+          "request": "Implement an approved SOW slice.",
+          "context": "The Claude Code reference cannot be located in this installation.",
+          "expected_behavior": "Apply the execution gate unchanged and record the native capability state it yields.",
+          "must_not": "Infer GLM availability from the agent name alone."
+        }
+      ]
     }
   ]
 }

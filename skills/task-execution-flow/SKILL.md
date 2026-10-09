@@ -258,6 +258,10 @@ the exact target is available and a safe bounded slice exists.
 - Inspect only the current native catalog of the active client and supported efforts.
   Only exact `greennode/glm-5.3` with `reasoning_effort=max` counts;
   aliases, variants, stale labels, and guessed availability do not qualify.
+- Claude Code: locate `sow-delegate-flow` through the harness's supplied skill
+  location/catalog and read its `references/claude-code.md` for this client's
+  native GLM role and one-level scope guard. If it cannot be located, apply
+  this section unchanged.
 - When the exact target is available and a safe bounded non-overlapping slice
   exists, invoke `sow-delegate-flow` in
   `automatic-execution-delegation`. Do not skip because the work is simple,

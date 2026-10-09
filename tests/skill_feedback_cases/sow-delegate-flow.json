@@ -385,6 +385,41 @@
           "must_not": "Launch based only on the CLI being installed or silently choose a provider."
         }
       ]
+    },
+    {
+      "id": "claude-code-glm-role-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Decide whether Claude Code can delegate to the exact GLM-5.3-max target.",
+        "actual_behavior": "Claude Code treats a catalog agent named glm-worker as unknown and keeps all work local.",
+        "expected_behavior": "In an interactive top-level Claude Code session, read the Claude Code reference, use glm-worker one level deep, and accept only a status line naming greennode/glm-5.3 with effort=max and ok=True.",
+        "invariant": "Claude Code reaches GLM only from the interactive top-level session, one level deep, with exact-model evidence; delegated Claude processes and sub-agents never re-delegate.",
+        "evidence_ref": "sanitized:claude-code-glm-branch-2026-10-10"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate a bounded review slice to GLM.",
+          "context": "Interactive top-level Claude Code session; glm-worker is in the agent catalog.",
+          "expected_behavior": "Send one self-contained read task to glm-worker, check model, effort=max and ok=True in the status line, read the result file, then verify locally.",
+          "must_not": "Accept a paraphrase or a status line without effort evidence."
+        },
+        {
+          "kind": "negative",
+          "request": "Review this file as Codex's Claude delegate.",
+          "context": "A Claude Code process launched through the Claude Code External Transport for Codex.",
+          "expected_behavior": "Do the review in this process with the selected Claude model; never call glm-worker or the relay.",
+          "must_not": "Re-delegate to GLM, nest delegation, or replace the user-selected model."
+        },
+        {
+          "kind": "boundary",
+          "request": "Delegate to GLM from Claude Code.",
+          "context": "The relay prints REFUSED, or glm-worker is absent from the catalog.",
+          "expected_behavior": "Record native-unavailable with the specific reason and continue under the calling gate's existing rule.",
+          "must_not": "Retry with another model, search other clients or routers, or report a handoff."
+        }
+      ]
     }
   ]
 }

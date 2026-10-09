@@ -595,6 +595,41 @@
           "must_not": "Demand an unrelated consumer adopt the target route or classify its preserved behavior as a defect."
         }
       ]
+    },
+    {
+      "id": "claude-code-glm-review-gate-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Run the independent GLM-5.3-max review pass in Claude Code.",
+        "actual_behavior": "The review stays coordinator-only in Claude Code although glm-worker is installed.",
+        "expected_behavior": "Follow the pointer to the Claude Code reference and run one isolated read-only glm-worker pass from the interactive top-level session; the coordinator keeps the verdict.",
+        "invariant": "In Claude Code the independent review pass uses glm-worker only one level deep from the interactive top-level session.",
+        "evidence_ref": "sanitized:claude-code-glm-branch-2026-10-10"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review a draft SOW.",
+          "context": "Interactive top-level Claude Code session; glm-worker is in the catalog.",
+          "expected_behavior": "Run one read-only glm-worker pass with a self-contained prompt, verify its cited lines, and write back findings as coordinator.",
+          "must_not": "Copy delegate findings into the verdict without checking them."
+        },
+        {
+          "kind": "negative",
+          "request": "Review a draft SOW as a sub-agent of the main session.",
+          "context": "This is a Claude sub-agent spawned by the top-level session.",
+          "expected_behavior": "Review directly in the sub-agent without calling glm-worker or the relay.",
+          "must_not": "Nest a GLM review inside the sub-agent."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a draft SOW.",
+          "context": "The glm-worker status line lacks effort=max or reports ok=False.",
+          "expected_behavior": "Treat the pass as an observed delegation failure, allow bounded repair, then review coordinator-only with the evidence recorded.",
+          "must_not": "Accept the output as an exact-target review."
+        }
+      ]
     }
   ]
 }

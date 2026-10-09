@@ -195,6 +195,10 @@
         {
           "path": "skills/sow-delegate-flow/agents/openai.yaml",
           "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/agents/openai.yaml"
+        },
+        {
+          "path": "skills/sow-delegate-flow/references/claude-code.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/sow-delegate-flow/references/claude-code.md"
         }
       ]
     },

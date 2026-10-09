@@ -22,6 +22,13 @@ or a blocker. Keep the final response separate.
 - `AGENTS.md` and repo rules define process constraints and guardrails.
 - The approved SOW defines the active task scope and deliverables.
 
+## Client Branch
+
+- Codex and other clients: no change; follow this file as written.
+- Claude Code: before any GLM availability decision in this skill, also read
+  [references/claude-code.md](references/claude-code.md). It defines this
+  client's native GLM role and its one-level scope guard.
+
 ## Trigger And Routing
 
 Activate when the user explicitly asks to delegate, assign, or hand off a task,

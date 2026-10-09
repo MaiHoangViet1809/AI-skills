@@ -118,6 +118,10 @@ never satisfy the exact target.
   active client and its supported reasoning efforts. The exact target is
   `greennode/glm-5.3` with `reasoning_effort=max`; when available, the
   coordinator **MUST select it before any alternate model**.
+- Claude Code: locate `sow-delegate-flow` through the harness's supplied skill
+  location/catalog and read its `references/claude-code.md` for this client's
+  native GLM role and one-level scope guard. If it cannot be located, apply
+  this section unchanged.
 - `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
   names, and other providers are not exact matches. Do not infer availability
   from a display label or an earlier task.
