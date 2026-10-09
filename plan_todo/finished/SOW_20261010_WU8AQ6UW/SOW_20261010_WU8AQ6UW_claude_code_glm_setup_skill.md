@@ -1,10 +1,10 @@
 # SOW_20261010_WU8AQ6UW — Claude Code GLM Setup Skill
 
-- Status: APPROVED
+- Status: DONE
 - Approval: approved by user ("approve SOW_20261010_WU8AQ6UW, D001=a, D002=a")
 - create_dttm: 2026-10-10T04:48:31+07:00
 - approve_dttm: 2026-10-10T04:55:17+07:00
-- finish_dttm: null
+- finish_dttm: 2026-10-10T05:02:50+07:00
 - Proposed-By: Claude Code (claude-opus-5-5)
 - plan: Standalone; packages the setup proven in SOW_20261010_CV7I1SN0
 - Decision Log: SOW_20261010_WU8AQ6UW_decision.md
@@ -142,7 +142,50 @@ noting macOS-specific steps; editing the three delegation skills.
 
 ## Verification / Closeout
 
-Pending implementation.
+Definitely implemented and verified:
+
+- AISkills `58af8d6`: skill `claude-code-glm-setup` (SKILL.md 193 lines,
+  bundled relay, stream fix reference, troubleshooting, openai.yaml), INDEX
+  row, registry entry (only this hunk staged; user WIP left unstaged),
+  feedback case.
+- Bundled `glm-run` / `glm-worker.md` byte-identical to codex-router `dedbbe22`.
+- D001 (a): this machine's `~/.local/bin/glm-run` and
+  `~/.claude/agents/glm-worker.md` now link to the AISkills copies.
+- P1 on upstream (`00eed6eb`), isolated (temporary HOME, CODEX_HOME, state and
+  Claude config dirs): generic id `greennode` accepted, slug
+  `greennode/glm-5.3`; the local fork rejects the id as built-in. The CLI
+  path was not executed because its post-mutation restart locates the
+  router service by label, which isolation cannot redirect; the same
+  library functions the CLI uses were called instead. Live config hashes
+  were unchanged right after this check.
+- Check mode on this machine: P2 `ROUTER_OK` with the routed id only; P3
+  probe exactly as written in the reference PASS 3/3; P4 relay through the
+  AISkills copies `effort=max ok=True`, `result.md` = `RELAY_OK`; P5 both
+  REFUSED, 15 s timeout kept `stream.jsonl` (progress.log empty because no
+  tool call had started, check text corrected), no leftover processes; P6
+  rules already installed with parity.
+- Fresh-reader check (isolated Claude sub-agent, skill only, mock colleague
+  with a key pasted in chat): correct phase order, commands and checks;
+  declined the key and advised rotation; asked before every change. Its
+  gaps were applied: `claude enable` effects and undo, restart command,
+  installed-skill paths, missing directories, P5 context, public install URL.
+- Full suite 47/47 on the working tree and a clean worktree; `git diff
+  --check` pass; privacy grep clean. Sync to Claude only, parity ok;
+  `~/.codex/skills` hash unchanged.
+
+Approximated or not verified:
+
+- P1 with a real GreenNode credential through an upstream generic provider,
+  and the TRUNCATED branch of P3 on upstream, could not run here; the skill
+  names the colleague's first real task as the acceptance test.
+- A later live-config hash differed because the running router republished
+  its routed catalog and launcher at 04:59:24 on its own drift check (router
+  log), triggered by the P2 request; Codex `config.toml` and Claude
+  `settings.json` were not modified.
+
+Follow-up outside this SOW: `glm-worker.md` still describes itself as "Use
+only when the user asks to hand work to GLM", which predates the automatic
+gates of SOW_20261010_CV7I1SN0.
 
 Review summary (draft stage, self-review at the user's request: coordinator
 only, no independent GLM pass). Pass 1: P1 premises checked in upstream
