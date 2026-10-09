@@ -1,10 +1,10 @@
 # SOW_20261010_CV7I1SN0 — Claude Code GLM Branch For Delegation Skills
 
-- Status: APPROVED
+- Status: DONE
 - Approval: approved by user ("approve, làm giúp tôi cẩn thận"); D002 decided by user: automatic, one level only
 - create_dttm: 2026-10-10T03:38:24+07:00
 - approve_dttm: 2026-10-10T04:13:38+07:00
-- finish_dttm: null
+- finish_dttm: 2026-10-10T04:28:05+07:00
 - Proposed-By: Claude Code (claude-opus-5-5)
 - plan: Standalone; follows local glm-worker setup verified 2026-10-10
 - Decision Log: SOW_20261010_CV7I1SN0_decision.md
@@ -187,7 +187,46 @@ installation of `glm-worker` on other machines.
 
 ## Verification / Closeout
 
-Pending implementation.
+Definitely implemented and verified:
+
+- Relay P1-P3 (codex-router `dedbbe22`): status line `effort=max`; the
+  effort chain was captured end to end (`--effort max` -> request
+  `output_config.effort="max"` -> router `reasoning.effort`). Refusal under a
+  `claude -p` ancestor and a Codex ancestor; desktop run accepted; a 15 s
+  forced timeout kept `stream.jsonl` / `progress.log` with no leftover
+  processes; `progress.log` observed growing during a live run.
+- AISkills `3e280ec` + `f016c62`: additive Client Branch, Claude Code
+  reference, two routing pointers, three feedback cases, registry entry.
+  Deletions in the three skills: 0 (user WIP in `task-execution-flow` and
+  `registry.json` left unstaged and unchanged).
+- Tests: full suite 47/47 on the working tree and on a clean worktree at each
+  commit; `git diff --check` pass; forbidden phrases and privacy grep clean.
+- Sync: Claude only, from a clean worktree (no user WIP installed);
+  `verify_skill_copy` parity ok for all three skills; `~/.codex/skills`
+  hash unchanged; `sync_env_codex.py` not run.
+- Delegate-context probe: Codex's read-only `claude -p` command ran
+  `claude-opus-5-5`, used Skill/Read only, made no `glm-worker` call and
+  recorded `native-unavailable (interface unsupported)`.
+- In-session probe: a Claude sub-agent recorded the same and no relay run
+  directory was created.
+- Positive path: this top-level session ran the final double check through
+  `glm-worker` (status line `greennode/glm-5.3`, `effort=max`, `ok=True`):
+  no actionable findings, implementation matches SOW.
+
+Approximated or not verified:
+
+- In-session nesting is guarded by instruction only (no deterministic
+  signal exists; environment and process tree are shared).
+- The delegate-context probe used a Codex-shaped `claude -p` launched from
+  this session, not a live Codex run.
+- The automatic execution gate was not exercised on a real implementation
+  slice in a fresh top-level session.
+
+Probe findings applied in `f016c62`: REFUSED vs FAILED classification,
+capability evidence when barred, inconclusive top-level case, catalog entry
+as candidate only, isolation evidence, background progress, timeout and stop
+handling. Not applied: a cross-reference inside the Claude Code External
+Transport section (`SKILL.md:151`), because that section is Codex-side text.
 
 Review summary (draft stage): two independent reviews by native GLM-5.3 max
 through the relay, each a fresh process with no prior history, plus a
