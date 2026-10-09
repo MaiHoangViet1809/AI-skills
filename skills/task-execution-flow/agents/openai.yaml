@@ -1,4 +1,4 @@
 interface:
   display_name: "TaskExecutionFlow"
-  short_description: "Execute scoped work with mandatory available-GLM-5.3-max delegation, verification, and disciplined closeout"
-  default_prompt: "Use TaskExecutionFlow to execute an already-scoped task through the mandatory exact GLM-5.3-max availability gate, bounded delegation or evidence-backed fallback, mini-task loops, verification, gap finding, and final closeout."
+  short_description: "Scoped execution with mandatory native GLM-5.3-max routing and verified closeout"
+  default_prompt: "Use TaskExecutionFlow for approved scoped work. Run the mandatory GLM-5.3-max gate only within the current client's native capabilities; absent or unknown native capability permits local work, not external GLM discovery. Preserve explicitly selected external delegation, verification, gap finding and closeout."

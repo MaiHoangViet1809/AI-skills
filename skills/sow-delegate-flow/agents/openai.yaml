@@ -1,4 +1,4 @@
 interface:
   display_name: "SowDelegateFlow"
-  short_description: "SOW-first delegation with mandatory available-GLM-5.3-max routing and fresh sessions"
-  default_prompt: "Use $sow-delegate-flow for this approved delegation; when exact greennode/glm-5.3 at max is available, delegate a meaningful bounded slice without skipping for simplicity or routine work, start a fresh session for non-native agents, then independently review and verify the result."
+  short_description: "Native GLM-5.3-max enforcement and explicitly selected external delegation"
+  default_prompt: "Use $sow-delegate-flow for approved delegation. Enforce exact greennode/glm-5.3 at max only through the current client's native capabilities; absent or unknown native capability permits local work without searching other clients/providers. Preserve explicitly selected external agents, fresh isolated sessions and local verification."

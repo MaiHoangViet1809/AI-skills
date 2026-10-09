@@ -24,6 +24,21 @@ REVIEW_SKILL = "task-review-investigate-compare"
 TARGET_SKILLS = (EXECUTION_SKILL, DELEGATE_SKILL, REVIEW_SKILL)
 EXACT_MODEL = "greennode/glm-5.3"
 EXACT_EFFORT = "reasoning_effort=max"
+NATIVE_ONLY_LOCKS = (
+    "current native catalog of the active client",
+    "native-unavailable",
+    "interface unsupported",
+    "exact model absent",
+    "max effort unsupported",
+    "native-capability-unknown",
+    "at most one documented native capability lookup",
+    "do not search other clients, clis, routers, providers or credentials",
+    "explicit external delegation",
+)
+FORBIDDEN_NATIVE_DISCOVERY = (
+    "native catalog or documented provider transport",
+    "search a native catalog or provider transport",
+)
 
 
 def skill_path(skill_name: str) -> Path:
@@ -67,14 +82,22 @@ def mandatory_cases(skill_name: str) -> list[dict[str, Any]]:
 
 
 def assert_locks(test: unittest.TestCase, text: str, locks: tuple[str, ...]) -> None:
-    lowered = text.lower()
-    missing = [lock for lock in locks if lock.lower() not in lowered]
+    normalized = re.sub(r"\s+", " ", text).lower()
+    missing = [
+        lock
+        for lock in locks
+        if re.sub(r"\s+", " ", lock).lower() not in normalized
+    ]
     test.assertFalse(missing, f"missing contract locks: {missing}")
 
 
 def assert_not_locks(test: unittest.TestCase, text: str, locks: tuple[str, ...]) -> None:
-    lowered = text.lower()
-    present = [lock for lock in locks if lock.lower() in lowered]
+    normalized = re.sub(r"\s+", " ", text).lower()
+    present = [
+        lock
+        for lock in locks
+        if re.sub(r"\s+", " ", lock).lower() in normalized
+    ]
     test.assertFalse(present, f"stale contradictory contract wording: {present}")
 
 
@@ -96,6 +119,7 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 "record concrete evidence",
                 "user override",
                 "stop for scope/authority clarification",
+                *NATIVE_ONLY_LOCKS,
             ),
         )
         assert_not_locks(
@@ -106,6 +130,7 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 "prefer one bounded delegated slice",
                 "otherwise execute locally",
                 "explicit local-only, unsafe, unbounded, or unverifiable -> execute locally",
+                *FORBIDDEN_NATIVE_DISCOVERY,
             ),
         )
 
@@ -118,7 +143,6 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 EXACT_MODEL,
                 EXACT_EFFORT,
                 "current native catalog",
-                "documented provider transport",
                 "flash-thirdparty",
                 "aliases, stale role names",
                 "confirmed launch",
@@ -139,6 +163,8 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 "read-only",
                 "before approval",
                 "not required to spawn nested",
+                *NATIVE_ONLY_LOCKS,
+                "codex -> claude code delegation",
             ),
         )
         assert_not_locks(
@@ -149,6 +175,10 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 "routine local check",
                 "optional independent review",
                 "for an optional independent pass",
+                "fork_turns: none for native children",
+                'every delegate: start with `fork_turns: "none"`',
+                'native: use the selected native role and lifecycle only, with `fork_turns: "none"`',
+                *FORBIDDEN_NATIVE_DISCOVERY,
             ),
         )
 
@@ -162,18 +192,20 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 EXACT_MODEL,
                 EXACT_EFFORT,
                 "current native catalog",
-                "documented provider transport",
                 "flash-thirdparty",
                 "aliases, stale role names",
                 "confirmed unavailability",
                 "observed delegation failure",
                 "record capability evidence",
-                "record concrete evidence",
+                "concrete evidence",
                 "user override",
                 "fork_turns: \"none\"",
                 "brand-new provider-owned session",
                 "coordinator owns the review conclusion",
                 "read-only and advisory",
+                *NATIVE_ONLY_LOCKS,
+                "selected codex -> claude code review",
+                "claude code without native glm stays local even if codex",
             ),
         )
         assert_not_locks(
@@ -185,6 +217,7 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 "routine local checks coordinator-only",
                 "for an optional independent pass",
                 "skipped by the bounded trigger",
+                *FORBIDDEN_NATIVE_DISCOVERY,
             ),
         )
 

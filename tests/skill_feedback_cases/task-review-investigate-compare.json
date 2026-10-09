@@ -457,6 +457,41 @@
       ]
     },
     {
+      "id": "native-client-glm-review-gate-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A substantive open-model review enters the automatic GLM-5.3-max gate.",
+        "actual_behavior": "The review searches a native catalog or provider transport outside the active client to find GLM.",
+        "expected_behavior": "Inspect only the current client's native catalog and supported reasoning efforts; run the exact native pass when available, otherwise continue coordinator-only with truthful native capability evidence.",
+        "invariant": "Automatic review delegation is native-scope bounded, exact-model evidenced when available, single-lookup bounded, and never replaced by cross-client discovery.",
+        "evidence_ref": "sanitized:SOW_20261001_ZJDHWCVU-EXT-23PA4E5R-native-client-glm-gate"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review this behavior-bearing SOW without naming a reviewer model.",
+          "context": "The current client's native catalog exposes exact greennode/glm-5.3 with reasoning_effort=max and a clean native review transport.",
+          "expected_behavior": "Run one exact-model native review pass with a documented clean-context mechanism, keep it read-only and advisory, then verify it locally before approval.",
+          "must_not": "Search other clients, CLIs, routers, providers, or credentials; treat the delegated review as final approval or use inherited context."
+        },
+        {
+          "kind": "negative",
+          "request": "Review when the current client provides no native capability catalog.",
+          "context": "One documented native capability lookup returns no capability evidence and the review remains bounded and read-only.",
+          "expected_behavior": "Record native-capability-unknown after that single lookup and continue the coordinator-owned review without claiming exact model absence.",
+          "must_not": "Repeat native lookups, discover another client, claim native-unavailable exact model absent from an unavailable catalog, or block the review."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review from clients whose native interface is unsupported, exact model is absent, max effort is unsupported, or Codex is installed while Claude Code is active.",
+          "context": "One successful native lookup identifies the current client limitation; no explicit reviewer model or transport is selected.",
+          "expected_behavior": "Record native-unavailable with reason interface unsupported, exact model absent, or max effort unsupported and continue coordinator-only; preserve explicit external review delegation and the selected Codex-to-Claude route.",
+          "must_not": "Search or launch another client merely for GLM, silently select Claude, claim the native limitations are cross-client capability evidence, or weaken coordinator review ownership."
+        }
+      ]
+    },
+    {
       "id": "no-invented-manual-gate-001",
       "target_skill": "task-review-investigate-compare",
       "cause_class": "decision_procedure",

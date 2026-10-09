@@ -422,6 +422,41 @@
       ]
     },
     {
+      "id": "native-client-glm-execution-gate-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "An approved implementation slice enters the automatic GLM-5.3-max gate.",
+        "actual_behavior": "The gate checks a native catalog or provider transport from any client, allowing cross-client discovery.",
+        "expected_behavior": "Inspect only the current client's native catalog and supported reasoning efforts; delegate the exact target when available, otherwise continue locally with truthful native capability evidence.",
+        "invariant": "Automatic execution delegation is native-scope bounded, exact-model mandatory when available, single-lookup bounded, and never externally discovered as a substitute.",
+        "evidence_ref": "sanitized:SOW_20261001_ZJDHWCVU-EXT-23PA4E5R-native-client-glm-gate"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Execute the next bounded implementation slice without naming a model.",
+          "context": "The current client's native catalog exposes exact greennode/glm-5.3 with reasoning_effort=max and native transport is available.",
+          "expected_behavior": "Enter automatic execution delegation with the exact native target and a documented clean-context mechanism, then verify the delegate result locally.",
+          "must_not": "Search other clients, CLIs, routers, providers, or credentials; skip the gate because the slice is simple or choose a model variant."
+        },
+        {
+          "kind": "negative",
+          "request": "Execute the next bounded slice when the current client has no native capability catalog.",
+          "context": "At most one documented native capability lookup has been attempted and it produced no capability evidence.",
+          "expected_behavior": "Record native-capability-unknown after that lookup, continue local execution with the approved slice, and retain coordinator verification.",
+          "must_not": "Claim confirmed exact model absence, repeat capability probing, discover another client, or make native availability a blocker for local execution."
+        },
+        {
+          "kind": "boundary",
+          "request": "Execute across native interfaces with unsupported interfaces, missing max effort, absent exact models, or an installed Codex client while Claude Code is active.",
+          "context": "A successful native lookup identifies the specific limitation for each current client; no human model or transport selection is present.",
+          "expected_behavior": "Record native-unavailable with reason interface unsupported, max effort unsupported, or exact model absent and execute locally; keep explicit external delegation and selected Codex-to-Claude delegation available only under their existing contracts.",
+          "must_not": "Auto-route Claude Code to Codex, install or configure another client, substitute an external model, or turn an explicit user override into automatic discovery."
+        }
+      ]
+    },
+    {
       "id": "remote-container-import-preflight-001",
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",

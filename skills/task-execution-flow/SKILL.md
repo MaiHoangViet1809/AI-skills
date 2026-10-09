@@ -1,6 +1,6 @@
 ---
 name: task-execution-flow
-description: Use when task scope is already approved or otherwise clear and you need the repo's execution discipline for carrying work from context gathering through mandatory available-GLM-5.3-max delegation, repair loops, implementation verification, gap-finding, and closeout.
+description: Execute approved scoped work through mandatory native GLM-5.3-max delegation when available in the current client, or local execution for absent/unknown native capability; verify implementation, find gaps and close out without external GLM discovery.
 ---
 
 # Task Execution Flow
@@ -76,8 +76,10 @@ routing and do not add a plan unless requested or excessive scope risks failure.
   the mandatory GLM-5.3-max delegation gate below. When the exact target is
   available and a safe bounded slice can be defined, delegate it; do not skip
   because the work is simple, mechanical, routine, costly, or judged unsuitable.
-  Only confirmed unavailability or an observed delegation failure permits
-  automatic local fallback with evidence. If no safe authorized slice can be
+  Native unavailability, inconclusive native capability after one lookup, or
+  an observed delegation failure permits automatic local fallback with evidence.
+  Never search external clients/providers to satisfy this gate.
+  If no safe authorized slice can be
   defined, stop for scope/authority clarification.
 - Use `sow-delegate-flow`'s internal
   `automatic-execution-delegation` mode for this mandatory handoff. A later
@@ -144,11 +146,15 @@ Phase 1: context and experiment
 -> record each caller's approved, legacy, or boundary disposition in the
    existing implementation evidence; do not create a persistent caller registry
 -> run the mandatory GLM-5.3-max delegation gate for the next slice:
-   -> inspect current native catalog/list-models or documented transport
+   -> inspect only the current client's native catalog and supported efforts
    -> exact model + max effort available and safe bounded slice exists:
       -> MUST enter sow-delegate-flow's internal automatic mode
-   -> exact target unavailable:
-      -> record capability evidence, then use the local fallback
+   -> native interface/model/max unavailable:
+      -> record native-unavailable + reason, then use the local fallback
+   -> native capability inconclusive:
+      -> at most one documented native capability lookup
+      -> record native-capability-unknown, then use the local fallback
+   -> do not search other clients, CLIs, routers, providers or credentials
    -> delegation launch/session/isolation/child/output failure:
       -> record concrete evidence, repair within bounds, then use local fallback
          only if the failure remains
@@ -161,8 +167,8 @@ Phase 2: implement
 -> pick the next smallest meaningful mini-task
 -> if the mandatory gate selected delegation, hand off one bounded
    non-overlapping slice and keep the coordinator out of its write scope
--> if the gate recorded confirmed unavailability or an observed delegation
-   failure, apply the smallest local patch that satisfies the SOW and record
+-> if the gate recorded native unavailability, native-capability-unknown or an
+   observed delegation failure, apply the smallest local patch that satisfies the SOW and record
    the fallback evidence
 -> do not silently convert an unsafe/unbounded/unverifiable slice into local work
 -> keep invariants, behavior locks, and cleanup paths in scope
@@ -249,8 +255,8 @@ Run this gate after the approved SOW and exact write scope are confirmed, and
 before every implementation or substantive review slice. It is mandatory when
 the exact target is available and a safe bounded slice exists.
 
-- Inspect the current native catalog, `list-models` result, or documented
-  transport. Only exact `greennode/glm-5.3` with `reasoning_effort=max` counts;
+- Inspect only the current native catalog of the active client and supported efforts.
+  Only exact `greennode/glm-5.3` with `reasoning_effort=max` counts;
   aliases, variants, stale labels, and guessed availability do not qualify.
 - When the exact target is available and a safe bounded non-overlapping slice
   exists, invoke `sow-delegate-flow` in
@@ -259,24 +265,34 @@ the exact target is available and a safe bounded slice exists.
 - Hard rule: do not skip because the work is simple, mechanical, routine, costly, or judged unsuitable.
 - If no safe authorized slice can be defined, stop for scope or authority
   clarification. Do not convert that condition into local execution.
-- If the exact target is confirmed unavailable, record the capability evidence
-  and use the local fallback. If delegation launch, transport, session,
+- For confirmed unavailability, record capability evidence as `native-unavailable`
+  with reason: interface unsupported, exact model absent, or max effort unsupported.
+  If inconclusive, use at most one documented native capability lookup, then
+  record `native-capability-unknown` and work locally without claiming absence.
+  Do not search other clients, CLIs, routers, providers or credentials;
+  Claude Code without native GLM stays local even if Codex has it elsewhere.
+  Neither outcome requires external discovery, setup or another model.
+- For an observed delegation failure in launch, transport, session,
   isolation, terminal child, or bounded output fails, record concrete evidence,
   allow bounded repair, and use local fallback only if the failure remains.
-  Missing external evidence is unverified and requires a stop, not an invented
-  failure or silent local fallback.
+  Missing evidence for explicitly requested external delegation still requires
+  a stop; that rule must not block automatic native-unavailable/unknown local work.
 - A later explicit human model, transport, or local-only instruction wins for
   that named task and must be recorded as a user override.
-- `sow-delegate-flow` owns prompt boundaries, native `fork_turns: "none"`,
+- `sow-delegate-flow` owns prompt boundaries, Codex `fork_turns: "none"`,
   fresh non-native sessions, cleanup, and transport details. This skill owns
   availability, the mandatory decision, and evidence-backed fallback.
+  Other native interfaces retain equivalent clean-context guarantees; never
+  discover/launch Codex merely to satisfy `fork_turns` on another client.
 - When the user explicitly selects Claude Code for an approved implementation
   slice, route the external transport through `sow-delegate-flow` and use its
   Claude `sonnet` high-effort contract. This skill remains responsible for SOW
   scope, write ownership, verification and closeout; do not duplicate CLI
   syntax here.
+  Explicit external delegation remains available, not an automatic substitute
+  for missing native GLM.
 - Record `delegation_decision` as `delegated`, `fallback-unavailable`,
-  `fallback-failure`, `user-override`, or `blocked-no-safe-slice`, with reason,
+  `fallback-capability-unknown`, `fallback-failure`, `user-override`, or `blocked-no-safe-slice`, with reason,
   model/transport, availability evidence, isolation status, failure evidence,
   and verification result.
 

@@ -8,13 +8,18 @@
 - create_dttm_confidence: explicit
 - create_dttm_evidence: `plan_todo/finished/SOW_20261008_VO3LKN0L/creation-date-evidence.json` (record: SOW_20261001_ZJDHWCVU)
 - approve_dttm: 2026-10-01T03:47:20+07:00
-- finish_dttm: 2026-10-05T02:58:16+07:00
+- finish_dttm: 2026-10-09T09:43:20+07:00
 - legacy_id: SOW_0096
 - legacy_path: plan_todo/finished/SOW_0096_task_execution_delegate_preference.md
 - migrated_dttm: 2026-10-08T12:48:51+07:00
 - legacy_title: SOW_0096 - Task Execution Delegation Preference
-- Extension order (historical; no new approval):
+- Extension order (base history preserved; second EXT explicitly approved):
   1. [SOW_20261001_ZJDHWCVU_EXT_U8XRPS06](SOW_20261001_ZJDHWCVU_EXT_U8XRPS06_mandatory_glm53_delegation.md); retain recorded scope/dependencies.
+  2. [EXT_23PA4E5R](SOW_20261001_ZJDHWCVU_EXT_23PA4E5R_native_client_glm_gate.md): approved native-client gate; user approved reopening on 2026-10-09. Prior completion: 2026-10-05T02:58:16+07:00.
+
+Latest approved EXT narrows automatic GLM enforcement to the current native
+client. Completed contract verification and residual host-runtime scope are
+recorded in EXT_23PA4E5R; preserved lifecycle below describes the earlier closeout.
 
 ## Preserved Contract And Historical Evidence
 

@@ -1,6 +1,6 @@
 ---
 name: task-review-investigate-compare
-description: Use when the user wants to review a plan, SOW, request, or idea; investigate feasibility or root causes; or compare approaches. Default concrete, low-ambiguity findings back into a known existing plan or SOW unless the user explicitly requests discussion only; route material contract changes separately. For substantive review, delegate one bounded independent pass to exact GLM-5.3-max whenever available, with evidence-backed fallback only for confirmed unavailability or actual delegation failure.
+description: Review plans, SOWs, requests or ideas; investigate and compare approaches, writing concrete findings back by default. For substantive review, delegate to exact native GLM-5.3-max when available in the current client; absent/unknown native capability permits local review without external GLM discovery.
 ---
 
 # Task Review Investigate Compare
@@ -98,33 +98,44 @@ reviewer. A delegated reviewer supplies evidence; the coordinator owns the
 review conclusion, writeback, verification, and closeout.
 
 For any substantive review using this skill, run one bounded independent pass
-when exact `greennode/glm-5.3` at `reasoning_effort=max` is available. Do not
+when exact `greennode/glm-5.3` at `reasoning_effort=max` is natively available
+in the current client. Do not
 skip because the review is simple, routine, or judged unsuitable. A plain
 status or editorial summary that does not invoke this skill may remain
 coordinator-only.
 
 ### Mandatory Review Contract
 
-Mandatory GLM-5.3-max review uses exact identity when available. The coordinator owns the review conclusion. Inspect the current native catalog and documented provider transport; confirmed unavailability or observed delegation failure, record capability evidence, record concrete evidence, and user override must be recorded before coordinator verification or closeout. Aliases, stale role names, and variants never satisfy the exact target.
+Mandatory GLM-5.3-max review is native-only. The coordinator owns the review conclusion.
+Record capability evidence; record concrete evidence for observed delegation failure
+and any user override before closeout. Aliases, stale role names and variants
+never satisfy the exact target.
 
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
   possible without a user choice, stop and ask.
-- When model selection is open and this skill is active, inspect the current
-  native catalog or documented provider transport. The exact target is
+- When model selection is open, inspect only the current native catalog of the
+  active client and its supported reasoning efforts. The exact target is
   `greennode/glm-5.3` with `reasoning_effort=max`; when available, the
   coordinator **MUST select it before any alternate model**.
 - `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
   names, and other providers are not exact matches. Do not infer availability
   from a display label or an earlier task.
-- If the exact target is confirmed unavailable, report `unavailable` with the
-  catalog or transport evidence. Automatic review may continue coordinator-only
-  only after recording that evidence; an explicit delegation request must stop
-  and ask. A launch, transport, session, isolation, terminal-child, or bounded
-  output failure permits coordinator-only continuation only after concrete
-  evidence and bounded repair. Missing external evidence is unverified and must
-  stop; never invent a failure or silently select another model.
-- Native use requires `fork_turns: "none"`; a non-native transport requires a
+- For confirmed unavailability, record capability evidence as `native-unavailable`
+  with reason: interface unsupported, exact model absent, or max effort unsupported.
+  If inconclusive, use at most one documented native capability lookup, then
+  record `native-capability-unknown` and review locally without claiming absence.
+  Do not search other clients, CLIs, routers, providers or credentials;
+  Claude Code without native GLM stays local even if Codex has it elsewhere.
+- Explicit external delegation preserves a user-selected documented provider transport
+  and selected Codex -> Claude Code review; never use it as automatic fallback
+  for missing native GLM. An unavailable explicit target/transport or missing
+  external evidence must stop and ask. A native launch, session, isolation,
+  child or output failure requires concrete evidence and bounded repair before
+  coordinator-only continuation; never invent a failure or substitute a model.
+- Codex native use requires `fork_turns: "none"`; other native interfaces
+  retain documented equivalent clean context. Never discover/launch Codex merely
+  to satisfy `fork_turns` on another client. Explicit non-native transport requires a
   brand-new provider-owned session with no prior task history. If isolation is
   not proven, discard the delegate findings and restart fresh; if the failure
   remains, record it and continue coordinator-only only under the
@@ -452,7 +463,8 @@ For substantive review, record the independent-pass decision and evidence:
 - exact model identity match or mismatch
 - transport and current availability evidence
 - lifecycle and isolation status
-- whether the independent pass ran, was unavailable, or failed after bounded
+- whether the independent pass ran, was native-unavailable, had
+  native-capability-unknown, or failed after bounded
   repair; plain status/editorial work outside this skill may be `not applicable`
 - how the coordinator used or discarded the delegated findings
 

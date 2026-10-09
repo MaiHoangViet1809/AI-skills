@@ -247,6 +247,41 @@
       ]
     },
     {
+      "id": "native-client-glm-gate-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Automatic GLM delegation enters model discovery or launch while the active client lacks a native target.",
+        "actual_behavior": "The flow searches other installed clients, CLIs, routers, providers, or credentials to find GLM.",
+        "expected_behavior": "Inspect only the current client's native catalog and supported reasoning efforts; preserve explicit external delegation and the selected Codex-to-Claude route without using them as automatic substitutes.",
+        "invariant": "Automatic GLM gating is native-scope bounded, exact-model evidenced, single-lookup bounded, and truthful about native capability state.",
+        "evidence_ref": "sanitized:SOW_20261001_ZJDHWCVU-EXT-23PA4E5R-native-client-glm-gate"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Run automatic delegation for an approved isolated slice.",
+          "context": "The current client's native catalog exposes exact greennode/glm-5.3 with reasoning_effort=max and a clean native launch interface.",
+          "expected_behavior": "Launch the exact native target with a documented clean-context mechanism, then return availability, lifecycle, isolation, and coordinator verification evidence.",
+          "must_not": "Search other clients, CLIs, routers, providers, or credentials; select a variant or delegate with inherited context."
+        },
+        {
+          "kind": "negative",
+          "request": "Run automatic delegation when the current client exposes no native capability catalog.",
+          "context": "One documented native capability lookup fails or returns no capability evidence.",
+          "expected_behavior": "Record native-capability-unknown after that single lookup and continue locally without claiming exact model absence or requesting a GLM setup.",
+          "must_not": "Use a second lookup, discover another client, treat an unavailable catalog as native-unavailable exact model absent, or block local execution."
+        },
+        {
+          "kind": "boundary",
+          "request": "Run automatic delegation across clients with different native capability states.",
+          "context": "The current native interface is unsupported, another exposes the exact model without max effort, a third has no exact model after one successful lookup, and a fourth has Codex installed while Claude Code is the active client.",
+          "expected_behavior": "Use native-unavailable with the specific reason interface unsupported, max effort unsupported, or exact model absent; continue locally without cross-client discovery; preserve an explicit human-selected external delegation and selected Codex-to-Claude route.",
+          "must_not": "Launch Codex from Claude Code merely because it is installed, substitute Claude for missing GLM, claim the unavailable interfaces prove model absence, or remove explicit external delegation."
+        }
+      ]
+    },
+    {
       "id": "review-delegate-wait-grace-001",
       "target_skill": "sow-delegate-flow",
       "cause_class": "decision_procedure",

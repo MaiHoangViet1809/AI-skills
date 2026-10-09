@@ -1,6 +1,6 @@
 ---
 name: sow-delegate-flow
-description: Use when the user asks to delegate a task, SOW, or plan to a native Codex sub-agent or custom external agent through a supported transport, or when approved task execution enters its internal automatic-delegation mode. When the exact GLM-5.3-max target is available, delegate a meaningful bounded slice instead of skipping because the work appears simple or routine. Keep approved SOWs authoritative, isolate every task context, initialize fresh non-native sessions, then review and verify locally.
+description: Delegate approved task, SOW or plan work to native or explicitly selected external agents. Automatic GLM-5.3-max enforcement uses only the current client's native capabilities; absent or unknown native capability permits local work without searching other clients. Keep task contexts isolated and verify handoffs locally.
 ---
 
 # Sow Delegate Flow
@@ -9,7 +9,7 @@ Use this skill for native Codex or custom/external delegation:
 
 ```text
 coordinator -> classify mode + transport
-    -> clean task context (fork_turns: none for native children)
+    -> clean task context (fork_turns: none for Codex children)
     -> native child lifecycle OR fresh external task session
     -> local review and verification -> repair or closeout
 ```
@@ -70,24 +70,34 @@ editorial summary outside this skill may remain coordinator-only.
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
   possible without a user choice, stop and ask.
-- When model selection is open and this skill is active for substantive work,
-  inspect the current native catalog or documented provider transport. The
+- When model selection is open, inspect only the current native catalog of the
+  active client and its supported reasoning efforts. The
   exact target is `greennode/glm-5.3` with `reasoning_effort=max`; when it is
   available, the coordinator **MUST select it before any alternate model**.
 - `greennode/glm-5.3-flash-thirdparty`, GLM-5.3 Flash, aliases, stale role
   names, and other providers are not exact matches. Never infer availability
   from a display label or an earlier task.
-- If the exact target is confirmed unavailable, record the catalog or transport
-  evidence. Automatic execution may use the local fallback only after that
-  evidence is recorded; an explicit delegation request must stop and ask.
-  Never silently select another model. A launch, transport, session, isolation,
-  terminal-child, or bounded-output failure may use local fallback only after
-  concrete evidence and bounded repair; missing external evidence is
-  unverified and must stop.
-- For native GLM-5.3, use the native lifecycle with `fork_turns: "none"`. For
-  a non-native transport, initialize a brand-new provider-owned session with
-  no prior task history. If either isolation guarantee cannot be proven,
-  discard the delegate result and restart fresh or stop.
+- Automatic enforcement is native-only. Do not search other clients, CLIs,
+  routers, providers or credentials to find GLM. Claude Code without native
+  GLM continues locally even if Codex elsewhere exposes GLM.
+- For confirmed unavailability, record capability evidence as `native-unavailable`
+  with reason: interface unsupported, exact model absent, or max effort unsupported.
+  If capability is inconclusive, use at most one documented native capability lookup;
+  then record `native-capability-unknown` and continue locally without claiming
+  confirmed absence. Neither outcome requires external discovery or GLM setup.
+- Explicit external delegation is separate: preserve a user-selected documented provider transport,
+  including selected Codex -> Claude Code delegation. Do not select Claude or
+  another model merely to replace missing native GLM. An unavailable explicitly
+  requested model/transport must stop and ask; missing external evidence is
+  unverified, not permission to silently substitute a model.
+- An observed delegation failure (launch, transport, session, isolation,
+  terminal-child or bounded output) permits local fallback only after concrete
+  evidence and bounded repair. Preserve coordinator verification and cleanup.
+- Use native task isolation: Codex `spawn_agent` uses `fork_turns: "none"`;
+  other native interfaces use their documented equivalent clean context.
+  Never discover/launch Codex merely to satisfy `fork_turns` on another client.
+  Explicit non-native delegation requires a brand-new provider-owned session.
+  Unproven isolation rejects the handoff under the existing failure rule.
 
 ## Context Isolation Gate
 
@@ -224,13 +234,15 @@ replace the exact GLM-5.3-max default silently.
      Availability Rule above; plain status/editorial work outside this skill
      remains coordinator-only
 4. Establish the session before sending the prompt:
-   - every delegate: start with `fork_turns: "none"` and a self-contained prompt
+   - every delegate: use a self-contained prompt and clean task context;
+     Codex `spawn_agent` uses `fork_turns: "none"`, other native interfaces
+     use their documented equivalent isolation
    - native: use the native lifecycle; do not create an external session
    - external/custom: initialize a brand-new session under the Session Boundary
      rules and stop if fresh isolation cannot be proven
-5. Start the delegate with a bounded prompt and clear ownership. Use
-   `spawn_agent` for native children; use the selected documented transport for
-   external agents and record only a safe task-owned handle.
+5. Start the delegate with a bounded prompt and clear ownership. Use the
+   current client's native interface (`spawn_agent` in Codex); use the selected
+   documented transport for external agents and record only a safe task-owned handle.
 6. Wait until a real decision point: completion, question, failure, or repair
    need. For a review or independent-review delegate that is still running or
    idle without a final result, use bounded waits up to ten minutes before any
@@ -276,8 +288,9 @@ Every delegated prompt must include:
 
 - one-sentence intent
 - transport and lifecycle instruction:
-  - native: use the selected native role and lifecycle only, with
-    `fork_turns: "none"` for the new logical task
+  - native: use the selected native role and lifecycle with clean task context;
+    Codex `spawn_agent` requires `fork_turns: "none"`, other native interfaces
+    require their documented equivalent isolation for the new logical task
   - external/custom: start a fresh session with no historical task context
 - a self-contained task boundary; do not rely on inherited parent conversation
   or include unrelated user/task history
@@ -317,8 +330,9 @@ replace the `task-execution-flow` hard gates:
 - `external-custom`: execute a real task scenario when behavior changes, verify
   fresh-session evidence and absence of prior task context, then clean up only
   the task-owned process or session
-- `native-custom`: verify the child was started with `fork_turns: "none"` and
-  did not rely on or reveal unrelated parent conversation context
+- `native-custom`: verify Codex children use `fork_turns: "none"`, or another
+  native interface provides equivalent clean context; no unrelated parent
+  history may leak and no Codex search may be used to satisfy that parameter
 - `independent-review`: verify the exact model id, reasoning effort, transport,
   availability evidence, lifecycle, isolation status, and independent-pass
   result; if the exact GLM-5.3-max target was unavailable, verify that no
@@ -342,13 +356,15 @@ If required verification is unavailable, stop at
   explicitly decide whether to cut. A cut review remains incomplete/unverified.
 - `infra`: finish locally only after the launch, transport, session, or
   isolation failure is evidenced and bounded repair has failed; missing
-  external evidence remains unverified and must stop
+  evidence for explicitly requested external delegation remains unverified
+  and must stop, not automatic native-unavailable/unknown local work
 - `uncertainty`: answer once; if the task is still ambiguous, stop and escalate
 - `unavailable requested model`: report the model unavailability; do not silently
   substitute another model
 - `unavailable GLM-5.3-max target`: stop explicit delegation and ask; in
-  automatic mode, record `unavailable` evidence before local fallback without
-  selecting an alternate model
+  automatic mode, record `native-unavailable` and its reason before local work;
+  inconclusive native capability uses `native-capability-unknown` after at most
+  one native lookup. Never search another client or select an alternate model
 - `unavailable requested transport or fresh-session guarantee`: report it and do
   not reuse an old session or historical task context
 - `scope drift`: interrupt the sub-agent, preserve valid scoped work, and repair
