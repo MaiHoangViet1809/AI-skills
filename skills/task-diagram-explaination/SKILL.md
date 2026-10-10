@@ -56,7 +56,8 @@ split a diagram only when combining questions obscures the explanation.
 
 - Lay out topology and reading order first; apply styling afterward.
 - Use a clear title, short node names and one supporting line where practical.
-  Move credentials/config fields, code and secondary detail outside the figure.
+  Omit secrets entirely; move config field names, code and secondary detail
+  outside the figure.
 - Use spacing, alignment and typography to distinguish stages from responsibilities.
   Equal-size boxes are fine for equivalent peers, not a default for every idea.
 - Make focal decisions visibly stronger than supporting structure. Use restrained
@@ -74,12 +75,12 @@ split a diagram only when combining questions obscures the explanation.
 Review the visual against its source, including a relevant excluded/failure case.
 Check that a simplified diagram has not changed ownership, prerequisites or outcomes.
 
-When rendering is available, inspect the actual output at the intended viewing
-size. Look for clipping, unreadable labels, overlaps, excessive scrolling and
-broken resources. For an offline deliverable, avoid or package external resources.
-If rendering is unavailable, label visual verification incomplete; source inspection
-is not a substitute. Reuse a valid rendering tool rather than installing one just
-to satisfy this skill.
+For rendered artifacts such as HTML/SVG/slides, inspect the actual output at
+the intended viewing size. Look for clipping, unreadable labels, overlaps,
+excessive scrolling and broken resources. For an offline deliverable, avoid or
+package external resources. If rendering is unavailable, label visual
+verification incomplete; source inspection is not a substitute. Reuse a valid
+rendering tool rather than installing one just to satisfy this skill.
 
 Then apply a quick-reader check:
 

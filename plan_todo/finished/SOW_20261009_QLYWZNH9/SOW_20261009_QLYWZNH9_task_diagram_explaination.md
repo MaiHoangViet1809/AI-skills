@@ -4,10 +4,12 @@
 - Approval: approved by user; explicit request to create the skill and review twice
 - create_dttm: 2026-10-09T15:59:34+07:00
 - approve_dttm: 2026-10-09T15:59:34+07:00
-- finish_dttm: 2026-10-09T16:05:59+07:00
+- finish_dttm: 2026-10-11T03:54:25+07:00
 - Proposed-By: Codex
 - plan: Standalone; visual-explanation feedback
 - Decision Log: SOW_20261009_QLYWZNH9_decision.md
+- Approved extension order: SOW_20261009_QLYWZNH9_EXT_JVBNOXPN_review_clarifications.md
+- Original scope finished: 2026-10-09T16:05:59+07:00; reopened for approved wording corrections.
 
 ## Task / Why
 
@@ -62,3 +64,18 @@ not prove every future visual will be good.
 - No actionable findings remained. Forward-testing was text-only, not a
   rendered screenshot or a measured comprehension study.
 - Canonical AISkills source created; installation, sync and push not performed.
+
+## Follow-up Review — 2026-10-11
+
+User-requested Claude review: PASS with two Low wording findings. Fresh
+Claude Code read-only session, `opus` resolved to `claude-opus-5-5`, launched
+with `--effort high`; terminal result succeeded. No delegate file changes.
+
+- Applied clarification under approved EXT: scope render verification to rendered artifacts
+  (HTML/SVG/slides), not quick ASCII answers.
+- Applied clarification under approved EXT: omit secrets entirely; move only config field names
+  and secondary detail outside the figure, not credentials.
+- Negative check: no forced template, renderer, theme or mandatory panels found.
+- Limits: static review only; prior test/reviewer evidence was not independently
+  rerun by Claude. User subsequently approved implementation and commit/push;
+  SOW_20261009_QLYWZNH9_EXT_JVBNOXPN_review_clarifications.md records completion.
