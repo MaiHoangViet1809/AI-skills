@@ -1,6 +1,6 @@
 ---
 name: glm-worker
-description: Delegates one bounded, self-contained task to GreenNode GLM-5.3 (max effort) via codex-router. Use only when the user asks to hand work to GLM. Read-only by default; edit mode only for an explicitly scoped write task. Returns a status line with the path of GLM's original answer; read that file for the result.
+description: Delegates one bounded, self-contained task to GreenNode GLM-5.3 (max effort) via codex-router. Use when the user asks to hand work to GLM, or when a delegation gate selects it from the interactive top-level session; never from a claude -p session, another coordinator's delegate or a sub-agent. Read-only by default; edit mode only for an explicitly scoped write task. Returns a status line with the path of GLM's original answer; read that file for the result.
 tools: Bash
 model: claude-haiku-5-5
 effort: max
