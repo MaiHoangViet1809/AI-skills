@@ -163,6 +163,13 @@ Flow:
 
 ## Closeout
 
+Before requesting approval or any other turn-ending HITL handoff, read and
+apply [HITL Progress Gate](references/scope-of-work.md#hitl-progress-gate).
+Reconcile owned SOW/EXT and optional Plan progress, including draft records;
+persist changes and read back before the handoff. Existing no-SOW branches
+remain exempt from creating a tracking SOW. File writeback is separate from
+the one-default-final progress report.
+
 After any branch finishes:
 - run a final check
 - if a SOW became complete, set its actual `finish_dttm` and apply the resolved

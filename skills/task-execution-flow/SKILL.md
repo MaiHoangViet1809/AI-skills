@@ -37,6 +37,18 @@ contract leaves dependent plan handling unverified; do not invent or
 auto-install it. Standalone tasks need no plan or `G#`; preserve existing SOW
 routing and do not add a plan unless requested or excessive scope risks failure.
 
+## HITL Progress
+
+Use the project's declared progress contract first; otherwise locate
+`task-router-flow` through the harness's supplied skill location/catalog and
+read `references/scope-of-work.md` -> HITL Progress Gate, or its supplied
+resolved contract. Apply it before every turn-ending HITL handoff, including
+approval, blockers and final acceptance; on resume reread progress/approval.
+Persist owned SOW/EXT and optional Plan changes and read back before handing
+control to the human. Missing contract leaves dependent tracking unverified;
+do not invent or auto-install it, or create a SOW for exempt work.
+File writeback does not invoke task-progress-report per handoff.
+
 ## Core Rules
 
 - Read local repo rules and the active scope contract before editing.
@@ -106,6 +118,7 @@ routing and do not add a plan unless requested or excessive scope risks failure.
 
 ```text
 Phase 0: scope check
+-> on resume, reread saved progress and approval before continuing
 -> confirm the approved SOW covers the exact task
 -> if a parent plan exists, map the SOW to its goal and approved scope; confirm
    dependency exit gates passed before execution; plan approval or TBD is not
@@ -217,6 +230,8 @@ Phase 4: gap-finding pass
 
 Phase 5: closeout
 -> only enter after Phase 3 and Phase 4 are complete
+-> apply HITL Progress Gate: reconcile/save final owned progress and read back
+   before the lifecycle move; verify destination progress after moving
 -> reuse still-valid verification evidence; rerun only checks invalidated by
    changed code, inputs, dependencies, config, or missing evidence
 -> review scope fit
@@ -243,6 +258,10 @@ Phase 5: closeout
 -> produce the final summary after commit handling
    -> if `task-progress-report` is present for this task, invoke it once here and not earlier by default
    -> use a progress/closeout summary shape, not a findings table, unless actionable issues remain
+
+Before any turn-ending HITL handoff from any phase, apply HITL Progress Gate;
+do not wait for Phase 5 to save changed progress. A current reconciled no-op
+passes; failed persistence is UNSAVED, not a completed gate.
 
 Escalate immediately when required information or decision authority is
 missing. For recoverable technical failures already within scope, escalate when

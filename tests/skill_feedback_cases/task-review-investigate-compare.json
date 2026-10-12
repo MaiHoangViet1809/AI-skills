@@ -630,6 +630,41 @@
           "must_not": "Accept the output as an exact-target review."
         }
       ]
+    },
+    {
+      "id": "hitl-progress-gate-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review produces a verdict or delegate evidence that requires human or coordinator action.",
+        "actual_behavior": "The reviewer treats a review verdict or unverified delegate output as implementation completion.",
+        "expected_behavior": "Locate the HITL Progress Gate through the harness/project contract, persist the review outcome separately from implementation state, and report the exact next decision.",
+        "invariant": "Review completion and delegate evidence do not prove implementation, approval, or aggregate completion.",
+        "evidence_ref": "sanitized:SOW_20261013_17T4E80R-hitl-progress-tracking"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review the implementation and give a verdict.",
+          "context": "The review passes while implementation approval remains with the human.",
+          "expected_behavior": "Mark the review row DONE with cited evidence, keep implementation rows in their actual states, and request the human verdict action.",
+          "must_not": "Infer approval or implementation completion from the review result."
+        },
+        {
+          "kind": "negative",
+          "request": "Accept a delegate's successful completion message.",
+          "context": "The coordinator has not inspected the diff or run verification.",
+          "expected_behavior": "Record delegate evidence as AWAITING_VERIFICATION and run coordinator-owned verification before DONE.",
+          "must_not": "Trust a delegate assertion as completion evidence."
+        },
+        {
+          "kind": "boundary",
+          "request": "Ask for approval again because the handoff is unchanged.",
+          "context": "A readback confirms progress, evidence, and the requested human action are already current.",
+          "expected_behavior": "Pass the HITL Progress Gate without a file change and repeat only the concise human decision needed.",
+          "must_not": "Update the timestamp for no persisted change or duplicate unchanged tables in chat."
+        }
+      ]
     }
   ]
 }

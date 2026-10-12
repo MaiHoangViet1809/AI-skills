@@ -9,6 +9,19 @@ Use this skill for execution progress or a structured inventory/status summary.
 
 Keep progress reporting lightweight. The goal is to improve visibility, not to narrate every intermediate thought.
 
+## HITL Progress
+
+For owned planning records, use the project's declared progress contract;
+otherwise locate `task-router-flow` through the harness's supplied skill
+location/catalog and read `references/scope-of-work.md` -> HITL Progress Gate,
+or its supplied resolved contract. Reconcile/persist/read back progress before
+a turn-ending HITL handoff; on resume reread progress/approval. Missing contract
+leaves dependent tracking unverified; do not invent or auto-install it.
+File writeback does not require invoking this report every handoff. Keep DONE
+rows in owning files; the chat report still lists only open items. Exempt work
+with no authorized record needs no new SOW or Plan. Inventory summaries remain
+subject-specific and do not fabricate planning progress.
+
 ## Rules
 
 - First identify the summary's subject. Inventory uses subject-specific columns;
@@ -41,6 +54,8 @@ Rules:
 - `SOW`: the active SOW id or `overall x/y` for the summary row.
 - `current task short desc`: a short phrase, not a paragraph.
 - `progress`: one short sentence or phrase.
+- `%Complete`: use a declared evidence-based denominator, otherwise `N/A`.
+  Do not invent percentages or derive completion from progress-row counts.
 - If a row is only the overall summary row, the last two columns may be blank.
 - If there are no open SOWs left, return only the overall row.
 

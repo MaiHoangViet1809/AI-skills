@@ -350,6 +350,41 @@
           "must_not": "Silently substitute a different model, old session, or local implementation."
         }
       ]
+    },
+    {
+      "id": "hitl-progress-gate-router-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Routing reaches a HITL approval or scope decision after partial implementation.",
+        "actual_behavior": "The router hands off with a chat-only status and stale persisted progress.",
+        "expected_behavior": "Locate the canonical HITL Progress Gate through the harness or project contract, reconcile owned progress, persist it, then request the human decision.",
+        "invariant": "Every HITL handoff has current persisted progress, evidence and the exact human action.",
+        "evidence_ref": "sanitized:SOW_20261013_17T4E80R-hitl-progress-tracking"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Approve the remaining scope after the first deliverable is implemented.",
+          "context": "The SOW has a HITL Progress Gate table; item one is implemented but unverified and item two is pending.",
+          "expected_behavior": "Mark item one AWAITING_VERIFICATION, item two PENDING, record evidence and next actions, then request approval.",
+          "must_not": "Use chat-only status or mark implementation DONE before verification."
+        },
+        {
+          "kind": "negative",
+          "request": "Clarify this ordinary docs-only edit.",
+          "context": "The route is authorized no-SOW work with no persisted tracking record.",
+          "expected_behavior": "Use the existing no-SOW route and provide the clarification without inventing a tracker or SOW.",
+          "must_not": "Force progress-file creation for exempt work."
+        },
+        {
+          "kind": "boundary",
+          "request": "Request approval using the packaged default contract.",
+          "context": "The harness/project cannot locate references/scope-of-work.md or an authoritative project contract.",
+          "expected_behavior": "Report dependent HITL progress tracking unverified and ask for the missing contract or authority.",
+          "must_not": "Invent a contract, install a skill, or block unrelated exempt work."
+        }
+      ]
     }
   ]
 }

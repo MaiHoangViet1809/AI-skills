@@ -420,6 +420,41 @@
           "must_not": "Retry with another model, search other clients or routers, or report a handoff."
         }
       ]
+    },
+    {
+      "id": "hitl-progress-gate-delegate-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A delegate returns item evidence or the coordinator must write progress for a blocked, paused, or draft record.",
+        "actual_behavior": "The delegate writes stale aggregate status or the coordinator overwrites a concurrently edited row.",
+        "expected_behavior": "Return item-level evidence, then let the coordinator locate the HITL Progress Gate through the harness/project contract and write only verified owned rows.",
+        "invariant": "Delegate evidence is advisory until coordinator verification; owned writeback preserves stable keys and concurrent edits.",
+        "evidence_ref": "sanitized:SOW_20261013_17T4E80R-hitl-progress-tracking"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Report a blocked delegated slice.",
+          "context": "An external service dependency prevents the delegate from completing its bounded item.",
+          "expected_behavior": "Return item-level evidence; after verification, the coordinator records BLOCKED with the dependency reason and next owner/action.",
+          "must_not": "Let the delegate own final writeback or infer a user decision from the blocker."
+        },
+        {
+          "kind": "negative",
+          "request": "Add progress rows from a draft EXT to the approved base SOW.",
+          "context": "The base SOW has approved rows and the draft EXT introduces separate delta rows.",
+          "expected_behavior": "Keep base rows in the base SOW and draft delta rows in the EXT without amending approved base scope.",
+          "must_not": "Reopen completed base rows or treat draft tracking as approved scope."
+        },
+        {
+          "kind": "boundary",
+          "request": "Pause the affected work until I decide.",
+          "context": "The user explicitly pauses one item while independent work remains active.",
+          "expected_behavior": "Set only the affected item to WAITING_HITL with reason user-paused and resume action owned by the user; retain other states truthfully.",
+          "must_not": "Add a PAUSED item state, repeatedly prompt, or silently resume."
+        }
+      ]
     }
   ]
 }

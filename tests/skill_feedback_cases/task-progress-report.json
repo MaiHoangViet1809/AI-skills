@@ -105,6 +105,41 @@
           "must_not": "Suppress the requested update or report completion early."
         }
       ]
+    },
+    {
+      "id": "hitl-progress-gate-reporting-001",
+      "target_skill": "task-progress-report",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Progress reporting summarizes HITL handoffs, plans, or blocked items.",
+        "actual_behavior": "The report converts partial evidence or row counts into aggregate completion and obscures the human action.",
+        "expected_behavior": "Keep document persistence separate from one default final report; expose actual reasons, evidence, and exact human actions without inventing percentages.",
+        "invariant": "Progress reporting reflects evidence and requested decisions, not row-count completion or chat-only persistence.",
+        "evidence_ref": "sanitized:SOW_20261013_17T4E80R-hitl-progress-tracking"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Report this plan at HITL handoff.",
+          "context": "Three child SOWs are DONE while one aggregate integration outcome remains AWAITING_VERIFICATION.",
+          "expected_behavior": "Show child evidence and the aggregate gap, state the human action, and keep the Plan incomplete.",
+          "must_not": "Infer Plan DONE or 100 percent from three completed children."
+        },
+        {
+          "kind": "negative",
+          "request": "Generate the mandatory file progress report.",
+          "context": "The task is midway through implementation and has not reached final closeout.",
+          "expected_behavior": "Persist the required HITL progress without invoking the final progress report early.",
+          "must_not": "Treat file persistence as a progress-report invocation or report once per tool call."
+        },
+        {
+          "kind": "boundary",
+          "request": "Summarize one external dependency and one user decision.",
+          "context": "The dependency blocks deployment while approval also waits for the human.",
+          "expected_behavior": "Record the dependency reason and human action separately, using BLOCKED or WAITING_HITL according to the owning condition.",
+          "must_not": "Collapse both reasons into one generic pending state or repeatedly prompt the user."
+        }
+      ]
     }
   ]
 }

@@ -38,6 +38,9 @@ Use the repository's active SOW template. In this repo, the template is:
 - **Proposed-By**: agent name
 - **plan**: related plan name or SOW path when relevant
 - **Cautions / Risks**: likely failure modes or cautions
+- **Progress**: owned items, current states, evidence or pending reasons, and
+  next action/owner under the HITL Progress Gate below.
+- **progress_updated_dttm**: actual last progress change, with seconds and offset.
 
 Rules:
 
@@ -58,6 +61,70 @@ Rules:
 - When a plan document reaches its terminal completed state and is moved to `finished/`, make that completed state explicit in the plan file.
 - If the target repository declares concept authority, add `Concept Compliance`
   to the SOW before approval.
+
+## HITL Progress Gate
+
+Use the target project's declared progress contract first; this is the default.
+Before every turn-ending HITL handoff (approval, clarification, scope decision,
+human blocker, review verdict or final acceptance), reconcile the owning
+SOW/EXT and optional Plan, persist changed progress and read back the result.
+This includes draft/pending records; progress never grants approval.
+
+New records include this section; initialize touched active records lazily.
+Do not rewrite finished history, require a Plan, or create a SOW for an exempt
+task. Use its existing authorized work record; without one, report briefly in
+chat. Base SOW owns base rows; each EXT owns delta rows. Parent/Plan aggregates
+link evidence, not copied child lists. Draft EXT progress does not amend base
+scope or reopen completed parents.
+
+```md
+## Progress
+- progress_updated_dttm: <YYYY-MM-DDTHH:mm:ss+HH:MM>
+
+| Item | Status | Evidence / Pending reason | Next action / Owner |
+| --- | --- | --- | --- |
+| T1: <deliverable/check> | PENDING | <actual reason> | <action / owner> |
+```
+
+- Reuse an existing deliverable/check ID or assign a unique document-local
+  stable key in Item once. Never renumber on reorder or reuse keys. Retain DONE
+  rows in the file; the chat report may show only open items.
+- PENDING: not started; IN_PROGRESS: active work; AWAITING_VERIFICATION:
+  implementation exists but required verification remains; DONE: that item's
+  required criteria verified with evidence. A DONE item does not complete its
+  SOW/Plan. Each non-done row needs an actual reason and next action/owner.
+- BLOCKED: external/dependency impediment; WAITING_HITL: required human input
+  or decision. If both apply, use WAITING_HITL and explain both. User-requested
+  pause uses WAITING_HITL, reason user-paused, next action user resume; stop the
+  affected work without repeated prompts or silent resume. No new lifecycle state.
+- Item states do not replace lifecycle Status, approval or completion gates.
+  Review may be DONE while implementation awaits approval. Never infer approval
+  or completion from silence, percentages or an unverified delegate assertion.
+- On resume, reread the owning record and approval. Coordinator owns key
+  allocation and final writeback; delegates return item-level evidence for
+  coordinator verification, not acceptance or parent-row writes.
+- Immediately before writing, reread; match stable row key and expected prior
+  content. Patch only owned rows, preserving unrelated edits. If a row changed,
+  reconcile from current evidence; unresolved ownership/conflicts abort the write.
+  Read back saved rows before claiming persistence. This is bounded conflict
+  detection, not atomic writes or a new locking system.
+- Unsafe/unwritable/conflicting writeback: report UNSAVED plus reason and next
+  action; never claim the gate passed. UNSAVED is a persistence outcome, not an
+  item state; keep truthful work states. Missing contract leaves dependent
+  tracking unverified; do not invent a contract, auto-install or block unrelated
+  exempt work. Resolve this contract through the harness/project authority.
+- If reconciliation/readback confirms progress, evidence and requested human
+  action are already current, no-op passes the gate. Change progress_updated_dttm
+  only when persisted progress changes; use full seconds and numeric offset.
+- Optional Plan reuses SOW Sequence and Acceptance per [plan.md](plan.md);
+  update affected aggregate rows, pending reason/next action and its timestamp.
+- Before the existing completion move, save final progress; read the destination
+  after moving. Preserve approval and bundle lifecycle gates.
+- File writeback is mandatory at HITL; invoking task-progress-report is separate:
+  retain one default report at final closeout, not per tool call or handoff.
+  Briefly state changed status, pending reason and required human decision.
+  Do not invent percentages or derive completion from progress-row counts;
+  chat percentages need a declared evidence-based denominator, otherwise N/A.
 
 ## Conditional Concept Compliance
 

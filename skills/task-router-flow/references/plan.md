@@ -29,6 +29,12 @@ another contract. This reference does not authorize historical migration.
   resolve material unknowns before approving affected work.
 - Update sequence/acceptance after each SOW. Keep requirements current; preserve
   history/details in existing docs, not duplicate trackers.
+- Before each turn-ending HITL handoff, apply the canonical
+  [HITL Progress Gate](scope-of-work.md#hitl-progress-gate). Reuse SOW Sequence
+  for child lifecycle Status and Pending reason / Next action / Owner;
+  Acceptance's Result / Gap holds aggregate evidence. Link child progress,
+  do not copy its item list or add a second tracker. Child completion alone
+  does not prove Plan completion. Update progress_updated_dttm only on change.
 
 ## Template
 
@@ -41,6 +47,7 @@ another contract. This reference does not authorize historical migration.
 - create_dttm: <YYYY-MM-DDTHH:mm:ss+HH:MM>
 - approve_dttm: null
 - finish_dttm: null
+- progress_updated_dttm: <YYYY-MM-DDTHH:mm:ss+HH:MM>
 - References: <policy, concepts, architecture, decisions>
 
 ## 1. Goal
@@ -63,9 +70,9 @@ Original request: <problem + consumer + why>
 <Optional As-Is -> To-Be ASCII; link detailed architecture.>
 
 ## 4. SOW Sequence
-| Order | SOW | Outcome / Owner | Depends On | Exit Gate | Status |
-| --- | --- | --- | --- | --- | --- |
-| 1 | <reference/TBD> | <G1 deliverable / owner> | None | <completion proof; prerequisite if any> | DRAFT |
+| Order | SOW | Outcome / Owner | Depends On | Exit Gate | Status | Pending reason / Next action / Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | <reference/TBD> | <G1 deliverable / owner> | None | <completion proof; prerequisite if any> | DRAFT | <approval pending / approve SOW / approver> |
 
 ## 5. Acceptance
 | Outcome / Lock | Required Evidence | Result / Gap |

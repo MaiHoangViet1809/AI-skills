@@ -9,6 +9,18 @@ Use this skill when the main job is to understand, challenge, compare, or recomm
 
 This skill is for review and decision support. It is not an execution skill.
 
+## HITL Progress
+
+Before a turn-ending HITL handoff, use the project's declared progress
+contract; otherwise locate `task-router-flow` through the harness's supplied
+skill location/catalog and read `references/scope-of-work.md` -> HITL Progress
+Gate, or its supplied resolved contract. Persist/read back affected SOW/EXT and
+optional Plan progress, including draft records, before requesting a decision.
+Review DONE never approves implementation. On resume reread progress/approval.
+Missing contract leaves dependent tracking unverified; do not invent or
+auto-install it. No-SOW reviews need no new tracking SOW. File writeback is
+separate from task-progress-report invocation.
+
 ## Use This Skill When
 
 - the user asks to review a `plan`, `SOW`, request, or proposal
@@ -547,4 +559,6 @@ If writeback occurred, summarize what was updated.
 
 If a scope change is required, hand off cleanly to `task-router-flow`.
 
-If the review concludes the work should proceed, stop at `ready for HITL handoff` rather than executing from this skill.
+Before declaring `ready for HITL handoff`, apply HITL Progress Gate; failed
+persistence is UNSAVED, not readiness. If the review concludes the work should
+proceed, stop at that handoff rather than executing from this skill.

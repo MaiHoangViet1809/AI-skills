@@ -595,6 +595,41 @@
           "must_not": "Infer GLM availability from the agent name alone."
         }
       ]
+    },
+    {
+      "id": "hitl-progress-gate-execution-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Execution closes work or reaches a HITL handoff under the HITL Progress Gate.",
+        "actual_behavior": "The executor reports completion in chat while persisted rows are stale, conflicted, or lost during lifecycle movement.",
+        "expected_behavior": "Read the canonical gate through the harness/project contract, reconcile stable rows, verify saved evidence, and preserve final progress through lifecycle moves.",
+        "invariant": "Persisted progress must be current and verified before every HITL handoff and final closeout.",
+        "evidence_ref": "sanitized:SOW_20261013_17T4E80R-hitl-progress-tracking"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Close the completed implementation.",
+          "context": "All done criteria and required verification have passed; the active SOW has stable progress rows.",
+          "expected_behavior": "Mark only verified rows DONE with evidence, save final progress, then complete lifecycle metadata and move the record.",
+          "must_not": "Move the SOW before saving final progress or claim DONE without verification."
+        },
+        {
+          "kind": "negative",
+          "request": "Persist progress while another editor changed the owned row.",
+          "context": "The executor holds a stale snapshot and the row's stable key now has different prior content.",
+          "expected_behavior": "Reread and reconcile against current evidence; if ownership remains unresolved, report UNSAVED with the exact pending action.",
+          "must_not": "Overwrite the concurrent edit or claim the persistence gate passed."
+        },
+        {
+          "kind": "boundary",
+          "request": "Move the finished SOW bundle to finished.",
+          "context": "The destination does not yet contain the final progress table.",
+          "expected_behavior": "Save final progress before the move and read the destination file afterward to verify it remains present.",
+          "must_not": "Drop the table during the move or reopen finished history for tracking."
+        }
+      ]
     }
   ]
 }

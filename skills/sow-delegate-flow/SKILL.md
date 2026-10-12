@@ -355,6 +355,19 @@ Do not close delegated implementation when any of these are missing:
 If required verification is unavailable, stop at
 `implemented but not fully verified` and list the unverified scope.
 
+## HITL Progress
+
+Coordinator owns key allocation, verified progress and final writeback;
+delegates return item-level evidence, not parent-row acceptance or writes.
+Before a turn-ending HITL handoff, use the project's declared progress contract;
+otherwise locate `task-router-flow` through the harness's supplied skill
+location/catalog and read `references/scope-of-work.md` -> HITL Progress Gate,
+or its supplied resolved contract. Coordinator reconciles/persists/read backs
+owned SOW/EXT and optional Plan progress before asking the human; on resume
+reread progress/approval. Missing contract leaves dependent tracking unverified;
+do not invent or auto-install it. No-SOW delegation does not create a tracker
+SOW. File writeback remains separate from task-progress-report invocation.
+
 ## Termination Policy
 
 - `quality`: allow up to 2 repair rounds, then finish locally or stop
