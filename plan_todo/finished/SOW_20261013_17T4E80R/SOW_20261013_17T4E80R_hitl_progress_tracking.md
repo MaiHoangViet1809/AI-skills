@@ -1,11 +1,11 @@
 # SOW_20261013_17T4E80R - HITL Progress Tracking
 
-- Status: IN_PROGRESS
+- Status: COMPLETED
 - Approval: APPROVED by user; implement, double-check, commit, push and sync Codex/Claude.
 - Proposed-By: Codex
 - create_dttm: 2026-10-13T04:56:48+07:00
 - approve_dttm: 2026-10-13T05:27:30+07:00
-- finish_dttm: null
+- finish_dttm: 2026-10-13T05:41:04+07:00
 - plan: None; bounded standalone skill-contract change.
 
 ## Task / Why
@@ -157,7 +157,7 @@ To-Be: work -> reconcile owned progress + evidence -> save SOW/Plan
 
 ## Progress
 
-- progress_updated_dttm: 2026-10-13T05:39:38+07:00
+- progress_updated_dttm: 2026-10-13T05:41:04+07:00
 
 | Item | Status | Evidence / Pending reason | Next action / Owner |
 | --- | --- | --- | --- |
@@ -165,7 +165,7 @@ To-Be: work -> reconcile owned progress + evidence -> save SOW/Plan
 | T2: Draft review | DONE | Initial review plus two independent native GLM-5.3-max passes; resolutions below checked by coordinator. | None |
 | T3: Skill implementation | DONE | Canonical contract and five consumers pass scoped verification below. | None |
 | T4: Verification | DONE | 52 tests, five validators, three negative mutations and eight-case independent simulation pass; gap check found none. | None |
-| T5: Delivery | IN_PROGRESS | Double-check complete; no delivery claimed before committed-source parity. | Scoped commit, push and five-skill sync to both environments / Codex |
+| T5: Delivery | DONE | Implementation commit pushed; five committed skills synced to Codex and Claude, 10/10 parity PASS. Delivery evidence below. | None |
 
 ## Draft Review / Baseline Evidence
 
@@ -220,4 +220,20 @@ To-Be: work -> reconcile owned progress + evidence -> save SOW/Plan
   No new runtime, dependencies, performance path or cleanup/logging ownership.
   No blocking gap. Actual weak-model/Claude-host adherence remains unverified;
   simulations and textual tests establish contract scope, not a universal
-  adherence guarantee. Delivery remains open until sync/parity succeeds.
+  adherence guarantee. Delivery evidence below closes the remaining owned work.
+
+## Delivery / Closeout
+
+- Implementation commit: `8e39f4599cc35790e998612c496b2c21e74252c8`, pushed
+  successfully to origin/main. Actual staged allowlist was 13 source/test files
+  plus this SOW; implementation bytes matched the tested clean candidate.
+- Exported that committed revision, previewed only the five approved skills
+  for both authorized targets, backed up installed copies, then used existing
+  skill_sync_common.copy_skill and verify_skill_copy.compare_skill.
+  Codex 5/5 and Claude 5/5 copies have no missing/extra/changed files.
+- All progress rows are verified DONE; preserve final progress through the
+  standalone bundle move to finished and read back the destination. Closeout
+  documentation commit follows actual sync evidence, not a predicted result.
+- Unrelated policy/Redmine/registry work remains unstaged and unchanged.
+  No other installed skill was synced. Remaining limitation: actual host/weak
+  model adherence is unverified; the approved contract/packaging checks passed.
