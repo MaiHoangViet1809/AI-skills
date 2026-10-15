@@ -1,6 +1,6 @@
 ---
 name: task-review-investigate-compare
-description: Review plans, SOWs, requests or ideas; investigate and compare approaches, writing concrete findings back by default. For substantive review, delegate to exact native GLM-5.3-max when available in the current client; absent/unknown native capability permits local review without external GLM discovery.
+description: Review plans, SOWs, requests or ideas; investigate and compare approaches, writing concrete findings back by default. Keep simple reviews in main; delegate large or complex reviews to exact native GLM-5.3-max when available, without external GLM discovery.
 ---
 
 # Task Review Investigate Compare
@@ -109,19 +109,27 @@ This skill remains read-only and advisory even when it asks for an independent
 reviewer. A delegated reviewer supplies evidence; the coordinator owns the
 review conclusion, writeback, verification, and closeout.
 
-For any substantive review using this skill, run one bounded independent pass
-when exact `greennode/glm-5.3` at `reasoning_effort=max` is natively available
-in the current client. Do not
-skip because the review is simple, routine, or judged unsuitable. A plain
-status or editorial summary that does not invoke this skill may remain
-coordinator-only.
+`sow-delegate-flow` is a required task-classification companion. Resolve it
+through the harness's supplied skill location/catalog and read its
+`references/task-complexity.md`, or use a supplied authoritative contract.
+Reading that reference does not activate delegation. If the companion is
+missing, report it and leave review classification unresolved; do not assume a
+sibling install root, invent a simple exemption, or auto-install the reference.
 
-### Mandatory Review Contract
+Classify the whole review first. Clear simple reviews MUST remain
+coordinator-owned without automatic delegation or model discovery. Large or
+complex reviews MUST run one bounded independent pass when exact
+`greennode/glm-5.3` at `reasoning_effort=max` is natively available in the
+current client. Reclassify only on material new scope or risk evidence.
 
-Mandatory GLM-5.3-max review is native-only. The coordinator owns the review conclusion.
-Record capability evidence; record concrete evidence for observed delegation failure
-and any user override before closeout. Aliases, stale role names and variants
-never satisfy the exact target.
+### Complexity-Based Review Contract
+
+Mandatory GLM-5.3-max review for complex work is native-only. The coordinator
+owns the review conclusion. For a complex review, record capability evidence;
+record concrete evidence for observed delegation failure and any user override
+before closeout. Aliases, stale role names and variants never satisfy the exact
+target. A simple review records `simple-main` with its concrete reason and does
+not record model or capability evidence.
 
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
@@ -473,15 +481,17 @@ If the user asks for a plain `summary`, `summarize`, or status recap and does no
 
 ### Independent Review Evidence
 
-For substantive review, record the independent-pass decision and evidence:
+Classify the whole review before recording the independent-pass decision. A
+simple review records `simple-main`, its concrete reason, and any explicit user
+override; no model/capability evidence is required. For a complex review,
+record:
 
 - selected model id and reasoning effort
 - exact model identity match or mismatch
 - transport and current availability evidence
 - lifecycle and isolation status
 - whether the independent pass ran, was native-unavailable, had
-  native-capability-unknown, or failed after bounded
-  repair; plain status/editorial work outside this skill may be `not applicable`
+  native-capability-unknown, or failed after bounded repair
 - how the coordinator used or discarded the delegated findings
 
 If the exact target is unavailable or delegation fails, state the concrete

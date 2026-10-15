@@ -1,4 +1,4 @@
 interface:
   display_name: "TaskReviewInvestigateCompare"
   short_description: "Review evidence and write concrete findings back into known plans by default"
-  default_prompt: "Use TaskReviewInvestigateCompare to review a plan, SOW, request or idea. Require exact greennode/glm-5.3 at max only when natively available in the current client; absent or unknown native capability permits local review without external GLM discovery. Preserve explicit external review selection, independent task isolation and concrete findings writeback unless discussion-only was requested."
+  default_prompt: "Use TaskReviewInvestigateCompare to review a plan, SOW, request or idea. Keep simple reviews in main, but use exact greennode/glm-5.3 at max for large or complex reviews only when natively available in the current client. Preserve explicit external review selection, independent task isolation and concrete findings writeback unless discussion-only was requested."

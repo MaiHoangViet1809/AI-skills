@@ -13,6 +13,10 @@ a user asks you to install AISkills from GitHub.
 - Install all skills listed in `skills/registry.json` by default.
 - Install a subset only when the user explicitly names one or more skill names
   and asks for only those skills.
+- `task-execution-flow` and `task-review-investigate-compare` require
+  `sow-delegate-flow` as their task-classification companion. For an explicit
+  subset, disclose a missing companion and obtain permission to include it;
+  never silently expand the subset or invent the missing classification rules.
 - Do not ask the user to choose skill names just to complete a normal AISkills
   install.
 - Do not create or edit project policy files such as `AGENTS.md`, `CLAUDE.md`,

@@ -1,4 +1,4 @@
-"""Deterministic contract tests for mandatory available GLM-5.3-max delegation.
+"""Deterministic contract tests for complexity-based GLM-5.3-max delegation.
 
 These tests verify packaged skill text, discovery metadata, and feedback
 fixtures. They do not prove runtime model adherence.
@@ -22,6 +22,7 @@ EXECUTION_SKILL = "task-execution-flow"
 DELEGATE_SKILL = "sow-delegate-flow"
 REVIEW_SKILL = "task-review-investigate-compare"
 TARGET_SKILLS = (EXECUTION_SKILL, DELEGATE_SKILL, REVIEW_SKILL)
+COMPLEXITY_REFERENCE = SKILLS_ROOT / DELEGATE_SKILL / "references" / "task-complexity.md"
 EXACT_MODEL = "greennode/glm-5.3"
 EXACT_EFFORT = "reasoning_effort=max"
 NATIVE_ONLY_LOCKS = (
@@ -102,17 +103,23 @@ def assert_not_locks(test: unittest.TestCase, text: str, locks: tuple[str, ...])
 
 
 class MandatoryDelegationContractTests(unittest.TestCase):
-    def test_execution_requires_delegation_when_exact_target_is_available(self) -> None:
+    def test_execution_routes_simple_and_complex_tasks(self) -> None:
         text = skill_text(EXECUTION_SKILL)
         assert_locks(
             self,
             text,
             (
-                "mandatory GLM-5.3-max delegation gate",
+                "Complexity-Based Delegation Gate",
+                "simple tasks MUST stay in main without automatic delegation or model discovery",
+                "large/complex tasks MUST delegate meaningful authorized work",
                 EXACT_MODEL,
                 EXACT_EFFORT,
                 "safe bounded slice",
-                "do not skip because the work is simple, mechanical, routine, costly, or judged unsuitable",
+                "reading the reference does not activate delegation",
+                "leave classification unresolved",
+                "do not assume a sibling install root",
+                "do not repeat handoffs per slice",
+                "reclassify only on material new scope/risk evidence",
                 "confirmed unavailability",
                 "observed delegation failure",
                 "record capability evidence",
@@ -130,9 +137,64 @@ class MandatoryDelegationContractTests(unittest.TestCase):
                 "prefer one bounded delegated slice",
                 "otherwise execute locally",
                 "explicit local-only, unsafe, unbounded, or unverifiable -> execute locally",
+                "before every implementation or substantive review slice",
+                "do not skip because the work is simple, mechanical, routine, costly, or judged unsuitable",
                 *FORBIDDEN_NATIVE_DISCOVERY,
             ),
         )
+
+    def test_shared_complexity_reference_owns_routing_boundary_matrix(self) -> None:
+        text = COMPLEXITY_REFERENCE.read_text()
+        assert_locks(
+            self,
+            text,
+            (
+                "Reading it does not activate delegation",
+                "Classify before native model discovery",
+                "It MUST run in main without an automatic delegate or reviewer",
+                "MUST NOT probe model availability merely to satisfy delegation",
+                "the caller MUST delegate that meaningful workstream or one independent review pass",
+                "Do not repeat handoffs per slice",
+                "One-file concurrency, authentication, shared-API, or system-wide interaction work is not automatically simple",
+                "A destructive one-call operation needs impact assessment",
+                "reclassify only on material new scope or risk evidence",
+                "leave classification unresolved",
+                "do not invent a simple exemption or auto-install it",
+            ),
+        )
+
+    def test_complexity_reference_is_registered_and_required_companion(self) -> None:
+        registry = json.loads((REPO_ROOT / "skills" / "registry.json").read_text())
+        delegate_entry = next(
+            skill for skill in registry["skills"] if skill["name"] == DELEGATE_SKILL
+        )
+        paths = {file_entry["path"] for file_entry in delegate_entry["files"]}
+        self.assertIn("skills/sow-delegate-flow/references/task-complexity.md", paths)
+        self.assertTrue(COMPLEXITY_REFERENCE.exists())
+
+        for skill_name in (EXECUTION_SKILL, REVIEW_SKILL):
+            text = skill_text(skill_name)
+            companion_lock = (
+                "`sow-delegate-flow` is a required task-classification companion"
+                if skill_name == REVIEW_SKILL
+                else "`sow-delegate-flow`\nis a required classification companion"
+            )
+            unresolved_lock = (
+                "leave review classification unresolved"
+                if skill_name == REVIEW_SKILL
+                else "missing companion leaves classification unresolved"
+            )
+            assert_locks(
+                self,
+                text,
+                (
+                    companion_lock,
+                    "references/task-complexity.md",
+                    unresolved_lock,
+                    "do not assume a sibling install root",
+                    "auto-install",
+                ),
+            )
 
     def test_delegate_owns_transport_failure_and_cleanup_contract(self) -> None:
         text = skill_text(DELEGATE_SKILL)
@@ -189,6 +251,11 @@ class MandatoryDelegationContractTests(unittest.TestCase):
             text,
             (
                 "mandatory GLM-5.3-max",
+                "simple reviews MUST remain coordinator-owned without automatic delegation or model discovery",
+                "large or complex reviews MUST run one bounded independent pass",
+                "reading that reference does not activate delegation",
+                "leave review classification unresolved",
+                "do not assume a sibling install root",
                 EXACT_MODEL,
                 EXACT_EFFORT,
                 "current native catalog",
@@ -213,7 +280,7 @@ class MandatoryDelegationContractTests(unittest.TestCase):
             text,
             (
                 "use an independent pass only",
-                "keep simple status",
+                "skip because the review is simple",
                 "routine local checks coordinator-only",
                 "for an optional independent pass",
                 "skipped by the bounded trigger",
@@ -253,11 +320,16 @@ class MandatoryDelegationContractTests(unittest.TestCase):
         review_cases = json.dumps(mandatory_cases(REVIEW_SKILL)).lower()
 
         self.assertIn("simple", execution_cases)
+        self.assertIn("simple-main", execution_cases)
+        self.assertIn("without automatic delegation or model lookup", execution_cases)
+        self.assertIn("coordinated change across three dependent modules", execution_cases)
+        self.assertIn("meaningful workstream once", execution_cases)
+        self.assertIn("per-slice handoffs", execution_cases)
         self.assertIn("flash-only", execution_cases)
         self.assertIn("unavailable", execution_cases)
         self.assertIn("user override", execution_cases)
         self.assertIn("unapproved implementation", execution_cases)
-        self.assertIn("unsafe context", execution_cases)
+        self.assertIn("no safe authorized scope exists", execution_cases)
         self.assertIn("failed coordinator verification", execution_cases)
 
         self.assertIn("launch failure", delegate_cases)
@@ -270,6 +342,9 @@ class MandatoryDelegationContractTests(unittest.TestCase):
         self.assertIn("read-only", review_cases)
         self.assertIn("before approval", review_cases)
         self.assertIn("coordinator verification", review_cases)
+        self.assertIn("simple-main", review_cases)
+        self.assertIn("without automatic independent review or model lookup", review_cases)
+        self.assertIn("meaningful independent pass", review_cases)
 
         stale_fixture_wording = (
             "optional",
@@ -285,6 +360,7 @@ class MandatoryDelegationContractTests(unittest.TestCase):
             "optional independent review",
             "does not need an independent pass",
             "suitability decision",
+            "per-slice re-gating",
         )
         for skill_name in TARGET_SKILLS:
             with self.subTest(stale_fixture=skill_name):

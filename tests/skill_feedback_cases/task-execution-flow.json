@@ -391,33 +391,68 @@
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",
       "feedback": {
-        "trigger": "Execution reaches the next implementation slice after an approved SOW.",
-        "actual_behavior": "The flow can skip an available exact GLM-5.3-max target because the slice looks simple, routine, or locally convenient.",
-        "expected_behavior": "When exact greennode/glm-5.3 with reasoning_effort=max is available and a safe bounded slice exists, enter automatic-execution-delegation and record the handoff before coordinator verification.",
-        "invariant": "Mandatory delegation never bypasses approval, explicit user override, context isolation, coordinator verification, or safe local ownership boundaries.",
-        "evidence_ref": "sanitized:user-feedback-task-execution-mandatory-glm53-2026-10-05"
+        "trigger": "Execution reaches the whole-task complexity gate after an approved SOW.",
+        "actual_behavior": "The flow delegates every small slice or probes a native model for clear simple work merely to satisfy delegation.",
+        "expected_behavior": "Classify the whole task first: clear simple work stays in main without model discovery; large or complex work enters automatic-execution-delegation for one meaningful workstream when exact greennode/glm-5.3 with reasoning_effort=max is available.",
+        "invariant": "Whole-task complexity, approval, explicit user override, context isolation, coordinator verification, and safe ownership boundaries control automatic delegation.",
+        "evidence_ref": "sanitized:user-feedback-task-execution-mandatory-glm53-2026-10-05; corrected-by:SOW_20261015_2C68AA9D-2026-10-15"
       },
       "scenarios": [
         {
           "kind": "expected",
-          "request": "Execute the next slice of this approved SOW.",
-          "context": "The slice is independently bounded, free of secrets and interactive operator state, and has a local verification path; exact GLM-5.3-max availability is confirmed even though the task is simple.",
-          "expected_behavior": "Select the automatic-execution-delegation mode, use exact GLM-5.3-max, start an isolated session, and record the delegation decision before coordinator verification.",
-          "must_not": "Delegate an unbounded task, overlap write scopes, accept delegate completion as closeout, or pass historical context."
+          "request": "Execute this approved coordinated change across three dependent modules.",
+          "context": "The whole task has a demonstrated complexity condition, a safe meaningful workstream, and exact GLM-5.3-max is natively available.",
+          "expected_behavior": "Delegate that meaningful workstream once to exact GLM-5.3-max with clean context, retain integration and acceptance in main, and record the decision before coordinator verification.",
+          "must_not": "Split the task into per-slice handoffs, duplicate the same investigation, delegate an unbounded task, overlap write scopes, or pass historical context."
         },
         {
           "kind": "negative",
-          "request": "Implement this approved slice locally and do not delegate; in another invocation, honor the explicitly named model and transport.",
-          "context": "The user has supplied an explicit local-only instruction for the first invocation and an explicit model/transport choice for the second.",
-          "expected_behavior": "Keep the local-only invocation coordinator-owned as a user override and preserve the explicit model/transport choice in the second invocation.",
-          "must_not": "Spawn the automatic mode despite local-only intent or override an explicit model/transport choice."
+          "request": "Review this config against its known schema, then run one targeted check.",
+          "context": "Scope, method, acceptance, and impact are clear; no shared-contract, cross-module, state, security, data-correctness, performance, or broad-review risk exists. Exact GLM-5.3-max is natively available.",
+          "expected_behavior": "Keep the whole simple task in main, perform the check, and record the simple-main decision without automatic delegation or model lookup.",
+          "must_not": "Spawn a worker or reviewer, probe native capability merely for delegation, or inflate the task to manufacture delegation."
         },
         {
           "kind": "boundary",
-          "request": "Execute an automatic delegation candidate when the catalog is flash-only, the exact target is unavailable, or the slice has an unsafe context.",
-          "context": "The approved SOW is present, but catalog evidence is flash-only and a separate attempted handoff has a failed coordinator verification after bounded repair.",
-          "expected_behavior": "Record the unavailable or failed delegation evidence, use local fallback only for those confirmed cases, and stop when no safe authorized slice exists.",
-          "must_not": "Guess model availability, select an alternate model, expose secrets, start an unapproved implementation, or treat failed coordinator verification as successful delegation."
+          "request": "Execute complex work when exact GLM-5.3-max is unavailable, unknown, flash-only, or fails; also honor explicit local-only or selected model/transport choices.",
+          "context": "A safe authorized scope exists, but one current client lookup yields a truthful native limitation or an attempted handoff fails after bounded repair; separate invocations contain explicit user choices.",
+          "expected_behavior": "Record unavailable, unknown, or concrete failure evidence and continue locally only under those automatic-mode rules; honor explicit local-only or model/transport choices and stop when no safe authorized scope exists.",
+          "must_not": "Guess model availability, select an alternate model, expose secrets, start an unapproved implementation, repeat per-slice handoffs, or treat failed coordinator verification as successful delegation."
+        }
+      ]
+    },
+    {
+      "id": "complexity-routing-execution-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Execution must route whole tasks by demonstrated complexity before model discovery.",
+        "actual_behavior": "File or tool count alone can force delegation for clear one-file or one-call work, while a one-file race, destructive call, or growing scope can be treated as simple.",
+        "expected_behavior": "Route clear one-file local edits and one known MCP call to main without automatic delegation or model probing; route one-file race conditions, destructive calls needing impact assessment, and materially growing scope to the complex path unless an explicit user override applies.",
+        "invariant": "Whole-task complexity evidence controls simple-main versus complex delegation, while explicit user selections remain authoritative.",
+        "evidence_ref": "sanitized:SOW_20261015_2C68AA9D-complexity-routing-2026-10-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Apply this settled wording edit in one local file, then make one read-only MCP call with known inputs.",
+          "context": "Both whole tasks have clear scope, method, acceptance, and bounded impact; no shared contract, race, destructive impact, or growing scope exists.",
+          "expected_behavior": "Keep each task in main without spawning a delegate or probing a model, and record simple-main with its concrete reason.",
+          "must_not": "Treat file/tool count as complexity, automatically delegate, or require capability evidence."
+        },
+        {
+          "kind": "negative",
+          "request": "Fix this one-file state race or run this destructive one-call operation.",
+          "context": "The race has meaningful state/cancellation risk. The destructive call lacks settled blast-radius or approval evidence. Both are otherwise bounded.",
+          "expected_behavior": "Classify each whole task complex before model discovery and apply existing safety/approval gates; delegate a safe meaningful workstream only under the complex path.",
+          "must_not": "Use the one-file or one-call shape to bypass complexity, safety, approval, or delegation rules."
+        },
+        {
+          "kind": "boundary",
+          "request": "Continue a simple task whose scope materially grows; separately honor an explicit local-only or selected model/transport instruction.",
+          "context": "New evidence shows dependent cross-module changes or high-risk impact. The other invocation contains an explicit user selection.",
+          "expected_behavior": "Reclassify the growing task on material evidence and route it through the complex path; honor the explicit override without treating it as evidence of complexity.",
+          "must_not": "Keep stale simple classification, manufacture complexity from the override, or ignore the user's selected route."
         }
       ]
     },

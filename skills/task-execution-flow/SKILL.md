@@ -1,6 +1,6 @@
 ---
 name: task-execution-flow
-description: Execute approved scoped work through mandatory native GLM-5.3-max delegation when available in the current client, or local execution for absent/unknown native capability; verify implementation, find gaps and close out without external GLM discovery.
+description: Execute approved scoped work with simple tasks kept in main and mandatory native GLM-5.3-max delegation for large or complex tasks when available; verify implementation, find gaps and close out without external GLM discovery.
 ---
 
 # Task Execution Flow
@@ -84,19 +84,15 @@ File writeback does not invoke task-progress-report per handoff.
   an import-only smoke with the exact interpreter and `PYTHONPATH` that will
   launch the action. Do not background a Spark, database, or other data action
   until that smoke passes; an import failure is a staging/environment gate.
-- After approved scope is confirmed and before each implementation slice, run
-  the mandatory GLM-5.3-max delegation gate below. When the exact target is
-  available and a safe bounded slice can be defined, delegate it; do not skip
-  because the work is simple, mechanical, routine, costly, or judged unsuitable.
-  Native unavailability, inconclusive native capability after one lookup, or
-  an observed delegation failure permits automatic local fallback with evidence.
-  Never search external clients/providers to satisfy this gate.
-  If no safe authorized slice can be
-  defined, stop for scope/authority clarification.
-- Use `sow-delegate-flow`'s internal
-  `automatic-execution-delegation` mode for this mandatory handoff. A later
-  explicit human model/transport or local-only instruction wins for that named
-  task and must be recorded as a user override.
+- After approved scope is confirmed, apply Complexity-Based Delegation Gate
+  once for the whole task. Simple tasks MUST stay in main without automatic
+  delegation or model discovery. Large/complex tasks MUST delegate meaningful
+  authorized work when exact native GLM-5.3-max is available. Do not repeat
+  handoffs per slice solely for compliance; reclassify on material new evidence.
+- Preserve explicit human model/transport or local-only selections as user
+  overrides. Automatic delegation uses `sow-delegate-flow`'s internal mode;
+  native unavailable/unknown or observed failure permits evidence-backed local
+  fallback, never external-client discovery. Scope/authority conflicts stop work.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
 - Apply the smallest meaningful patch that satisfies the SOW.
 - Keep behavior locks, invariants, and only authorized adjacent consistency in
@@ -158,23 +154,26 @@ Phase 1: context and experiment
    direct caller/declaration in the declared source scope
 -> record each caller's approved, legacy, or boundary disposition in the
    existing implementation evidence; do not create a persistent caller registry
--> run the mandatory GLM-5.3-max delegation gate for the next slice:
-   -> inspect only the current client's native catalog and supported efforts
-   -> exact model + max effort available and safe bounded slice exists:
-      -> MUST enter sow-delegate-flow's internal automatic mode
-   -> native interface/model/max unavailable:
-      -> record native-unavailable + reason, then use the local fallback
-   -> native capability inconclusive:
-      -> at most one documented native capability lookup
-      -> record native-capability-unknown, then use the local fallback
-   -> do not search other clients, CLIs, routers, providers or credentials
-   -> delegation launch/session/isolation/child/output failure:
-      -> record concrete evidence, repair within bounds, then use local fallback
-         only if the failure remains
-   -> no safe authorized slice exists:
-      -> stop for scope/authority clarification; do not execute locally
-   -> explicit human model/transport/local-only instruction:
-      -> record and follow that named override
+-> apply Complexity-Based Delegation Gate to the whole task, before discovery:
+   -> explicit user model/transport/local-only instruction -> follow override
+   -> resolve shared task-complexity contract; missing -> leave classification unresolved; report, do not invent
+   -> simple -> MUST main; no automatic delegate or model lookup
+   -> large/complex -> inspect only current native catalog and supported efforts
+      -> exact model + max effort available and safe bounded slice exists:
+         -> MUST enter sow-delegate-flow's internal automatic mode
+      -> native interface/model/max unavailable:
+         -> record native-unavailable + reason, then use the local fallback
+      -> native capability inconclusive:
+         -> at most one documented native capability lookup
+         -> record native-capability-unknown, then use the local fallback
+      -> do not search other clients, CLIs, routers, providers or credentials
+      -> delegation launch/session/isolation/child/output failure:
+         -> record concrete evidence, repair within bounds, then use local fallback
+            only if the failure remains
+      -> no safe authorized slice exists:
+         -> stop for scope/authority clarification; do not execute locally
+   -> record classification and concrete reason in existing task evidence
+   -> reclassify only on material scope/risk evidence; no per-slice re-gating
 
 Phase 2: implement
 -> pick the next smallest meaningful mini-task
@@ -183,6 +182,7 @@ Phase 2: implement
 -> if the gate recorded native unavailability, native-capability-unknown or an
    observed delegation failure, apply the smallest local patch that satisfies the SOW and record
    the fallback evidence
+-> for simple tasks or explicit local-only overrides, implement in main
 -> do not silently convert an unsafe/unbounded/unverifiable slice into local work
 -> keep invariants, behavior locks, and cleanup paths in scope
 -> use micro-checks during implementation when they reduce wasted work
@@ -268,11 +268,22 @@ missing. For recoverable technical failures already within scope, escalate when
 the same failure repeats and no meaningful progress is being made.
 ```
 
-## Mandatory GLM-5.3-max Delegation Gate
+## Complexity-Based Delegation Gate
 
-Run this gate after the approved SOW and exact write scope are confirmed, and
-before every implementation or substantive review slice. It is mandatory when
-the exact target is available and a safe bounded slice exists.
+After approved scope is confirmed, honor explicit user selections first.
+Otherwise classify the whole task before model discovery. `sow-delegate-flow`
+is a required classification companion: locate it through the harness-supplied
+skill catalog/location and read `references/task-complexity.md`, or use its
+supplied authoritative contract. Reading the reference does not activate
+delegation. Missing companion leaves classification unresolved: report it,
+request permission for a subset addition when needed, never auto-install or
+invent an exemption. Do not assume a sibling install root.
+
+- Simple tasks MUST run in main; MUST NOT automatically delegate or probe models.
+  Record `simple-main` and a brief reason, not capability evidence.
+- Large/complex tasks MUST enter the native GLM-5.3-max gate below. Classify
+  task-level impact, not file/tool counts; do not split work to evade the gate
+  or inflate a simple task. Reclassify only on material new scope/risk evidence.
 
 - Inspect only the current native catalog of the active client and supported efforts.
   Only exact `greennode/glm-5.3` with `reasoning_effort=max` counts;
@@ -283,9 +294,10 @@ the exact target is available and a safe bounded slice exists.
   this section unchanged.
 - When the exact target is available and a safe bounded non-overlapping slice
   exists, invoke `sow-delegate-flow` in
-  `automatic-execution-delegation`. Do not skip because the work is simple,
-  mechanical, routine, costly, or judged unsuitable.
-- Hard rule: do not skip because the work is simple, mechanical, routine, costly, or judged unsuitable.
+  `automatic-execution-delegation`. Delegate a meaningful workstream or
+  independent review pass; keep integration and acceptance in main. This is
+  mandatory for large/complex work, not an optional preference. Do not repeat
+  handoffs per slice or duplicate investigation solely for compliance.
 - If no safe authorized slice can be defined, stop for scope or authority
   clarification. Do not convert that condition into local execution.
 - For confirmed unavailability, record capability evidence as `native-unavailable`
@@ -314,10 +326,10 @@ the exact target is available and a safe bounded slice exists.
   syntax here.
   Explicit external delegation remains available, not an automatic substitute
   for missing native GLM.
-- Record `delegation_decision` as `delegated`, `fallback-unavailable`,
+- Record `delegation_decision` as `simple-main`, `delegated`, `fallback-unavailable`,
   `fallback-capability-unknown`, `fallback-failure`, `user-override`, or `blocked-no-safe-slice`, with reason,
-  model/transport, availability evidence, isolation status, failure evidence,
-  and verification result.
+  classification and concrete reason; include model/transport, availability,
+  isolation, failure evidence and verification result only when applicable.
 
 ## Hard Gates
 
@@ -354,7 +366,7 @@ Implementation verification must include, when applicable:
 - observed backend evidence
 - whether the result matched the SOW behavior lock
 - whether any gap or residual risk remained
-- delegation decision and reason; when delegated, selected model, transport,
+- whole-task classification, delegation decision and reason; when delegated, selected model, transport,
   availability evidence, lifecycle/isolation status, and handoff result
 
 ## Required Gap Checklist
@@ -489,8 +501,8 @@ Only close out when all of these are true:
 - gap-finding found no blocking gap; remaining risks meet the acceptance rule below
 - final quality check passed
 - task-owned changes still match approved scope; unrelated work remains intact
-- delegation decision evidence is recorded for every implementation slice that
-  entered the mandatory GLM-5.3-max gate
+- whole-task classification and delegation decision evidence are recorded;
+  simple-main needs no model/capability evidence
 - completed planning scope follows the resolved bundle lifecycle: standalone
   bundles move to matching `finished/`, completed children stay in an active
   Plan, and only aggregate completion moves the whole Plan
@@ -543,7 +555,7 @@ Final response must include:
   required setup or invocation.
 - Use `sow-delegate-flow` when the user explicitly delegates a task, SOW, or
   plan to a native or custom external agent, or when this skill's approved
-  mandatory exact-model gate selects the internal
+  complexity-based exact-model gate selects the internal
   `automatic-execution-delegation` mode. The delegate skill remains
   authoritative for model, transport, isolation, prompt, and cleanup behavior;
   this skill remains authoritative for the mandatory decision and

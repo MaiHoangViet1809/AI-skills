@@ -181,33 +181,68 @@
       "target_skill": "sow-delegate-flow",
       "cause_class": "decision_procedure",
       "feedback": {
-        "trigger": "Substantive execution or review enters this delegation flow with model selection open.",
-        "actual_behavior": "The delegation flow can skip exact GLM-5.3-max, reuse a stale session, or hide a failed handoff behind local continuation.",
-        "expected_behavior": "When exact greennode/glm-5.3 with reasoning_effort=max is available and a safe bounded slice exists, delegate it first; preserve explicit overrides, fresh context, evidence-backed fallback, and cleanup.",
-        "invariant": "Mandatory GLM-5.3-max delegation is exact-model evidenced, context-isolated, coordinator-owned, and never a silent alternate-model or old-session path.",
-        "evidence_ref": "sanitized:user-feedback-glm53-mandatory-delegation-2026-10-05"
+        "trigger": "A large or complex whole task enters this delegation flow with model selection open.",
+        "actual_behavior": "The flow can delegate repetitive small slices, reuse a stale session, or hide a failed handoff behind local continuation.",
+        "expected_behavior": "When exact greennode/glm-5.3 with reasoning_effort=max is available and a safe meaningful workstream exists, delegate that workstream once; preserve explicit overrides, fresh context, evidence-backed fallback, and cleanup.",
+        "invariant": "Complex-task GLM-5.3-max delegation is exact-model evidenced, context-isolated, coordinator-owned, whole-task bounded, and never a silent alternate-model or old-session path.",
+        "evidence_ref": "sanitized:user-feedback-glm53-mandatory-delegation-2026-10-05; corrected-by:SOW_20261015_2C68AA9D-2026-10-15"
       },
       "scenarios": [
         {
           "kind": "expected",
-          "request": "Delegate a bounded review of this approved SOW without naming a model.",
-          "context": "The current catalog exposes exact greennode/glm-5.3 with max reasoning; native transport is available.",
-          "expected_behavior": "Select the exact target, start the native child with fork_turns none, return model, transport, availability, lifecycle, isolation, and coordinator verification evidence, then clean up.",
-          "must_not": "Choose GLM-5.3 Flash, GLM5.2, or pass parent turns into the child."
+          "request": "Delegate the broad cross-module implementation workstream of this approved SOW without naming a model.",
+          "context": "The whole task is complex, a safe meaningful workstream exists, and the current catalog exposes exact greennode/glm-5.3 with max reasoning through native transport.",
+          "expected_behavior": "Select the exact target once, start the native child with fork_turns none for that workstream, return model, transport, availability, lifecycle, isolation, and coordinator verification evidence, then clean up.",
+          "must_not": "Choose GLM-5.3 Flash, GLM5.2, issue per-slice handoffs for the same work, or pass parent turns into the child."
         },
         {
           "kind": "negative",
-          "request": "Delegate this review to the explicitly selected native GLM5.2 role.",
-          "context": "The user explicitly names GLM5.2, which is a valid model override for this invocation.",
-          "expected_behavior": "Honor the explicit GLM5.2 choice and keep the coordinator responsible for verification and cleanup.",
-          "must_not": "Override the explicit target with GLM-5.3-max or pass parent turns into the child."
+          "request": "Handle a clear simple status summary; separately, delegate to the explicitly selected native GLM5.2 role.",
+          "context": "The simple summary does not enter automatic delegation. The other invocation explicitly names GLM5.2 as a valid model override.",
+          "expected_behavior": "Keep the simple summary coordinator-owned without automatic delegation; honor the explicit GLM5.2 choice and keep the coordinator responsible for verification and cleanup.",
+          "must_not": "Activate automatic delegation for the simple summary, override the explicit target with GLM-5.3-max, or pass parent turns into either child."
         },
         {
           "kind": "boundary",
-          "request": "Attempt delegation when exact GLM-5.3-max is unavailable, or after a launch failure, runtime failure, isolation failure, or invalid delegate output.",
-          "context": "Current catalog evidence says the exact target is unavailable; a separate handoff has a failed stage after bounded repair and a non-native candidate has an old session.",
-          "expected_behavior": "Record the unavailable or failed stage, discard invalid delegate output, clean up failed task-owned sessions, and use local fallback only in automatic mode; explicit delegation stops and asks.",
-          "must_not": "Fallback to GLM5.2 or Flash silently, reuse old task history, spawn a nested child, or treat failure as success."
+          "request": "Attempt complex-task delegation when the shared rubric is missing, exact GLM-5.3-max is unavailable or unknown, or a launch failure, runtime failure, isolation failure, or invalid delegate output occurs.",
+          "context": "The current catalog gives truthful capability evidence or a separate handoff has a failed stage after bounded repair; the requested task is otherwise authorized and bounded.",
+          "expected_behavior": "Leave classification unresolved when the rubric is missing and report that resource; record unavailable, unknown, or failed stages, discard invalid output, clean up task-owned sessions, and use local fallback only in automatic mode.",
+          "must_not": "Invent a simple exemption or auto-install the rubric, fallback to GLM5.2 or Flash silently, reuse old task history, spawn a nested child, or treat failure as success."
+        }
+      ]
+    },
+    {
+      "id": "complexity-routing-delegate-001",
+      "target_skill": "sow-delegate-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "The delegate flow distinguishes automatic complexity routing from explicit user delegation and missing companion evidence.",
+        "actual_behavior": "A simple-task trigger exemption can suppress an explicitly requested delegate, and a missing shared rubric can be replaced with an invented exemption or silent installation.",
+        "expected_behavior": "Do not activate automatic delegation for a simple task without an explicit user delegation request; honor explicit simple-task delegation, and leave classification unresolved when the required companion rubric is missing.",
+        "invariant": "Automatic routing is complexity-gated, while explicit user delegation remains available and missing companion evidence is never invented or silently installed.",
+        "evidence_ref": "sanitized:SOW_20261015_2C68AA9D-complexity-routing-2026-10-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Delegate this clear simple one-file edit to the explicitly selected native agent.",
+          "context": "The user explicitly asks for delegation and the selected target is available through a safe documented lifecycle.",
+          "expected_behavior": "Honor the explicit request, use clean task context, and keep verification with the coordinator.",
+          "must_not": "Suppress the handoff merely because the task is simple or substitute another model/transport."
+        },
+        {
+          "kind": "negative",
+          "request": "Handle a clear simple local edit or one read-only MCP call automatically.",
+          "context": "No explicit user delegation request exists and the whole task has no complexity condition.",
+          "expected_behavior": "Do not activate the delegate flow or probe a model merely to satisfy delegation.",
+          "must_not": "Interpret a simple-task exemption as a prohibition on explicit user delegation."
+        },
+        {
+          "kind": "boundary",
+          "request": "Classify a potentially complex task when the task-complexity companion is absent.",
+          "context": "The consumer skill is installed without its required rubric companion and classification is not otherwise resolved.",
+          "expected_behavior": "Report the missing companion, leave classification unresolved, and request permission for a subset addition rather than silently widening it.",
+          "must_not": "Invent a simple exemption, auto-install the rubric, or assume a sibling skill root."
         }
       ]
     },

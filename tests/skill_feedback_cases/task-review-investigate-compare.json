@@ -426,33 +426,68 @@
       "target_skill": "task-review-investigate-compare",
       "cause_class": "decision_procedure",
       "feedback": {
-        "trigger": "A substantive review is active while model selection is open.",
-        "actual_behavior": "The review can skip an available exact GLM-5.3-max pass, select a variant without identity evidence, or treat delegated output as authoritative.",
-        "expected_behavior": "Use exact greennode/glm-5.3 with reasoning_effort=max for one bounded independent pass when available; preserve explicit choices, context isolation, coordinator ownership, read-only scope, and unavailable reporting before approval.",
-        "invariant": "The independent review is mandatory when exact target availability is confirmed, bounded, exact-model evidenced, context-isolated, read-only and advisory; coordinator verification remains required.",
-        "evidence_ref": "sanitized:user-feedback-glm53-review-mandatory-2026-10-05"
+        "trigger": "A broad or high-risk review is active while model selection is open.",
+        "actual_behavior": "The review can delegate every small review, select a variant without identity evidence, or treat delegated output as authoritative.",
+        "expected_behavior": "Classify the whole review first: clear simple reviews stay coordinator-owned without model discovery; broad or high-risk reviews use exact greennode/glm-5.3 with reasoning_effort=max for one meaningful independent pass when available.",
+        "invariant": "Independent complex review is mandatory when exact target availability is confirmed, bounded, exact-model evidenced, context-isolated, read-only and advisory; coordinator verification remains required.",
+        "evidence_ref": "sanitized:user-feedback-glm53-review-mandatory-2026-10-05; corrected-by:SOW_20261015_2C68AA9D-2026-10-15"
       },
       "scenarios": [
         {
           "kind": "expected",
-          "request": "Review this behavior-bearing SOW without naming a reviewer model.",
-          "context": "The current catalog exposes exact greennode/glm-5.3 with max reasoning and a clean native transport.",
-          "expected_behavior": "Select GLM-5.3-max, use fork_turns none, and report exact model identity, reasoning effort, transport, availability evidence, lifecycle, isolation, read-only scope, and coordinator verification before approval.",
-          "must_not": "Treat the delegated review as implementation authority or select a variant based only on its display name."
+          "request": "Review this behavior-bearing SOW for architecture ownership and migration risk without naming a reviewer model.",
+          "context": "The whole review has a demonstrated complexity condition and the current catalog exposes exact greennode/glm-5.3 with max reasoning and a clean native transport.",
+          "expected_behavior": "Select GLM-5.3-max once, use fork_turns none, and report exact model identity, reasoning effort, transport, availability evidence, lifecycle, isolation, read-only scope, and coordinator verification before approval.",
+          "must_not": "Treat the delegated review as implementation authority, select a variant based only on its display name, or repeat independent passes per review slice."
         },
         {
           "kind": "negative",
-          "request": "Review this plan using the explicitly selected external reviewer.",
-          "context": "The user explicitly chose a compatible documented transport for the reviewer and the pass remains read-only.",
-          "expected_behavior": "Honor the explicit reviewer choice while preserving a fresh session and coordinator verification.",
-          "must_not": "Override the explicit transport with GLM-5.3-max or treat delegated output as final approval."
+          "request": "Review this config against its known schema, or run one targeted read-only check.",
+          "context": "Scope, method, acceptance, and impact are clear with no broad code-path, competing root-cause, ownership, API, migration, or high-risk review condition; exact GLM-5.3-max is natively available.",
+          "expected_behavior": "Keep the whole simple review coordinator-owned and record the simple-main decision without automatic independent review or model lookup.",
+          "must_not": "Spawn an independent reviewer, probe native capability merely for delegation, or inflate ordinary review wording into complexity."
         },
         {
           "kind": "boundary",
-          "request": "Run the review without naming a model when exact GLM-5.3-max is unavailable.",
-          "context": "Current catalog evidence marks the exact target unavailable; a non-native candidate would restore an old task session and the review is read-only.",
-          "expected_behavior": "Record unavailable, continue coordinator-only only with that evidence, and discard any unisolated delegate output; do not silently choose another model.",
-          "must_not": "Reuse historical context, report a clean review from an unisolated delegate, or convert advisory findings into execution."
+          "request": "Run a complex review when the shared rubric is missing, exact GLM-5.3-max is unavailable or unknown, or an explicit model/transport choice exists.",
+          "context": "The review is read-only. The rubric may be absent; the current catalog gives truthful capability evidence; another invocation explicitly selects a compatible documented reviewer transport.",
+          "expected_behavior": "Leave classification unresolved and report a missing rubric; record unavailable or unknown evidence and continue coordinator-only under the automatic-mode rules; honor the explicit reviewer choice with a fresh session and coordinator verification.",
+          "must_not": "Invent a simple exemption or auto-install the rubric, reuse historical context, silently choose another model, report a clean review from an unisolated delegate, or convert advisory findings into execution."
+        }
+      ]
+    },
+    {
+      "id": "complexity-routing-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Review routing must classify the whole review before independent-pass model discovery.",
+        "actual_behavior": "A broad or high-risk review can be treated as simple, while a simple review can be automatically delegated or the missing classification companion can be silently invented.",
+        "expected_behavior": "Keep clear simple reviews coordinator-owned without model discovery; route broad or high-risk reviews to one meaningful independent pass when available, and leave classification unresolved when the companion is missing.",
+        "invariant": "Whole-review complexity evidence controls automatic independent review while explicit user reviewer selection remains authoritative.",
+        "evidence_ref": "sanitized:SOW_20261015_2C68AA9D-complexity-routing-2026-10-15"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review this SOW for architecture ownership, migration impact, and competing root-cause hypotheses.",
+          "context": "The whole review has a demonstrated complexity condition and exact native GLM-5.3-max is available.",
+          "expected_behavior": "Run one meaningful independent pass with clean context, keep it read-only and advisory, and verify findings as coordinator.",
+          "must_not": "Repeat independent passes per review slice or treat delegate findings as final approval."
+        },
+        {
+          "kind": "negative",
+          "request": "Review this config against its known schema and report one targeted result.",
+          "context": "Scope, method, acceptance, and impact are clear; no broad code-path, ownership, API, migration, or high-risk condition exists.",
+          "expected_behavior": "Keep the whole simple review in main and record simple-main without automatic independent review or model lookup.",
+          "must_not": "Spawn a reviewer, probe capability, or inflate routine review wording into complexity."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a potentially complex artifact when the shared rubric is missing; separately honor an explicitly selected reviewer.",
+          "context": "The consumer install lacks the required task-complexity companion. The other invocation explicitly selects a compatible documented reviewer transport.",
+          "expected_behavior": "Report the missing companion and leave classification unresolved without inventing or installing rules; honor the explicit reviewer choice with fresh context and coordinator verification.",
+          "must_not": "Assume a sibling root, silently expand a subset, or override the explicit reviewer with GLM-5.3-max."
         }
       ]
     },

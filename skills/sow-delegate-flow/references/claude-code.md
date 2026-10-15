@@ -3,8 +3,10 @@
 Read this only when the active client is Claude Code. It answers one question
 for the GLM gates in `sow-delegate-flow`, `task-execution-flow` and
 `task-review-investigate-compare`: is the exact target natively available in
-this Claude Code session, and how is it called. Those gates, their mandatory
-rules and their failure rules stay authoritative.
+this Claude Code session, and how is it called. Read it only after the caller
+has selected a complex task path or an explicit user delegation request; simple
+automatic routing MUST NOT open this native check. Those gates, their
+classification rules, mandatory rules and failure rules stay authoritative.
 
 ```text
 not the interactive top-level session -> native-unavailable (interface unsupported), no call

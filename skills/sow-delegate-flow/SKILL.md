@@ -1,6 +1,6 @@
 ---
 name: sow-delegate-flow
-description: Delegate approved task, SOW or plan work to native or explicitly selected external agents. Automatic GLM-5.3-max enforcement uses only the current client's native capabilities; absent or unknown native capability permits local work without searching other clients. Keep task contexts isolated and verify handoffs locally.
+description: Delegate approved task, SOW or plan work to native or explicitly selected external agents; simple tasks stay in main while large or complex tasks use native GLM-5.3-max when available. Keep task contexts isolated and verify handoffs locally.
 ---
 
 # Sow Delegate Flow
@@ -41,11 +41,21 @@ triggers:
 - `delegate task ... cho custom agent via CLI`
 - an equivalent request naming a native or external agent
 - `task-execution-flow` enters `automatic-execution-delegation` after its
-  mandatory exact-model availability gate
+  complexity-based exact-model availability gate
 
-Do not activate for ordinary single-agent execution, a request merely
-mentioning another model, or an automatic delegation mode that was not entered
-by `task-execution-flow` after its mandatory availability gate.
+Do not activate for ordinary single-agent execution, a clear simple task
+without an explicit user delegation request, a request merely mentioning
+another model, or an automatic delegation mode that was not entered by
+`task-execution-flow` after its complexity-based availability gate.
+
+This skill is also the required task-classification companion for
+`task-execution-flow` and `task-review-investigate-compare`. Resolve it through
+the harness's supplied skill location/catalog and read
+[references/task-complexity.md](references/task-complexity.md), or use a
+supplied authoritative contract. Reading that reference does not activate
+delegation. If the companion is missing, report it and leave classification
+unresolved; do not assume a sibling install root, invent an exemption, or
+auto-install the reference.
 
 - Resolve the requested target against the current native agent catalog first.
   A custom-named role is native when the catalog exposes it; use the native
@@ -65,14 +75,17 @@ by `task-execution-flow` after its mandatory availability gate.
   or draft a plan/SOW before approval, but must not modify product code, tests,
   scripts, config, or runtime contracts in that mode.
 
-## GLM-5.3-max Mandatory Availability Rule
+## Complexity-Based GLM-5.3-max Availability Rule
 
-Apply this rule whenever this skill handles substantive execution or review, or
-when `task-execution-flow` has entered the approved
-`automatic-execution-delegation` mode. If the exact target is available and a
-safe bounded slice exists, delegation is mandatory; do not skip for simple,
-mechanical, routine, costly, or perceived-complexity reasons. A plain status or
-editorial summary outside this skill may remain coordinator-only.
+Apply this rule whenever this skill handles large or complex execution or
+review, or when `task-execution-flow` has entered the approved
+`automatic-execution-delegation` mode. First classify the whole task through
+the shared task-complexity contract. If the task is simple, keep it
+coordinator-owned without model discovery, unless the user explicitly requested
+delegation. If the task is large or complex and the exact target is available
+with a safe meaningful workstream, delegation is mandatory; do not skip for
+cost or perceived difficulty. A plain status or editorial summary outside this
+skill may remain coordinator-only.
 
 - An explicit user-selected model or transport always wins. If the selected
   model and transport are incompatible, or multiple exact transports remain
@@ -87,6 +100,11 @@ editorial summary outside this skill may remain coordinator-only.
 - Automatic enforcement is native-only. Do not search other clients, CLIs,
   routers, providers or credentials to find GLM. Claude Code without native
   GLM continues locally even if Codex elsewhere exposes GLM.
+- For a complex task, delegate one meaningful workstream or independent review
+  pass, not every implementation slice. This is mandatory when the exact target
+  and safe workstream exist. Reclassify only on material new scope or risk
+  evidence. If no safe authorized workstream exists, stop for clarification; do
+  not invent a handoff or local exemption.
 - For confirmed unavailability, record capability evidence as `native-unavailable`
   with reason: interface unsupported, exact model absent, or max effort unsupported.
   If capability is inconclusive, use at most one documented native capability lookup;
