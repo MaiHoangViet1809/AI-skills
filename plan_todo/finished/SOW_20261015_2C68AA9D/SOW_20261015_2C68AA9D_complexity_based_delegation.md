@@ -1,10 +1,10 @@
 # SOW_20261015_2C68AA9D - Complexity-Based Delegation
 
-- Status: IN_PROGRESS
+- Status: COMPLETED
 - Approval: APPROVED by user
 - create_dttm: 2026-10-15T11:49:50+07:00
 - approve_dttm: 2026-10-15T12:24:22+07:00
-- finish_dttm: null
+- finish_dttm: 2026-10-15T12:37:24+07:00
 - Proposed-By: Codex
 - plan: None; bounded change to three skills.
 
@@ -231,6 +231,23 @@ no pre-existing local-only commits would be included in the requested push.
 The upcoming source commit is verified; requested delivery is still pending,
 so this SOW remains IN_PROGRESS with finish_dttm null until sync readback.
 
+### Delivery And Closeout
+
+- Source commit: `5c1a914` (whole-task complexity routing), pushed to origin/main.
+- Exported that committed revision and verified each of the three skill trees
+  against its Git blobs before sync; no mixed working-tree source was used.
+- Previewed then overwrote only sow-delegate-flow, task-execution-flow and
+  task-review-investigate-compare under `~/.codex/skills` and `~/.claude/skills`
+  using the existing imported sync API, followed by the existing copy verifier.
+- All six installed copies have zero missing, extra or changed files relative
+  to the committed source. Other skills/configuration were not changed.
+- Implementation, required checks and authorized delivery are complete. Actual
+  client skill discovery/reload and end-to-end Claude/main-session adherence
+  were not exercised; file parity is not a claim of those runtime behaviors.
+- No actionable finding or required repair remains; preserve all unrelated
+  pre-existing dirty policy/Redmine files. Close this standalone bundle under
+  the existing finished lifecycle.
+
 ## Cautions / Risks
 
 - File/tool counts are examples, not sufficient complexity tests.
@@ -283,7 +300,7 @@ re-reviewed; implementation and behavioral adherence remain unverified.
 
 ## Progress
 
-- progress_updated_dttm: 2026-10-15T12:36:30+07:00
+- progress_updated_dttm: 2026-10-15T12:37:24+07:00
 
 | Item | Status | Evidence / Pending reason | Next action / Owner |
 | --- | --- | --- | --- |
@@ -292,4 +309,4 @@ re-reviewed; implementation and behavioral adherence remain unverified.
 | T3: Independent review | DONE | Independent static review returned two findings; coordinator verified evidence and patched SOW. Backend identity caveat recorded above. | None / Coordinator |
 | T4: Implementation | DONE | Three skills, shared rubric, manifest/install guidance, metadata and fixtures integrated; gap repairs complete. | None / Coordinator |
 | T5: Verification | DONE | 54 tests, three validators, three negative mutations and eight-case independent routing exercise passed; limits recorded. | None / Coordinator |
-| T6: Delivery | IN_PROGRESS | Clean staged candidate passed 54 tests and three validators; no unrelated commits pending. | Commit, push, sync and read back / Coordinator |
+| T6: Delivery | DONE | Source 5c1a914 pushed; committed export synced to both clients; all six copies match exactly. | None / Coordinator |
