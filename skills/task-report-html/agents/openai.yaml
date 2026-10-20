@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual-First HTML Reports"
+  short_description: "Create concise visual reports with grounded conclusions"
+  default_prompt: "Use $task-report-html to create or update this report with clear charts or diagrams, concise evidence-backed conclusions and HTML unless another format is requested."

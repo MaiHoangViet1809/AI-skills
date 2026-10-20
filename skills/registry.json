@@ -101,6 +101,20 @@
       ]
     },
     {
+      "name": "task-report-html",
+      "description": "Create visual-first HTML reports with concise, evidence-backed conclusions.",
+      "files": [
+        {
+          "path": "skills/task-report-html/SKILL.md",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-report-html/SKILL.md"
+        },
+        {
+          "path": "skills/task-report-html/agents/openai.yaml",
+          "raw_url": "https://raw.githubusercontent.com/MaiHoangViet1809/AI-skills/main/skills/task-report-html/agents/openai.yaml"
+        }
+      ]
+    },
+    {
       "name": "task-diagram-explaination",
       "description": "Explain mechanisms with concise diagrams that reveal ownership, handoffs, decisions and state changes.",
       "files": [

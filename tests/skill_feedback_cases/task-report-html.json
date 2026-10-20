@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "visual-first-report-001",
+      "target_skill": "task-report-html",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A user requests reusable guidance for concise visual-first reports.",
+        "actual_behavior": "Reports repeatedly relied on tables and narrative rather than showing quantitative relationships visually; the historical selection failure is unknown.",
+        "expected_behavior": "Default durable reports to HTML and choose informative charts or diagrams before supporting prose.",
+        "invariant": "Presentation must expose the answer and evidence without creating a reporting framework or changing unrelated work.",
+        "evidence_ref": "sanitized:visual-report-preference-20261021"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Create a latency and throughput benchmark dashboard from these per-concurrency results.",
+          "context": "Source rows include run identities, sample counts, medians, percentiles, successful requests and elapsed time.",
+          "expected_behavior": "Deliver an HTML analytical report with readable latency/throughput curves, a concise supported conclusion and traceable values.",
+          "must_not": "Replace the evidence with a table-heavy narrative or introduce a dashboard framework."
+        },
+        {
+          "kind": "negative",
+          "request": "Tell me briefly where the task stands.",
+          "context": "This is a chat progress question, not a durable report request.",
+          "expected_behavior": "Give a short progress answer using the relevant existing progress contract.",
+          "must_not": "Generate an HTML file or force charts."
+        },
+        {
+          "kind": "boundary",
+          "request": "Implement a live dashboard application with authentication and a database.",
+          "context": "This is frontend/application development, not an analytical report artifact.",
+          "expected_behavior": "Use the application workflow and its authorization; report presentation guidance does not own application architecture.",
+          "must_not": "Redirect the application into a standalone report or treat this skill as permission to deploy."
+        }
+      ]
+    },
+    {
+      "id": "report-explicit-format-002",
+      "target_skill": "task-report-html",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Visual-first reporting guidance must preserve an explicit output format.",
+        "actual_behavior": "The requested HTML default could be misapplied as an unconditional output requirement.",
+        "expected_behavior": "Honor explicitly requested formats while keeping concise evidence-led presentation.",
+        "invariant": "A default never overrides the current user request or project contract.",
+        "evidence_ref": "sanitized:visual-report-scope-review-20261021"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Produce a PDF benchmark report with charts, not HTML.",
+          "context": "The format is explicit and a document workflow is available.",
+          "expected_behavior": "Produce the PDF using the applicable document tooling and visual-first report principles.",
+          "must_not": "Substitute HTML or create an unsolicited duplicate deliverable."
+        },
+        {
+          "kind": "negative",
+          "request": "Explain this two-step transfer with ASCII only.",
+          "context": "Only a mechanism explanation in chat is requested.",
+          "expected_behavior": "Provide the small ASCII diagram without report generation.",
+          "must_not": "Expand the explanation into an HTML report."
+        },
+        {
+          "kind": "boundary",
+          "request": "Update the existing benchmark report with this new run.",
+          "context": "The project already has a portable HTML report and existing chart conventions.",
+          "expected_behavior": "Update the existing artifact and conventions within authorized scope, preserving source traceability.",
+          "must_not": "Replace the project structure with React, a new server or a mandatory chart library."
+        }
+      ]
+    },
+    {
+      "id": "report-evidence-limits-003",
+      "target_skill": "task-report-html",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A sharp conclusion is requested from incomplete or unlike benchmark evidence.",
+        "actual_behavior": "A presentation procedure without evidence boundaries can turn visual polish into unsupported certainty.",
+        "expected_behavior": "Separate observations, inference and unknowns; preserve comparability and rendering limits.",
+        "invariant": "A clear conclusion must not be stronger than its evidence.",
+        "evidence_ref": "sanitized:visual-report-evidence-review-20261021"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Compare two complete runs with the same workload and resources.",
+          "context": "Raw durations and sample counts are available for both runs.",
+          "expected_behavior": "Show comparable results on labeled axes, check deltas against raw values and state the measured improvement without inventing a cause.",
+          "must_not": "Infer causality merely from a before/after chart."
+        },
+        {
+          "kind": "negative",
+          "request": "Report an exact p99 from this dataset.",
+          "context": "Only aggregate averages are supplied; no request-level observations or p99 exist.",
+          "expected_behavior": "State that p99 cannot be recovered and show only supported measures.",
+          "must_not": "Fabricate p99 or silently label an average as a percentile."
+        },
+        {
+          "kind": "boundary",
+          "request": "Create a report comparing our failed run against a published successful run.",
+          "context": "Workloads, scale and cache policy differ; rendering tools are unavailable.",
+          "expected_behavior": "Visibly distinguish partial results and methodology differences, identify what cannot be concluded, and disclose incomplete visual verification.",
+          "must_not": "Declare an apples-to-apples winner or claim the HTML was visually verified."
+        }
+      ]
+    }
+  ]
+}
