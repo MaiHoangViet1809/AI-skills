@@ -47,3 +47,16 @@ Two coordinator-owned pre-approval self-reviews requested; no independent review
 
 - Gap-finding: no remaining actionable scope/wording finding found in these cases. Expected observations come from the explicit contract, not the implementation branch. This does not establish live Agent adherence or repair the underlying application.
 - Delivery still pending at this record: commit/push/sync/parity. Pre-existing Redmine changes in execution must stay outside the commit and installed copies.
+
+## Delivery and closeout
+
+- recorded_dttm: 2026-10-22T18:52:32+07:00
+- Implementation commit: `a4789f125ce4cd4f975b15dddbe22db4d2a36534`; eight scoped files, 307 insertions. The pre-existing Redmine hunks were explicitly skipped during interactive staging. The implementation commit kept delivery pending rather than claiming premature closeout.
+- Remote delivery: push to origin/main succeeded, including separately approved pre-existing `1ebefbf`. Remote readback resolved main to `a4789f125ce4cd4f975b15dddbe22db4d2a36534` before documentation closeout.
+- Source identity: temporary export tree `efc6d2b1376533b4cb98bb8cd2a0cf370f536470` exactly matched the implementation commit tree. Both structural validators also passed on that export, not only the mixed working tree.
+- Codex target: existing legacy-user skills root; only task-review-investigate-compare and task-execution-flow were selected, one command per skill. Before overwrite, comparison reported only the expected SKILL.md change, with no missing/extra files.
+- Existing `scripts/skills/sync_env_codex.py` from the export ran with `--scope legacy-user --skill <name> --overwrite --dry-run`, then the identical invocation without `--dry-run` for each skill. No sync tooling changes or all-skills copy.
+- Existing `scripts/skills/verify_skill_copy.py --skill <name> --target-root <Codex skills root>` from the same export reported `parity: ok` for both skills: no missing, extra, or changed files.
+- Temporary export was removed after successful parity. Codex global policy/config and all other skills were untouched. AISkills AGENTS/template changes are canonical only; no policy adoption into XVision or other repositories occurred.
+- Final working-tree inspection confirms only pre-existing foreign changes remain, including all 14 Redmine lines in execution; those are intentionally absent from committed/installed delivery. No application runtime, session, data, or Git branch was changed.
+- Behavioral limit remains: structural tests and coordinator scenario review passed, but independent model adherence and application bug repair are not demonstrated or claimed by this SOW.

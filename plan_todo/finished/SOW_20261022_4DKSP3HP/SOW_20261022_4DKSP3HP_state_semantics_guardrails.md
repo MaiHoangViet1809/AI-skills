@@ -1,10 +1,10 @@
 # SOW_20261022_4DKSP3HP — State Semantics and Lifecycle Acceptance Guardrails
 
-- Status: in_progress
+- Status: done
 - Approval: approved by user; implementation, commit, push, and Codex skill sync
 - create_dttm: 2026-10-22T18:21:15+07:00
 - approve_dttm: 2026-10-22T18:27:54+07:00
-- finish_dttm: null
+- finish_dttm: 2026-10-22T18:52:32+07:00
 - Proposed-By: Codex
 - Plan / Reference: standalone; follows SOW_20260917_V7HK7IAU and the sanitized working-copy visibility incident discussed on 2026-10-22. References establish evidence, not ownership or inherited approval.
 - Decision Log: material choices are specified below; no separate decision file required.
@@ -141,13 +141,13 @@ Use a temporary export of the exact committed skill directories and existing syn
 
 ## Progress
 
-- progress_updated_dttm: 2026-10-22T18:29:56+07:00
+- progress_updated_dttm: 2026-10-22T18:52:32+07:00
 
 | Item | Status | Evidence / Pending reason | Next action / Owner |
 | --- | --- | --- | --- |
 | P1 scope/evidence | DONE | Canonical ownership, installed drift, existing gates, and incident path inspected | Preserve scope / Codex |
-| P2 self-review 1 | DONE | review.md pass 1: causality bounded; approval/conflict semantics clarified | Recheck final boundaries / Codex |
-| P3 self-review 2 | DONE | review.md pass 2: constraint evidence and contract-conditional lifecycle examples tightened | Await implementation approval / User |
-| D1-D4 implementation | DONE | Two targeted skill additions, mirrored rule and two sanitized cases; review.md records scope | Deliver exact owned changes / Codex |
+| P2 self-review 1 | DONE | review.md pass 1: causality bounded; approval/conflict semantics clarified | None |
+| P3 self-review 2 | DONE | review.md pass 2: constraint evidence and contract-conditional lifecycle examples tightened | None |
+| D1-D4 implementation | DONE | Two targeted skill additions, mirrored rule and two sanitized cases committed in a4789f1 | None |
 | DC1-DC7 verification | DONE | Two structural validators, 13 tests, mirror/diff checks PASS; scenario reasoning recorded, model behavior not claimed | Preserve validation limits / Codex |
-| D5 / DC8 delivery | PENDING | User approved push including 1ebefbf and sync of two changed skills | Commit -> push -> single-skill sync/parity / Codex |
+| D5 / DC8 delivery | DONE | a4789f1 pushed to origin/main; both selected Codex skills match exact committed export, no missing/extra/changed files; export removed | None |
