@@ -166,6 +166,11 @@ Agents **MUST** follow DRY, SOLID, and KISS.
 Practical rules:
 
 - Prefer simple, direct code over clever abstractions.
+- Implementation control state **MUST NOT** silently redefine the explicit
+  consumer contract. Justify outcome-blocking gates using governing requirements
+  or evidenced constraints; verify affected stateful workflows across transitions,
+  including the next repeated operation. Preserve legitimate validation,
+  isolation, and stale-response protections.
 - Reuse existing helpers, types, modules, and project conventions first.
 - Do not create facade, wrapper, adapter, compatibility shim, or workaround layers unless the SOW explicitly requires them.
 - Do not keep old and new ownership paths alive by default; prefer one clear source of truth.

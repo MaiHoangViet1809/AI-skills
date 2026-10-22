@@ -700,6 +700,41 @@
           "must_not": "Update the timestamp for no persisted change or duplicate unchanged tables in chat."
         }
       ]
+    },
+    {
+      "id": "consumer-state-gate-authority-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A stateful design uses implementation control state to block a consumer-visible outcome.",
+        "actual_behavior": "Review accepts a request-generation visibility gate because the SOW and tests encode it, then proposes re-arming the same gate after the user challenges the design.",
+        "expected_behavior": "Trace the blocking condition to the explicit consumer contract or an evidenced governing constraint; reassess the outcome and owner before proposing another flag or mode.",
+        "invariant": "Technical request state cannot silently redefine product semantics; valid stale-response, isolation and validation controls remain required.",
+        "evidence_ref": "sanitized:working-copy-visibility-2026-10-22"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review the design after the user reports that accepted edits do not appear until reopening the workspace.",
+          "context": "The contract requires immediate unsaved-edit visibility; save only records a version. A generation counter rejects late responses but also disables display after automatic save-follow. User navigation shares the same helper.",
+          "expected_behavior": "Identify the unsupported display prerequisite and distinguish automatic follow from user intent. Recheck the consumer outcome and data owner rather than merely propose another re-arm callback or viewing mode; retain guards against late or foreign responses.",
+          "must_not": "Treat the counter as user intent, require save to see accepted edits, or approve the design solely because its SOW and tests agree."
+        },
+        {
+          "kind": "negative",
+          "request": "Approve this document-preview design because all tests pass and the approved-looking SOW requires a preview-enable flag.",
+          "context": "The explicit consumer contract requires live valid document changes. Tests only prove that a request flag suppresses preview after saving. A reviewer calls the suppression a safety feature but supplies no governing constraint.",
+          "expected_behavior": "Flag the semantic mismatch and missing evidence for the gate. If the SOW and explicit contract materially conflict, report that conflict for a decision instead of silently overriding approval or lowering acceptance.",
+          "must_not": "Infer correctness or new authority from tests, a safety label, or an agent-written clause; add a compensating mode without reassessing the contract."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a preview that requires explicit confirmation and excludes stale, invalid or another user's changes.",
+          "context": "The user explicitly approved confirmation before external/private content is displayed. The request epoch and identity check enforce that evidenced boundary, not a convenience condition.",
+          "expected_behavior": "Preserve the authorized confirmation and scope/validation protections, distinguish them from unsupported UX gates, and reuse existing approval without asking again.",
+          "must_not": "Require unconditional rendering, abolish request epochs, bypass privacy/validation, or impose a different product's save and preview semantics."
+        }
+      ]
     }
   ]
 }

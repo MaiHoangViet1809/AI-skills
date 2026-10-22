@@ -264,11 +264,24 @@ entities or states:
 - check both an included path and an excluded path, including whether existing
   state can reintroduce an excluded item; a source-only pass is insufficient
   when downstream state can change the result;
+- justify each outcome-blocking gate against the explicit consumer contract or
+  an evidenced governing constraint. A safety label, old test, or matching SOW
+  clause alone does not prove the gate is necessary or the outcome correct;
+- distinguish domain/display state from request-control tokens. An epoch or
+  generation may reject stale or wrong-scope results, but must not silently
+  introduce a product permission, opt-in, or visibility prerequisite. Automatic
+  transitions and user actions sharing a helper need not express the same intent;
 - ensure the SOW Task and Done Criteria cover the path that determines the
   stated outcome. If the authoritative selector or downstream owner cannot be
   identified, mark the outcome `unverified` and do not recommend clean
   approval; do not infer the missing path;
 - skip this gate when no downstream state or consumer exists.
+
+When a correction challenges the state model itself, reassess the consumer
+outcome and owner before proposing another flag, mode, or callback patch.
+Resolve material contract conflicts rather than silently overriding approved
+scope; preserve explicit approved changes without redundant approval. Keep
+legitimate validation, isolation and stale-response protections intact.
 
 ### Selected Approach And Compatibility Gate
 

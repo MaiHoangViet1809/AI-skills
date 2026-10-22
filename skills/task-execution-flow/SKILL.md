@@ -357,6 +357,18 @@ If verification cannot be completed:
 - Async, stateful, UI, or performance-sensitive task:
   run a multi-step scenario and inspect runtime evidence or logs.
 
+For changed stateful behavior, derive expected results from the explicit
+consumer contract, not just implementation branches or tests encoding them.
+Exercise a meaningful transition and the next repeated operation without an
+unrequested reset: for example, when edits must be visible before save,
+modify -> observe -> save -> modify again -> observe without reopen/re-arm.
+Check applicable failure and stale/wrong-scope/logout boundaries; preserve
+required validation and isolation. A documented confirmation workflow remains
+valid. Choose outcomes (including failed-save recovery) from that product's
+contract, not the example. Missing sequence evidence leaves the outcome
+unverified; do not require exhaustive state combinations or treat isolated
+action passes as proof of the composed workflow.
+
 ## Evidence Contract
 
 Implementation verification must include, when applicable:

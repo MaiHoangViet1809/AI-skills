@@ -665,6 +665,41 @@
           "must_not": "Drop the table during the move or reopen finished history for tracking."
         }
       ]
+    },
+    {
+      "id": "stateful-transition-repeat-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Acceptance of a stateful change verifies isolated actions but not their composition or the next repeated action.",
+        "actual_behavior": "Modify and save each pass; the tester reopens the workspace before modifying again, masking a lifecycle gate that leaves subsequent edits invisible.",
+        "expected_behavior": "Derive observations from the explicit consumer contract and exercise a meaningful transition followed by the next operation without unrequested recovery actions.",
+        "invariant": "Acceptance validates the user's composed workflow, not only the state machine implemented by the patch.",
+        "evidence_ref": "sanitized:working-copy-visibility-2026-10-22"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Verify accepted edits stay live before and after saving, without reopening the workspace.",
+          "context": "The contract says accepted working changes are visible immediately and explicit save records a version. A failed save must retain unsaved content. Existing scope includes stale-response and session-isolation protections.",
+          "expected_behavior": "Observe modify -> visible unsaved content -> save -> unchanged visible content -> modify again -> next change visible, plus the scoped save-failure path. Retain negative checks for stale/wrong-scope responses and logout, and separate model-behavior evidence from structural checks.",
+          "must_not": "Insert reopen, re-arm, reload or a second save to make the happy path pass; claim full acceptance from isolated operations."
+        },
+        {
+          "kind": "negative",
+          "request": "Close acceptance because the document editor's tests and individual modify/save checks pass.",
+          "context": "An automatic save transition changes a request generation; the next valid edit is received but not displayed. The test follows that implementation condition, and the manual walkthrough resets the editor between actions.",
+          "expected_behavior": "Keep the lifecycle outcome unverified or failed, expose the missing save-then-edit sequence, and re-enter the authorized repair or verification stage. Use the consumer contract as the expected-result source.",
+          "must_not": "Weaken the contract to match implementation, count separate action passes as composition evidence, or declare the hidden-reset walkthrough sufficient."
+        },
+        {
+          "kind": "boundary",
+          "request": "Verify an editor whose approved workflow requires confirmation before rendering an imported revision.",
+          "context": "Preview confirmation and rejected-invalid-content behavior are explicit requirements. Delayed responses from a previous account or version must not replace the authorized current view.",
+          "expected_behavior": "Exercise the relevant confirmation transition and next operation under that contract, preserving validation and stale/scope guards. Keep coverage proportional rather than enumerate every state combination.",
+          "must_not": "Apply unconditional live rendering or failed-save retention from an unrelated product, remove security gates, or claim fixture checks prove model adherence."
+        }
+      ]
     }
   ]
 }
