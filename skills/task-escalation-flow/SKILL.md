@@ -65,6 +65,14 @@ not manufacture retry evidence.
 
 ## Escalation Ladder
 
+Before model discovery or advisor dispatch, apply `sow-delegate-flow`'s
+Root-Only Delegation Gate through the harness-supplied skill catalog. A
+delegated executor or advisor is a leaf: return its attempt record, blocker
+and proposed advisor question to main through the authorized return channel.
+Do not dispatch through any transport or assume root when role is unresolved.
+Main validates the retry evidence and owns every tier below; an advisor never
+dispatches the next advisor.
+
 Use one fresh advisor pass at each tier, in order:
 
 1. **Tier 1 — Sol:** inspect the active native model catalog, select a currently
@@ -140,6 +148,8 @@ Do not request or persist a full transcript. Keep only the minimum sanitized
 handoff and result needed for the current task.
 
 ## Coordinator Loop
+
+This dispatch loop belongs to main/root, not to a delegated executor/advisor.
 
 1. Confirm the retry gate and record the evidence contract.
 2. Dispatch Sol in an isolated read-only context.

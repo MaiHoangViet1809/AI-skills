@@ -84,8 +84,10 @@ File writeback does not invoke task-progress-report per handoff.
   an import-only smoke with the exact interpreter and `PYTHONPATH` that will
   launch the action. Do not background a Spark, database, or other data action
   until that smoke passes; an import failure is a staging/environment gate.
-- After approved scope is confirmed, apply Complexity-Based Delegation Gate
-  once for the whole task. Simple tasks MUST stay in main without automatic
+- After approved scope is confirmed, apply the root/leaf guard in
+  Complexity-Based Delegation Gate before any dispatch decision. A leaf stays
+  within its assigned slice and reports split/advisor needs to main. At root,
+  classify once for the whole task. Simple tasks MUST stay in main without automatic
   delegation or model discovery. Large/complex tasks MUST delegate meaningful
   authorized work when exact native GLM-5.3-max is available. Do not repeat
   handoffs per slice solely for compliance; reclassify on material new evidence.
@@ -155,6 +157,9 @@ Phase 1: context and experiment
 -> record each caller's approved, legacy, or boundary disposition in the
    existing implementation evidence; do not create a persistent caller registry
 -> apply Complexity-Based Delegation Gate to the whole task, before discovery:
+   -> leaf or unresolved role -> no agent discovery/dispatch; execute the safe
+      assigned slice locally and return blocked scope/evidence to main
+   -> confirmed root -> apply the following model/delegation branches:
    -> explicit user model/transport/local-only instruction -> follow override
    -> resolve shared task-complexity contract; missing -> leave classification unresolved; report, do not invent
    -> simple -> MUST main; no automatic delegate or model lookup
@@ -177,6 +182,8 @@ Phase 1: context and experiment
 
 Phase 2: implement
 -> pick the next smallest meaningful mini-task
+-> for a leaf, implement only the assigned approved slice locally; report any
+   required split/advisor request to main without entering dispatch branches
 -> if the mandatory gate selected delegation, hand off one bounded
    non-overlapping slice and keep the coordinator out of its write scope
 -> if the gate recorded native unavailability, native-capability-unknown or an
@@ -270,6 +277,13 @@ the same failure repeats and no meaningful progress is being made.
 
 ## Complexity-Based Delegation Gate
 
+First apply `sow-delegate-flow`'s Root-Only Delegation Gate, located through the
+harness-supplied skill catalog. An assigned worker is a leaf: execute the
+bounded slice locally, return any oversized scope/blocker and proposed split
+to main, and do not discover or dispatch more agents through any transport.
+An unresolved role does not authorize dispatch. This check precedes explicit
+selections and automatic delegation; the rules below govern root only.
+
 After approved scope is confirmed, honor explicit user selections first.
 Otherwise classify the whole task before model discovery. `sow-delegate-flow`
 is a required classification companion: locate it through the harness-supplied
@@ -326,10 +340,12 @@ invent an exemption. Do not assume a sibling install root.
   syntax here.
   Explicit external delegation remains available, not an automatic substitute
   for missing native GLM.
-- Record `delegation_decision` as `simple-main`, `delegated`, `fallback-unavailable`,
+- Record `delegation_decision` as `leaf-local`, `role-unresolved`, `simple-main`, `delegated`, `fallback-unavailable`,
   `fallback-capability-unknown`, `fallback-failure`, `user-override`, or `blocked-no-safe-slice`, with reason,
   classification and concrete reason; include model/transport, availability,
   isolation, failure evidence and verification result only when applicable.
+  `leaf-local` and `role-unresolved` do not claim model unavailability or a
+  failed handoff; return the actual role/scope evidence instead.
 
 ## Hard Gates
 

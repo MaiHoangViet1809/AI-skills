@@ -105,6 +105,13 @@ known existing plan/SOW?
 
 ## Independent Review Pass
 
+Before model discovery or reviewer dispatch, apply `sow-delegate-flow`'s
+Root-Only Delegation Gate through the harness-supplied skill catalog. An
+assigned reviewer is a leaf: perform the bounded inspection and return any
+need for further review, with evidence and the proposed question, to main.
+Do not dispatch through another transport or assume root when role is unclear.
+The independent-dispatch rules below govern root only.
+
 This skill remains read-only and advisory even when it asks for an independent
 reviewer. A delegated reviewer supplies evidence; the coordinator owns the
 review conclusion, writeback, verification, and closeout.

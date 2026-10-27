@@ -1,4 +1,4 @@
 interface:
   display_name: "SowDelegateFlow"
   short_description: "Complex-task native GLM-5.3-max delegation and explicit external delegation"
-  default_prompt: "Use $sow-delegate-flow for approved delegation or complex-task routing. Keep simple tasks in main, but use exact greennode/glm-5.3 at max for large or complex work only through the current client's native capabilities. Preserve explicitly selected external agents, fresh isolated sessions and local verification."
+  default_prompt: "Use $sow-delegate-flow for root-only approved delegation or complex-task routing. Workers, reviewers and advisors are leaves: never delegate further; report oversized scope or blockers to main. At root, preserve exact native GLM-5.3-max routing, explicit selections, isolated sessions and local verification."

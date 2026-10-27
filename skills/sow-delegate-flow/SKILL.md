@@ -22,6 +22,40 @@ or a blocker. Keep the final response separate.
 - `AGENTS.md` and repo rules define process constraints and guardrails.
 - The approved SOW defines the active task scope and deliverables.
 
+## Root-Only Delegation Gate
+
+Apply this gate before task classification, model discovery or any dispatch,
+including explicit delegation and advisor requests. It governs all clients,
+models and transports; the complexity rules below apply only to the root.
+
+- Only the user-facing main/root coordinator may delegate. A worker, reviewer
+  or advisor assigned a task by another agent is a **leaf**, even with clean
+  context, a coordinator role label or an explicit request to seek more help.
+  Use reliable harness identity and the assignment boundary; tool availability
+  and `fork_turns: "none"` do not establish root authority. If role is unclear,
+  resolve it from existing evidence or report uncertainty without dispatch;
+  do not invent a role API or halt unrelated safe work.
+- A leaf **MUST NOT** create or invoke another agent: native spawn, external
+  agent CLI/process, relay, MCP or task/thread handoff are equally prohibited.
+  Ordinary file, search and verification tools remain allowed within scope.
+- If its slice is too large, blocked or needs another review/advisor, the leaf
+  returns completed scope, blocker, evidence and a proposed split or advisor
+  question to its parent/main. Use the existing authorized return channel or
+  final result; this rule grants no cross-thread messaging permission. Stop
+  only the affected slice and continue safe independent assigned work.
+- Main decides whether to resize, dispatch another bounded leaf or finish
+  locally. Multiple authorized leaves and sequential advisor tiers remain
+  valid; no leaf may promote itself or bypass this gate via another transport.
+- Sole transport exception: preserve the existing root-invoked Haiku
+  `glm-worker -> glm-run -> GLM` fixed relay described in
+  [references/claude-code.md](references/claude-code.md). The relay only
+  forwards the assigned task once; it cannot split work, select more helpers
+  or expand scope. The resulting GLM worker is still a leaf. This exception
+  does not permit any other child to launch a relay or another agent.
+
+This is a behavioral policy, not proof that the host removes agent tools or
+hard-blocks recursive calls. Do not claim runtime enforcement without evidence.
+
 ## Client Branch
 
 - Codex and other clients: no change; follow this file as written.
@@ -243,7 +277,7 @@ replace the exact GLM-5.3-max default silently.
 
 ## Flow
 
-1. Read workspace rules.
+1. Read workspace rules and apply Root-Only Delegation Gate before proceeding.
 2. Classify the delegation mode:
    - `planning/read-only`: define the permitted inspection or documentation
      scope; no approved SOW is required and implementation writes are forbidden
@@ -312,6 +346,9 @@ slices need no plan or `G#`. Preserve coordinator ownership and context isolatio
 Every delegated prompt must include:
 
 - one-sentence intent
+- explicit leaf-only status: do not delegate through any transport; return an
+  oversized scope, blocker or advisor need to parent/main with evidence and a
+  proposed split/question through the authorized channel or final result
 - transport and lifecycle instruction:
   - native: use the selected native role and lifecycle with clean task context;
     Codex `spawn_agent` requires `fork_turns: "none"`, other native interfaces
@@ -335,13 +372,14 @@ evidence and mandatory delegation decision supplied by
 
 ### Failure Evidence Contract
 
-For a failed handoff, record confirmed launch, transport, session, or isolation error, terminal child failure, delegate output, failed stage, concrete error or capability evidence, task impact, and fallback decision. Clean up failed task-owned sessions, discard invalid output, and return coordinator verification; the delegate is not required to spawn nested children. Aliases, stale role names, and variants never satisfy the exact target.
+For a failed handoff, record confirmed launch, transport, session, or isolation error, terminal child failure, delegate output, failed stage, concrete error or capability evidence, task impact, and fallback decision. Clean up failed task-owned sessions, discard invalid output, and return coordinator verification; the delegate must not spawn nested children. Aliases, stale role names, and variants never satisfy the exact target.
 
 Require the delegate to return: selected model id, reasoning effort, transport
 used, current availability evidence, safe session lifecycle state, isolation
 status, whether an independent pass ran, changed files, verification
 performed, remaining risks, and any decision that needs coordinator or user
-approval. Do not request raw historical transcripts.
+approval, including a proposed split or advisor question when blocked. Do not
+request raw historical transcripts.
 
 ## Validation Matrix
 

@@ -23,13 +23,24 @@ interactive top-level Claude Code session
 
 ## Scope Guard: One Level Only
 
+- User-approved transport exception: the existing root-invoked Haiku
+  `glm-worker` may execute its one fixed `glm-run` invocation unchanged. It is
+  transport forwarding, not authority to choose helpers or split the task.
+  GLM remains a leaf; other sub-agents cannot invoke this relay. Preserve the
+  existing asset, tool restrictions and refusal checks.
+- Apply the entrypoint's Root-Only Delegation Gate before this native check.
+  A delegated Claude/GLM worker remains a leaf across every transport, not just
+  `glm-worker`: return oversized scope, attempt evidence and a proposed split
+  or advisor question to main through the authorized result channel. Main
+  decides any further dispatch; do not start another CLI, relay or task.
 - Only the interactive top-level Claude Code session the user works in, on
   desktop or in a terminal, may call `glm-worker`.
 - Never call `glm-worker` or its relay command from:
   - a non-interactive `claude -p` session;
   - a Claude Code process started as another coordinator's delegate, such as
     the Claude Code External Transport used by Codex;
-  - any Claude sub-agent, including review or exploration sub-agents.
+  - any other Claude sub-agent, including review or exploration sub-agents;
+    only the fixed root-invoked Haiku relay exception above is preserved.
   In those contexts do not call; record `native-unavailable` (interface
   unsupported: the role exists but is barred at this depth) as the capability
   evidence, do the assigned work yourself and keep the selected model. If the

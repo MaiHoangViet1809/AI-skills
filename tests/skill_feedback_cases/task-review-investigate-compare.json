@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "root-only-review-20261028-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "An assigned independent reviewer loads the complex-review rule.",
+        "actual_behavior": "The reviewer can dispatch another reviewer rather than returning its own evidence to main.",
+        "expected_behavior": "Apply the shared root/leaf guard before independent-review discovery and dispatch.",
+        "invariant": "An independent reviewer is a leaf; only main arranges additional independent review.",
+        "evidence_ref": "sanitized:SOW_20261028_7MN4OENM-review-leaf-guard"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Arrange an independent pass for a complex review.",
+          "context": "The user-facing root coordinator has the exact target and a bounded authorized question.",
+          "expected_behavior": "Dispatch a leaf reviewer under existing isolation rules and retain ownership of the final verdict.",
+          "must_not": "Remove independent root review or accept a delegated result without verification."
+        },
+        {
+          "kind": "negative",
+          "request": "As the assigned reviewer, ask another model to independently check this complex issue.",
+          "context": "The reviewer has file tools, model discovery and agent dispatch available.",
+          "expected_behavior": "Perform the assigned inspection and return evidence plus a proposed additional review question to main; do not dispatch.",
+          "must_not": "Create an independent reviewer of the reviewer or bypass the guard through a separate task or external process."
+        },
+        {
+          "kind": "boundary",
+          "request": "Finish a review when the classification companion is missing in a child.",
+          "context": "The assigned file inspection is possible but the child cannot resolve additional delegation policy resources.",
+          "expected_behavior": "Remain leaf, inspect within scope and report missing evidence to main without installing a companion or seeking another agent.",
+          "must_not": "Turn missing policy resources into permission to delegate or claim an independent pass ran."
+        }
+      ]
+    },
+    {
       "id": "chosen-approach-compatibility-review-001",
       "target_skill": "task-review-investigate-compare",
       "cause_class": "decision_procedure",

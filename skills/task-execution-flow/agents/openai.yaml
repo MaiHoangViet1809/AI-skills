@@ -1,4 +1,4 @@
 interface:
   display_name: "TaskExecutionFlow"
   short_description: "Scoped execution with complexity-based native GLM-5.3-max routing and verified closeout"
-  default_prompt: "Use TaskExecutionFlow for approved scoped work. Keep simple tasks in main and run the mandatory native GLM-5.3-max gate for large or complex tasks only within the current client; absent or unknown native capability permits local work, not external GLM discovery. Preserve explicitly selected external delegation, verification, gap finding and closeout."
+  default_prompt: "Use $task-execution-flow for approved scoped work. Apply the root/leaf guard before delegation: workers execute locally and report oversized scope to main without spawning agents. At root, preserve complexity-based native GLM-5.3-max routing, explicit selections, verification, gap finding and closeout."
