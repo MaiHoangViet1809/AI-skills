@@ -10,6 +10,16 @@ Use this skill as the front-door router before execution begins.
 Keep execution-time commentary to one short sentence about status, next action
 or a blocker. Keep the final response separate.
 
+## Planning Artifact Writing
+
+For SOW, Plan, EXT, decision and finding records, follow the applicable project
+template. Write briefly and clearly for people and agents; prefer ASCII diagrams
+when they clarify flow, relationships or decisions. Link owned details rather
+than repeating them, while retaining scope, approvals, decisions, risks and
+evidence needed to act. Do not impose a word limit, omit mandatory content or
+force a diagram when prose is clearer. Apply this even with project-owned
+templates, without overriding their authority.
+
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
 ## Planning Bundle Contract

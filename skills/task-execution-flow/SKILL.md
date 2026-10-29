@@ -39,6 +39,11 @@ routing and do not add a plan unless requested or excessive scope risks failure.
 
 ## HITL Progress
 
+When writing SOW, Plan, EXT, decision or finding records during execution,
+apply `task-router-flow`'s Planning Artifact Writing guidance through the
+harness-supplied skill catalog, even when the project owns its template.
+Project authority remains unchanged.
+
 Use the project's declared progress contract first; otherwise locate
 `task-router-flow` through the harness's supplied skill location/catalog and
 read `references/scope-of-work.md` -> HITL Progress Gate, or its supplied

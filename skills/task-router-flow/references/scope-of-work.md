@@ -20,6 +20,9 @@ authority for existing records.
 
 ## Required Template
 
+Apply [Planning Artifact Writing](../SKILL.md#planning-artifact-writing),
+including when the project supplies its own template.
+
 Use the repository's active SOW template. In this repo, the template is:
 
 - **Status**: lifecycle state such as `draft`, `approved`, `in_progress`, or `done`

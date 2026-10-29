@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "execution-planning-writing-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "An execution updates a planning record using the project's own contract.",
+        "actual_behavior": "The execution follows the project template without reaching the shared writing guidance.",
+        "expected_behavior": "Apply the shared concise writing guidance alongside the project's governing contract.",
+        "invariant": "Planning writeback remains clear and concise without overriding project authority or removing required evidence.",
+        "evidence_ref": "sanitized:planning-writeback-guidance-gap"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Update the SOW and decision during implementation.",
+          "context": "The project supplies its own planning template.",
+          "expected_behavior": "Apply the router's writing guidance and the project template together.",
+          "must_not": "Skip the guidance because a project template exists or replace that template."
+        },
+        {
+          "kind": "negative",
+          "request": "Shorten the decision before closeout.",
+          "context": "The decision includes necessary tradeoffs and approval evidence.",
+          "expected_behavior": "Retain the governing content and remove redundant wording.",
+          "must_not": "Drop necessary evidence or force a diagram to reduce length."
+        },
+        {
+          "kind": "boundary",
+          "request": "Continue implementation without writing a planning artifact.",
+          "context": "The current step makes no planning writeback.",
+          "expected_behavior": "Continue the existing execution workflow without extra artifact-writing steps.",
+          "must_not": "Create a planning record solely to apply writing guidance."
+        }
+      ]
+    },
+    {
       "id": "root-only-execution-20261028-001",
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",

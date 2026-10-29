@@ -9,6 +9,8 @@ another contract. This reference does not authorize historical migration.
 
 ## Authoring Contract
 
+- Apply [Planning Artifact Writing](../SKILL.md#planning-artifact-writing),
+  including with project-owned templates.
 - Preserve existing SOW routing: `task-router-flow` applies target-repo
   guardrails to choose new SOW, existing coverage/extension, or no SOW.
   Plan is optional: create one only when the user requests it, or scope is so

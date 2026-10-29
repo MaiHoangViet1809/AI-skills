@@ -67,6 +67,8 @@ plan_todo/
 
 ## Extensions
 
+- Apply [Planning Artifact Writing](../SKILL.md#planning-artifact-writing) to
+  EXT and decision records, including with project-owned templates.
 - Every new extension is a separate
   `<SOW_ID>_EXT_<RANDOM8>_<name>.md` file in its parent SOW folder.
 - Check extension IDs within that parent before creating one; regenerate on

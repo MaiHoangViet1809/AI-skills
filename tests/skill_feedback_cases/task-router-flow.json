@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "planning-writing-clarity-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A planning artifact is drafted or updated for a user and another agent.",
+        "actual_behavior": "The artifact repeats context in long prose and obscures its actionable contract.",
+        "expected_behavior": "Use the governing template and write clearly and concisely, using a diagram when it clarifies relationships.",
+        "invariant": "SOW, Plan, EXT, decision and finding writing preserves essential meaning and project authority without redundant narration.",
+        "evidence_ref": "sanitized:planning-writing-feedback"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Write a SOW and a related finding for a multi-step change.",
+          "context": "The governing template requires scope, acceptance and evidence; a flow diagram clarifies the steps.",
+          "expected_behavior": "Keep required information concise and use a diagram for the flow, linking rather than duplicating owned details.",
+          "must_not": "Replace required acceptance or evidence with a vague diagram or repeat the entire finding."
+        },
+        {
+          "kind": "negative",
+          "request": "Shorten the plan and decision record.",
+          "context": "The plan has mandatory approval fields and the decision records important risks and tradeoffs.",
+          "expected_behavior": "Retain those requirements and material reasoning while removing redundant narration.",
+          "must_not": "Enforce a fixed word count or remove essential scope, approval, risks or evidence."
+        },
+        {
+          "kind": "boundary",
+          "request": "Draft an EXT using this project's own template.",
+          "context": "The project declares its own template and the change is simple enough for a sentence.",
+          "expected_behavior": "Follow project authority and use concise prose; apply the shared writing principle without requiring a diagram.",
+          "must_not": "Override the project template or force a diagram for a simple fact."
+        }
+      ]
+    },
+    {
       "id": "chosen-approach-compatibility-authoring-001",
       "target_skill": "task-router-flow",
       "cause_class": "decision_procedure",

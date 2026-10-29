@@ -195,6 +195,10 @@ Do not use this mode solely because the request is phrased as a review.
 
 Use when findings should update existing `plan`, `SOW`, or related docs, and the update does not materially change the implementation contract.
 
+When writing a finding or other planning record, apply `task-router-flow`'s
+Planning Artifact Writing guidance via the harness-supplied skill catalog;
+the project template remains authoritative.
+
 Examples:
 - tighten wording
 - add clarified findings
