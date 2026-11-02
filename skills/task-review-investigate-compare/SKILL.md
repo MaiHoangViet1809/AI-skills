@@ -199,6 +199,14 @@ When writing a finding or other planning record, apply `task-router-flow`'s
 Planning Artifact Writing guidance via the harness-supplied skill catalog;
 the project template remains authoritative.
 
+For an iterative SOW with a finding/progress journal, append only new material
+in-scope findings there and refresh the SOW's current Progress snapshot at
+meaningful milestones or HITL handoffs. Do not append repeated review-pass
+history or create an EXT for routine findings; if a review finds no new
+actionable finding, do not add a journal entry. A material scope or acceptance
+change still routes through the existing EXT/SOW approval path. Use
+`research_probe` only when the SOW's primary Task is research.
+
 Examples:
 - tighten wording
 - add clarified findings

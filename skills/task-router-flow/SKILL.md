@@ -22,6 +22,11 @@ templates, without overriding their authority.
 
 For the definition, template, approval rule, and lifecycle of a Scope of Work, see [scope-of-work.md](references/scope-of-work.md).
 
+For iterative SOW work with meaningful findings or progress transitions, use
+the optional per-SOW journal defined in
+[scope-of-work.md](references/scope-of-work.md#sow-findingprogress-journal).
+Do not create an empty journal for a simple one-step task.
+
 ## Planning Bundle Contract
 
 Before creating, extending, adopting, moving or reopening planning records,

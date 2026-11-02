@@ -420,6 +420,41 @@
           "must_not": "Invent a contract, install a skill, or block unrelated exempt work."
         }
       ]
+    },
+    {
+      "id": "sow-finding-progress-journal-router-001",
+      "target_skill": "task-router-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "An iterative SOW accumulates routine findings and progress transitions.",
+        "actual_behavior": "The same running history is repeatedly copied into SOW or EXT prose, making current status harder to scan.",
+        "expected_behavior": "Use one optional append-only journal for meaningful events, keep the SOW Progress section as the current snapshot, and reserve EXT/SOW changes for material scope or acceptance changes.",
+        "invariant": "The journal records history but never grants approval or changes scope; only an explicitly research-scoped SOW may use research_probe.",
+        "evidence_ref": "sanitized:SOW_20261102_14C42EC0"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Route a multi-step approved SOW with a new in-scope finding and evidence correcting an earlier conclusion.",
+          "context": "The SOW has no journal yet; neither the finding nor correction changes scope or acceptance.",
+          "expected_behavior": "Create the per-SOW journal on the first meaningful event, append the finding, append the correction with supersedes pointing to the prior record, and refresh the current Progress snapshot at the milestone or handoff.",
+          "must_not": "Create an EXT for routine findings, rewrite the earlier journal record, or use the journal to imply approval."
+        },
+        {
+          "kind": "negative",
+          "request": "Route a one-step documentation edit that finishes in one pass.",
+          "context": "There is no iterative history or meaningful transition to preserve.",
+          "expected_behavior": "Use the normal task route without creating a journal.",
+          "must_not": "Create an empty JSONL file or a project-global finding log."
+        },
+        {
+          "kind": "boundary",
+          "request": "Record an exploratory probe and a later change to acceptance criteria.",
+          "context": "The first SOW is explicitly research-scoped; the acceptance change would expand a different implementation SOW.",
+          "expected_behavior": "Use research_probe only in the research SOW's same journal; route the material acceptance change through the existing EXT/SOW approval path.",
+          "must_not": "Use research_probe for an implementation SOW, treat a journal entry as scope-change authority, or infer approval from the log."
+        }
+      ]
     }
   ]
 }

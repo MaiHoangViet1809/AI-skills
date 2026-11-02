@@ -45,6 +45,48 @@ Use the repository's active SOW template. In this repo, the template is:
   next action/owner under the HITL Progress Gate below.
 - **progress_updated_dttm**: actual last progress change, with seconds and offset.
 
+## SOW Finding/Progress Journal
+
+For an iterative SOW whose in-scope findings or progress transitions would
+otherwise be repeatedly copied into SOW/EXT narrative, keep one optional
+`<SOW_ID>_finding_progress.jsonl` beside the base SOW, as defined by
+[Planning Bundles](planning-bundles.md). Create it at the first meaningful
+event, not in advance; simple one-step work gets no empty journal. Append
+meaningful events only, not every tool call, repeated review pass, or review
+with no new finding.
+
+Each line is one JSON object with these fields:
+
+- required: `schema_version`, `record_id` (unique within this journal),
+  `timestamp` (ISO-8601 with offset in project-declared timezone, or the user's
+  timezone if none is declared), `scope_ref` (base SOW or owning EXT ID),
+  `kind`, `summary`, `evidence_refs`, and `next_step`
+- `kind`: `progress`, `finding`, `blocker`, or `research_probe`
+- `evidence_refs` may be `[]`; `next_step` may be `null` when no action remains
+- optional `supersedes` names an earlier `record_id` that a new entry corrects
+
+For a research SOW only, `research_probe` adds `question`, `hypothesis`,
+`method`, `result` (`confirmed`, `no_go`, or `inconclusive`), and
+`measurements`. This is a record type in the same file, not a second
+`research_log.jsonl`. A non-research SOW must not emit `research_probe`.
+
+Example ordinary finding (a single JSONL line):
+
+```json
+{"schema_version":1,"record_id":"<unique-id>","timestamp":"2026-11-02T15:00:00+07:00","scope_ref":"SOW_YYYYMMDD_RANDOM8","kind":"finding","summary":"A request path repeats the same metadata lookup.","evidence_refs":["path/to/sanitized-evidence.md"],"next_step":"Measure the duplicate count."}
+```
+
+The SOW/EXT/decision files remain authoritative for scope, approval, formal
+decisions, and acceptance; the journal does not grant or change them. The SOW
+Progress table remains the current snapshot for HITL handoffs and progress
+reports. Refresh it at meaningful milestones and every required HITL handoff.
+Material changes to scope, deliverables, or acceptance still use the existing
+EXT/SOW approval path. The SOW coordinator verifies and appends records;
+delegates may return proposed entries but do not write the shared journal.
+Keep evidence references sanitized; never store credentials, secrets, raw
+environment values, or unredacted logs. The append-only rule does not override
+mandatory secret-removal policy. Do not backfill historical SOWs.
+
 Rules:
 
 - Every active SOW should show both `Status` and `Approval`.

@@ -770,6 +770,41 @@
           "must_not": "Require unconditional rendering, abolish request epochs, bypass privacy/validation, or impose a different product's save and preview semantics."
         }
       ]
+    },
+    {
+      "id": "sow-finding-progress-journal-review-001",
+      "target_skill": "task-review-investigate-compare",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A review adds a material in-scope finding to an iterative SOW.",
+        "actual_behavior": "Review-pass history and routine findings are repeatedly written into planning prose or trigger unnecessary extensions.",
+        "expected_behavior": "Append only the new material finding to the owning SOW journal and refresh the current Progress snapshot at a meaningful milestone or HITL handoff.",
+        "invariant": "The append-only journal is historical evidence; the SOW, EXT, and decision records remain authoritative for scope, approval, and acceptance.",
+        "evidence_ref": "sanitized:SOW_20261102_14C42EC0"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Review an iterative SOW, report a new in-scope finding, and correct a prior conclusion using new evidence.",
+          "context": "The SOW already owns a finding/progress journal; neither item changes deliverables or acceptance.",
+          "expected_behavior": "Append the new finding with evidence and next step; append the correction with supersedes pointing to the old record instead of rewriting it; refresh the SOW's current Progress snapshot at a milestone or handoff.",
+          "must_not": "Create an EXT for the routine finding, duplicate the full history in SOW prose, or infer approval from the journal."
+        },
+        {
+          "kind": "negative",
+          "request": "Repeat a review after the previous finding has already been recorded.",
+          "context": "No new evidence, state transition, blocker, or action is found.",
+          "expected_behavior": "Make no journal entry and leave the persisted progress timestamp unchanged.",
+          "must_not": "Append a repeated review-pass event or add a no-finding record."
+        },
+        {
+          "kind": "boundary",
+          "request": "Review a finding that would add a new deliverable and change acceptance criteria.",
+          "context": "The approved SOW does not cover the proposed change.",
+          "expected_behavior": "Identify the scope delta and route it through the existing EXT/SOW approval process before implementation.",
+          "must_not": "Treat a journal entry as approval or silently lower or replace the approved acceptance criteria."
+        }
+      ]
     }
   ]
 }

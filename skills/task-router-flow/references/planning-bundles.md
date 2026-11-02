@@ -33,6 +33,10 @@ separate approved migration SOW.
   resolved active planning root. Only a Plan-backed SOW folder is a child of a
   Plan folder.
 - A base SOW filename is `<SOW_ID>_<task_name>.md` inside its SOW folder.
+- An iterative SOW may own one optional
+  `<SOW_ID>_finding_progress.jsonl` file beside its base SOW. It belongs to
+  that SOW bundle and moves with it; do not create a separate file per EXT or
+  Plan.
 - A Plan folder is only the full Plan ID. Its base filename is
   `<PLAN_ID>_<plan_name>.md`.
 - Preserve a target project's declared planning roots and namespaces. The
