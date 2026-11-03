@@ -2,6 +2,23 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "execution-test-evidence-reuse-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "A follow-up needs verification after earlier checks passed.",
+        "actual_behavior": "A broad suite repeats already-covered checks without assessing valid prior evidence.",
+        "expected_behavior": "Before each test invocation, assess coverage and validity; reuse valid results and run only needed checks.",
+        "invariant": "Avoid redundant tests without weakening required verification.",
+        "evidence_ref": "sanitized:test-evidence-reuse"
+      },
+      "scenarios": [
+        {"kind": "expected", "request": "Check progress without new changes.", "context": "Relevant tests already passed in the same valid environment.", "expected_behavior": "Reuse the evidence without rerunning those tests.", "must_not": "Rerun just because the task continued."},
+        {"kind": "negative", "request": "Verify the implementation.", "context": "Only part of a broad suite passed previously; relevant code has changed.", "expected_behavior": "Run affected or missing coverage at the appropriate layer.", "must_not": "Treat overlapping suite names as proof or skip required checks."},
+        {"kind": "boundary", "request": "Rerun the tests.", "context": "Existing passing evidence remains valid, but the user explicitly requests a rerun.", "expected_behavior": "Honor the explicit request and any applicable mandatory release gate.", "must_not": "Use the reuse rule to override the user's request."}
+      ]
+    },
+    {
       "id": "execution-checklist-continuation-001",
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",

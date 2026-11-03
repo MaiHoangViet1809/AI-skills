@@ -123,6 +123,9 @@ File writeback does not invoke task-progress-report per handoff.
   native unavailable/unknown or observed failure permits evidence-backed local
   fallback, never external-client discovery. Scope/authority conflicts stop work.
 - Run at least one direct inspection or experiment to confirm the likely implementation shape or root cause before editing when behavior is changing.
+- Before each test, reuse prior PASS evidence when its coverage, relevant code,
+  dependencies, config and runtime assumptions remain valid; run affected or
+  missing checks, or rerun when explicitly requested or required by a gate.
 - Apply the smallest meaningful patch that satisfies the SOW.
 - Keep behavior locks, invariants, and only authorized adjacent consistency in
   scope.
@@ -267,8 +270,6 @@ Phase 5: closeout
 -> only enter after Phase 3 and Phase 4 are complete
 -> apply HITL Progress Gate: reconcile/save final owned progress and read back
    before the lifecycle move; verify destination progress after moving
--> reuse still-valid verification evidence; rerun only checks invalidated by
-   changed code, inputs, dependencies, config, or missing evidence
 -> review scope fit
 -> if a parent plan exists, update SOW Sequence and Acceptance with actual
    results/gaps after each SOW; before plan closure, require evidence for all
