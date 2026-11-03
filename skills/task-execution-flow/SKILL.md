@@ -64,8 +64,10 @@ File writeback does not invoke task-progress-report per handoff.
 - Append in-scope discoveries without deleting or renumbering completed items.
   Extra scope stays pending approval; adding a line grants no authority.
 - Save milestone changes in existing Progress using the same IDs and evidence,
-  not a second state store. After the initial list, report only changed items
-  and the next action unless the user requests the full list.
+  not a second state store. At the start, meaningful progress milestones and
+  closeout, show the full current checklist with unchanged IDs and titles.
+  Update states or append items; never report fragments that require reading
+  earlier messages. Do not repeat unchanged lists after every tool call.
 - After each item or in-scope finding, take the next safe authorized action.
   A status update, slice PASS or delegate result is not a stopping point.
 - End only when the requested scope is complete, the user stops, or an evidenced

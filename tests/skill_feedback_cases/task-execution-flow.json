@@ -7,8 +7,8 @@
       "cause_class": "decision_procedure",
       "feedback": {
         "trigger": "Approved multi-step work still has feasible authorized actions.",
-        "actual_behavior": "The agent reports partial progress and ends its turn, requiring repeated requests to continue.",
-        "expected_behavior": "Show a stable checklist, update verified items, and continue to the next safe authorized action.",
+        "actual_behavior": "The agent reports fragments, renames tasks at closeout and ends early; the user must reconstruct progress or request continuation.",
+        "expected_behavior": "Show the full checklist with unchanged IDs and titles at milestones and closeout, update verified items and continue safe authorized work.",
         "invariant": "Progress reporting and incomplete verification do not by themselves justify ending execution.",
         "evidence_ref": "sanitized:SOW_20261103_81728644-continuation"
       },
@@ -17,8 +17,8 @@
           "kind": "expected",
           "request": "Finish the approved multi-step change and verification.",
           "context": "One item passes, an in-scope repair appears, and verification remains feasible; later evidence invalidates an earlier pass.",
-          "expected_behavior": "Show the initial checklist, mark verified items done, append the repair, reopen invalidated items with a reason, and continue. Reuse Progress IDs; later updates show only changes and the next action.",
-          "must_not": "End after a progress report, mark an unverified item done, or maintain a second independent state list."
+          "expected_behavior": "Show the full current checklist at start, meaningful milestones and closeout, keeping IDs and titles. Mark verified items done, append repairs, reopen invalidated items with a reason and continue; reuse Progress state.",
+          "must_not": "Send fragments requiring history reconstruction, rename tasks at closeout, mark unverified work done, end after reporting or create a second state list."
         },
         {
           "kind": "negative",
@@ -32,7 +32,7 @@
           "request": "Only review the SOW; do not implement. Later, handle a one-step edit or stop when requested.",
           "context": "Review handoff completes the current request; some tasks are SOW-exempt, and tools have real execution limits.",
           "expected_behavior": "Finish at the requested review boundary, respect user stops and actual tool limits, omit a ceremonial checklist for a one-step task, and keep exempt multi-step tracking in chat only.",
-          "must_not": "Implement from review authority, create a SOW solely for tracking, repeat the full checklist on every resume, or promise execution outside the available turn."
+          "must_not": "Implement from review authority, create a SOW solely for tracking, repeat an unchanged checklist after every tool call or promise execution outside the available turn."
         }
       ]
     },

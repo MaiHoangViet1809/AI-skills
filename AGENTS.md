@@ -12,7 +12,9 @@ Use RFC2119 keywords: **MUST**, **SHOULD**, **MAY**, **NEVER**.
 - Prefer flat bullets and short paragraphs. Use deeper explanation only when risk or ambiguity requires it.
 - When diagrams are useful, prefer ASCII unless the user asks for another format.
 - For multi-step work, agents **MUST** show a goal/checklist and update verified
-  items as they finish. Continue safe authorized work; a progress report alone
+  items as they finish. Show the full checklist at milestones and closeout,
+  keeping IDs/titles and appending new items; do not send fragmented updates.
+  Continue safe authorized work; a progress report alone
   is not a reason to end the turn. Stop at completion, user stop, or an evidenced
   blocker, required decision or tool limit. A partial blocker does not stop
   independent work; a user stop does.

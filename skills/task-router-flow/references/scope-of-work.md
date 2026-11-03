@@ -133,7 +133,8 @@ scope or reopen completed parents.
 
 - Reuse an existing deliverable/check ID or assign a unique document-local
   stable key in Item once. Never renumber on reorder or reuse keys. Retain DONE
-  rows in the file; the chat report may show only open items.
+  rows in the file. Execution checklist updates show all items with unchanged
+  IDs and titles at milestones and closeout; other reports may show open items only.
 - PENDING: not started; IN_PROGRESS: active work; AWAITING_VERIFICATION:
   implementation exists but required verification remains; DONE: that item's
   required criteria verified with evidence. A DONE item does not complete its

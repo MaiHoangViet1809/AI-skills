@@ -4,11 +4,12 @@
 - **Approval**: approved by user
 - **create_dttm**: 2026-11-03T10:36:56+07:00
 - **approve_dttm**: 2026-11-03T10:43:18+07:00
-- **finish_dttm**: 2026-11-03T10:45:39+07:00
+- **finish_dttm**: 2026-11-03T11:01:35+07:00
 - **Task**: Bổ sung checklist cập nhật theo tiến độ và quy tắc tiếp tục thực thi, không dừng chỉ để báo cáo.
 - **Why**: User phải nhắc tiếp tục nhiều lần dù việc đã được duyệt còn dang dở; checklist cần cho thấy đang làm gì và còn gì.
 - **Proposed-By**: Codex
 - **Plan / Reference**: Standalone; kế thừa HITL Progress và SOW_20261102_14C42EC0, không thay thế journal hiện có.
+- **Extensions**: 1. EXT_3AF67539 — DONE, full checklist snapshot; lần đóng trước: 2026-11-03T10:45:39+07:00, commit `44ac22a`.
 
 ## Location
 
@@ -44,7 +45,7 @@ Mục tiêu + checklist [ ] -> làm -> kiểm chứng -> [x] -> mục tiếp the
 1. Với task nhiều bước, trước khi làm nêu mục tiêu ngắn và checklist `[ ]`. Task một bước không cần checklist hình thức.
 2. Mỗi mục có ID ổn định. Chỉ đổi `[ ]` thành `[x]` khi đạt kiểm chứng của mục đó; đang làm/chờ verify vẫn `[ ]`, kèm trạng thái ngắn.
 3. Việc phát sinh trong scope: thêm dòng mới rồi tiếp tục. Việc ngoài scope chỉ ghi đề xuất/chờ duyệt; thêm checklist không cấp quyền làm. Giữ các mục đã xong, không đánh lại số hoặc xóa lịch sử. Nếu evidence mất hiệu lực, mở lại đúng mục và ghi lý do.
-4. Dùng Progress của SOW/EXT đang có để lưu các mục; giữ trạng thái/evidence theo contract project. Checklist chat tham chiếu cùng ID, không tạo danh sách trạng thái độc lập hoặc journal mới. Khi bắt đầu task hiện toàn bộ checklist; khi tiếp tục chỉ báo mục thay đổi và bước tiếp theo, trừ khi user hỏi toàn bộ. Task được miễn SOW chỉ dùng checklist chat, không tạo hồ sơ mới.
+4. Dùng Progress hiện có làm nguồn trạng thái. Khi bắt đầu, tại mốc tiến độ và khi kết thúc, hiện toàn bộ checklist cùng ID/tên; chỉ đổi trạng thái hoặc thêm mục mới. Không gửi từng mảnh buộc user ghép lịch sử; không lặp mỗi tool call. Task miễn SOW chỉ theo dõi trong chat.
 5. Sau mỗi mục hoặc finding trong scope, làm tiếp việc an toàn kế tiếp. Commentary, mini-task PASS hoặc kết quả delegate không tự thành điểm kết thúc lượt.
 6. Chỉ dừng khi hoàn tất phạm vi yêu cầu hiện tại, user yêu cầu, hết khả năng công cụ thực tế, hoặc có blocker/decision cần bên ngoài. Nêu evidence, việc bị chặn và điều cần giải quyết; tiếp tục phần độc lập còn làm được. Không hỏi lại quyền đã có, không retry vô hạn. Yêu cầu chỉ review/tạo SOW kết thúc ở bàn giao đó, không tự triển khai.
 7. `TEMPLATE_AGENTS.md` và `AGENTS.md` chỉ giữ nguyên tắc ngắn về checklist và tiếp tục trong scope; chi tiết nằm trong skill. Không sao chép cả workflow sang policy.
@@ -79,12 +80,12 @@ Mục tiêu + checklist [ ] -> làm -> kiểm chứng -> [x] -> mục tiếp the
 
 ## Review hiện tại
 
-- Đã sửa: không in lại checklist mỗi lượt; task miễn SOW không tạo hồ sơ mới; checklist không cấp quyền mở rộng scope; trạng thái chưa verify không phải lý do tự dừng khi còn việc khả thi.
+- EXT_3AF67539 thay rule chỉ báo phần thay đổi bằng snapshot đầy đủ; các ranh giới miễn SOW, approval và verification giữ nguyên.
 - Đã đối chiếu canonical execution skill, HITL Progress, policy template và journal contract; không đổi approval hoặc tạo state store thứ hai. Hành vi Agent sau sửa chưa được kiểm chứng.
 
 ## Progress
 
-- **progress_updated_dttm**: 2026-11-03T10:45:39+07:00
+- **progress_updated_dttm**: 2026-11-03T11:01:35+07:00
 
 | Item | Status | Evidence / Pending reason | Next action / Owner |
 | --- | --- | --- | --- |
@@ -92,6 +93,7 @@ Mục tiêu + checklist [ ] -> làm -> kiểm chứng -> [x] -> mục tiếp the
 | T2: Self-review và review cuối | DONE | Đã sửa các điểm dễ hiểu sai; user đã duyệt | Không còn |
 | T3: Implement và verify | DONE | Canonical skill/policy đã sửa; validator và 21 tests PASS | Không còn |
 | T4: Double-check và scoped delivery | DONE | Đã sửa điểm dễ hiểu sai về user Stop; commit riêng hunk thuộc SOW, giữ nguyên Redmine | Không còn; không sync/push |
+| EXT_3AF67539 | DONE | Full snapshot rule và case đã sửa; validator + 21 tests PASS, double-check | Không còn; xem EXT |
 
 ## Verification / Delivery
 
