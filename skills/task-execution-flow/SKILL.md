@@ -20,7 +20,7 @@ recorded lifecycle; conversion requires a separate approved migration SOW.
 Use this skill after routing is already done.
 
 This skill is for execution discipline, implementation verification, and closeout state.
-It is not for deciding the task branch and not for reporting progress format.
+It does not choose the task branch; checklist tracking complements the project's progress contract.
 
 ## Use This Skill When
 
@@ -53,6 +53,26 @@ Persist owned SOW/EXT and optional Plan changes and read back before handing
 control to the human. Missing contract leaves dependent tracking unverified;
 do not invent or auto-install it, or create a SOW for exempt work.
 File writeback does not invoke task-progress-report per handoff.
+
+## Checklist And Continuation
+
+- For multi-step work, state the goal and show a `[ ]` checklist before acting.
+  Use stable item IDs from existing SOW/EXT Progress; exempt work stays in chat.
+  Skip ceremonial tracking for a one-step task.
+- Change an item to `[x]` only after its required checks pass. Keep pending work
+  unchecked with a short status; reopen invalidated items with a reason.
+- Append in-scope discoveries without deleting or renumbering completed items.
+  Extra scope stays pending approval; adding a line grants no authority.
+- Save milestone changes in existing Progress using the same IDs and evidence,
+  not a second state store. After the initial list, report only changed items
+  and the next action unless the user requests the full list.
+- After each item or in-scope finding, take the next safe authorized action.
+  A status update, slice PASS or delegate result is not a stopping point.
+- End only when the requested scope is complete, the user stops, or an evidenced
+  blocker, required decision or actual tool limit prevents further safe work.
+  For a partial blocker, finish independent work first and report what is needed.
+  Do not re-ask granted approval, retry indefinitely or promise work beyond the turn.
+  Review-only requests still end at the review handoff, not implementation.
 
 ## Core Rules
 
@@ -157,6 +177,7 @@ Phase 1: context and experiment
 -> inspect adjacent scope only to confirm impact or the same proven defect;
    inspection does not expand authorized implementation scope
 -> break the work into the smallest meaningful mini-tasks
+-> publish the initial goal/checklist under Checklist And Continuation
 -> for a generic or framework-wide contract change, enumerate every discoverable
    direct caller/declaration in the declared source scope
 -> record each caller's approved, legacy, or boundary disposition in the
@@ -367,7 +388,8 @@ If verification cannot be completed:
 
 - do not present the task as finished
 - explicitly say what remains unverified
-- stop at `implemented but not fully verified`
+- retain `implemented but not fully verified`; continue feasible authorized
+  checks or repairs before applying Checklist And Continuation's stopping rule
 
 ## Verification Severity
 

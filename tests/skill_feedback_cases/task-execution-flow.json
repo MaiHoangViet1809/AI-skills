@@ -2,6 +2,41 @@
   "schema_version": 1,
   "cases": [
     {
+      "id": "execution-checklist-continuation-001",
+      "target_skill": "task-execution-flow",
+      "cause_class": "decision_procedure",
+      "feedback": {
+        "trigger": "Approved multi-step work still has feasible authorized actions.",
+        "actual_behavior": "The agent reports partial progress and ends its turn, requiring repeated requests to continue.",
+        "expected_behavior": "Show a stable checklist, update verified items, and continue to the next safe authorized action.",
+        "invariant": "Progress reporting and incomplete verification do not by themselves justify ending execution.",
+        "evidence_ref": "sanitized:SOW_20261103_81728644-continuation"
+      },
+      "scenarios": [
+        {
+          "kind": "expected",
+          "request": "Finish the approved multi-step change and verification.",
+          "context": "One item passes, an in-scope repair appears, and verification remains feasible; later evidence invalidates an earlier pass.",
+          "expected_behavior": "Show the initial checklist, mark verified items done, append the repair, reopen invalidated items with a reason, and continue. Reuse Progress IDs; later updates show only changes and the next action.",
+          "must_not": "End after a progress report, mark an unverified item done, or maintain a second independent state list."
+        },
+        {
+          "kind": "negative",
+          "request": "Continue while one acceptance check needs an unavailable external dependency.",
+          "context": "Independent authorized checks remain possible; an optional scope expansion is also suggested.",
+          "expected_behavior": "Finish independent checks, report the remaining blocker with evidence and needed action, and leave extra scope pending approval. Stop bounded failed retries when no safe progress remains.",
+          "must_not": "Halt all work prematurely, treat a checklist addition as approval, bypass safety, retry indefinitely, or claim completion."
+        },
+        {
+          "kind": "boundary",
+          "request": "Only review the SOW; do not implement. Later, handle a one-step edit or stop when requested.",
+          "context": "Review handoff completes the current request; some tasks are SOW-exempt, and tools have real execution limits.",
+          "expected_behavior": "Finish at the requested review boundary, respect user stops and actual tool limits, omit a ceremonial checklist for a one-step task, and keep exempt multi-step tracking in chat only.",
+          "must_not": "Implement from review authority, create a SOW solely for tracking, repeat the full checklist on every resume, or promise execution outside the available turn."
+        }
+      ]
+    },
+    {
       "id": "execution-planning-writing-001",
       "target_skill": "task-execution-flow",
       "cause_class": "decision_procedure",

@@ -138,6 +138,10 @@ scope or reopen completed parents.
   implementation exists but required verification remains; DONE: that item's
   required criteria verified with evidence. A DONE item does not complete its
   SOW/Plan. Each non-done row needs an actual reason and next action/owner.
+- An execution checklist presents these same items and IDs: `[x]` only for DONE,
+  otherwise `[ ]` with a short status. Append new items; retain completed ones
+  and explain reopened states. Do not create a second state store or a SOW for
+  exempt work merely to track it. Project-declared progress contracts still win.
 - BLOCKED: external/dependency impediment; WAITING_HITL: required human input
   or decision. If both apply, use WAITING_HITL and explain both. User-requested
   pause uses WAITING_HITL, reason user-paused, next action user resume; stop the
